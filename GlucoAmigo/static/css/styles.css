@@ -1,0 +1,1068 @@
+/* ═══════════════════════════════════════════════════════════════
+   GlucoAmigo Premium v4.0 · styles.css
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+
+:root {
+    /* === Premium Color Palette === */
+    --primary: #0d9488;
+    --primary-light: #f0fdfa;
+    --primary-dark: #0f766e;
+    --primary-mid: #14b8a6;
+    --primary-glow: rgba(13, 148, 136, 0.25);
+
+    --accent-amber: #f59e0b;
+    --accent-indigo: #6366f1;
+    --accent-rose: #f43f5e;
+    --accent-sky: #0ea5e9;
+    --accent-violet: #8b5cf6;
+
+    /* === Gradient Magic === */
+    --grad-primary: linear-gradient(135deg, #0d9488 0%, #0ea5e9 100%);
+    --grad-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    --grad-cool: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    --grad-hero: linear-gradient(135deg, #f97316 0%, #f59e0b 100%);
+    --grad-bg: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 50%, #f8fafc 100%);
+
+    /* === Glassmorphism === */
+    --surface: rgba(255, 255, 255, 0.82);
+    --surface-glass: rgba(255, 255, 255, 0.55);
+    --surface-hover: rgba(255, 255, 255, 0.92);
+    --border-glass: rgba(255, 255, 255, 0.4);
+    --border-soft: rgba(226, 232, 240, 0.8);
+
+    /* === Typography === */
+    --text-main: #0f172a;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
+    --text-subtle: #94a3b8;
+
+    /* === Shadows === */
+    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 24px 48px rgba(0, 0, 0, 0.10), 0 8px 16px rgba(0, 0, 0, 0.06);
+    --shadow-primary: 0 16px 40px rgba(13, 148, 136, 0.22);
+    --shadow-amber: 0 16px 40px rgba(245, 158, 11, 0.22);
+
+    /* === Border Radius === */
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --radius-2xl: 40px;
+}
+
+/* ═══════════════════════════════════════
+   BASE RESET & TYPOGRAPHY
+═══════════════════════════════════════ */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
+    background: var(--grad-bg);
+    background-attachment: fixed;
+    color: var(--text-main);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+}
+
+/* Animated background orbs */
+body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(13, 148, 136, 0.06) 0%, transparent 70%);
+    z-index: -2;
+    animation: orbFloat 20s ease-in-out infinite;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+    z-index: -2;
+    animation: orbFloat 25s ease-in-out infinite reverse;
+}
+
+@keyframes orbFloat {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(2%, 3%) scale(1.05);
+    }
+
+    66% {
+        transform: translate(-2%, -2%) scale(0.97);
+    }
+}
+
+/* ═══════════════════════════════════════
+   GLASSMORPHISM CARDS
+═══════════════════════════════════════ */
+.glass-card {
+    background: var(--surface);
+    backdrop-filter: blur(16px) saturate(200%);
+    -webkit-backdrop-filter: blur(16px) saturate(200%);
+    border: 1px solid var(--border-glass);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-lg);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    background: var(--surface-hover);
+    border-color: rgba(13, 148, 136, 0.15);
+}
+
+/* ═══════════════════════════════════════
+   SIDEBAR — Agro-Master Icon System
+═══════════════════════════════════════ */
+.sidebar {
+    background: linear-gradient(180deg, #0f172a 0%, #1a2744 100%) !important;
+    border-right: none !important;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+.sidebar-logo-box {
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.3), rgba(14, 165, 233, 0.2));
+    border: 1px solid rgba(13, 148, 136, 0.35);
+    box-shadow: 0 8px 20px rgba(13, 148, 136, 0.2);
+}
+
+.sidebar-brand-name {
+    color: #ffffff !important;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+}
+
+.sidebar-brand-sub {
+    color: #5eead4 !important;
+}
+
+/* Section labels — identical to Agro "Gestión Central" style */
+.sidebar-section-label {
+    color: rgba(94, 234, 212, 0.35) !important;
+    font-size: 0.625rem !important;
+    letter-spacing: 0.2em !important;
+    text-transform: uppercase;
+    font-weight: 900 !important;
+}
+
+/* ═══════════════════════════════════════
+   NAV-ITEM — Agro-Master exact pattern
+   Icons: fas fa-X w-8 text-lg text-[color]-400
+   group-hover:text-white + scale(1.25) rotate(-5deg)
+   Active: border-left 5px solid #14b8a6
+═══════════════════════════════════════ */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 16px;
+    border-radius: 14px;
+    margin: 2px 10px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    color: #94a3b8;
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-decoration: none;
+    position: relative;
+}
+
+/* Icon: fixed-width like Agro w-8 */
+.nav-item i {
+    width: 32px;
+    font-size: 1.1rem;
+    text-align: center;
+    flex-shrink: 0;
+    /* Agro-Master exact icon transition */
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+}
+
+/* HOVER — icon scale + rotate (exact Agro pattern) */
+.nav-item:hover i {
+    transform: scale(1.25) rotate(-5deg);
+    color: white !important;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.10);
+    color: #ffffff;
+}
+
+/* ACTIVE — left border cian (Agro uses yellow, we use cian) */
+.nav-item.active {
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 5px solid #14b8a6;
+    padding-left: 11px;
+    color: #ffffff;
+}
+
+.nav-item.active i {
+    color: #5eead4 !important;
+}
+
+/* Sidebar logout */
+.nav-item.text-rose-600 {
+    color: #f87171;
+}
+
+.nav-item.text-rose-600:hover {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #fca5a5 !important;
+}
+
+.nav-item.text-rose-600 i {
+    color: #f87171;
+}
+
+.nav-item.text-rose-600:hover i {
+    color: #fca5a5 !important;
+}
+
+/* Sidebar border dividers */
+.sidebar .border-t {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Sidebar stagger animations (exact Agro style) */
+.stagger-item {
+    opacity: 0;
+    animation: premiumFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes premiumFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+        filter: blur(3px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* Collapsible group buttons */
+.sidebar-group-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.sidebar-group-btn i {
+    transition: transform 0.3s ease;
+}
+
+/* Custom sidebar scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════
+   TOPBAR / HEADER
+═══════════════════════════════════════ */
+.main-header {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* ═══════════════════════════════════════
+   PAGE LOADING CURTAIN
+═══════════════════════════════════════ */
+#page-curtain {
+    background: linear-gradient(135deg, #0f172a 0%, #134e4a 50%, #0f172a 100%) !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#page-curtain.reveal {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.05);
+}
+
+.curtain-logo {
+    font-size: 5rem;
+    color: #5eead4;
+    filter: drop-shadow(0 0 30px rgba(94, 234, 212, 0.5));
+    animation: curtainFloat 3s ease-in-out infinite;
+}
+
+.curtain-ring {
+    width: 120px;
+    height: 120px;
+    border: 3px solid transparent;
+    border-top-color: #14b8a6;
+    border-right-color: rgba(14, 165, 233, 0.4);
+    border-radius: 50%;
+    animation: spin 1.5s linear infinite;
+    position: absolute;
+}
+
+@keyframes curtainFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-12px) scale(1.05);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes curtainPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.12);
+        opacity: 0.75;
+    }
+}
+
+.curtain-pulse {
+    animation: curtainPulse 1.5s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════
+   KPI CARDS — Specialist Dashboard
+═══════════════════════════════════════ */
+.kpi-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface) !important;
+}
+
+.kpi-card::after {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background: radial-gradient(circle, currentColor 0%, transparent 70%);
+    opacity: 0.03;
+    transition: opacity 0.3s ease;
+}
+
+.kpi-card:hover::after {
+    opacity: 0.06;
+}
+
+.kpi-value {
+    font-size: 2.6rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+/* ═══════════════════════════════════════
+   METRIC MINI CARDS
+═══════════════════════════════════════ */
+.metric-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--radius-md);
+    padding: 18px 12px;
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-xs);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-mini::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--grad-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.metric-mini:hover::before {
+    transform: scaleX(1);
+}
+
+.metric-mini:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(13, 148, 136, 0.15);
+}
+
+.metric-emoji {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.metric-mini:hover .metric-emoji {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.metric-value {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--text-main);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.metric-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 3px;
+}
+
+/* ═══════════════════════════════════════
+   GAMIFICATION — XP / PROGRESS
+═══════════════════════════════════════ */
+.progress-container {
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24, #fde68a);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ═══════════════════════════════════════
+   HERO AVATAR
+═══════════════════════════════════════ */
+.hero-avatar-container {
+    position: relative;
+    display: inline-block;
+}
+
+.hero-avatar-container::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 10%;
+    width: 80%;
+    height: 10px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.animate-float {
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+}
+
+/* ═══════════════════════════════════════
+   BUTTONS — Premium
+═══════════════════════════════════════ */
+.btn-premium {
+    background: var(--grad-primary);
+    color: white;
+    font-weight: 800;
+    padding: 14px 28px;
+    border-radius: 18px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 24px rgba(13, 148, 136, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-premium:hover::before {
+    left: 100%;
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 16px 32px rgba(13, 148, 136, 0.4);
+}
+
+.btn-premium:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* ═══════════════════════════════════════
+   REMINDER CARDS
+═══════════════════════════════════════ */
+.reminder-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 16px;
+    border: 1px solid rgba(226, 232, 240, 0.7);
+    box-shadow: var(--shadow-xs);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.reminder-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--grad-primary);
+    border-radius: 3px 0 0 3px;
+}
+
+.reminder-card:hover {
+    transform: translateX(4px) translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.reminder-icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 2px 4px rgba(13, 148, 136, 0.2));
+}
+
+.reminder-title {
+    font-weight: 800;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.reminder-time {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+/* ═══════════════════════════════════════
+   EMOJI OPTION BUTTONS
+═══════════════════════════════════════ */
+.emoji-opt {
+    font-size: 2.8rem;
+    cursor: pointer;
+    padding: 14px 18px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: var(--shadow-xs);
+}
+
+.emoji-opt:hover,
+.emoji-opt.selected {
+    transform: scale(1.25) translateY(-4px);
+    border-color: #0d9488;
+    background: var(--primary-light);
+    box-shadow: 0 12px 24px rgba(13, 148, 136, 0.15);
+}
+
+/* ═══════════════════════════════════════
+   FAB - Floating Action Button
+═══════════════════════════════════════ */
+.fab-main {
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    width: 64px;
+    height: 64px;
+    background: var(--grad-primary);
+    color: white;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 12px 32px rgba(13, 148, 136, 0.45);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab-main:hover {
+    transform: scale(1.12) rotate(8deg);
+    box-shadow: 0 20px 48px rgba(13, 148, 136, 0.55);
+}
+
+.fab-main:active {
+    transform: scale(0.92);
+}
+
+@media (min-width: 768px) {
+    .fab-main {
+        bottom: 32px;
+        right: 32px;
+    }
+}
+
+/* ═══════════════════════════════════════
+   TABLES
+═══════════════════════════════════════ */
+table thead tr {
+    background: rgba(248, 250, 252, 0.9) !important;
+}
+
+table thead th {
+    color: #64748b !important;
+    font-weight: 800 !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+table tbody tr {
+    transition: background 0.2s ease;
+}
+
+table tbody tr:hover {
+    background: rgba(240, 253, 250, 0.6) !important;
+}
+
+/* ═══════════════════════════════════════
+   INPUTS — Med Style Overrides
+═══════════════════════════════════════ */
+.med-input {
+    background: white !important;
+    border: 1.5px solid #e2e8f0 !important;
+    color: var(--text-main) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 12px 16px !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    width: 100% !important;
+    transition: all 0.3s ease !important;
+    font-family: inherit !important;
+}
+
+.med-input:focus {
+    outline: none !important;
+    border-color: #0d9488 !important;
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1) !important;
+    transform: translateY(-1px) !important;
+}
+
+.med-input::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* ═══════════════════════════════════════
+   SECTION TRANSITIONS
+═══════════════════════════════════════ */
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+    animation: sectionIn 0.55s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+@keyframes sectionIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot));
+        opacity: 0;
+    }
+}
+
+.animate-confetti {
+    animation: confetti-fall linear forwards;
+}
+
+@keyframes modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modal-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+.animate-modal-in {
+    animation: modal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-modal-out {
+    animation: modal-out 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes pulse-med {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.animate-pulse-med {
+    animation: pulse-med 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ═══════════════════════════════════════
+   ALERT / BADGE DESIGNS
+═══════════════════════════════════════ */
+@keyframes pulseRed {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+    }
+
+    70% {
+        box-shadow: 0 0 0 14px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.pulse-red {
+    animation: pulseRed 2.2s infinite;
+}
+
+/* ═══════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════ */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(13, 148, 136, 0.45);
+}
+
+/* ═══════════════════════════════════════
+   BOTTOM NAV — Mobile
+═══════════════════════════════════════ */
+.bottom-nav {
+    display: none;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(226, 232, 240, 0.7) !important;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+@media(max-width: 768px) {
+    .sidebar {
+        transform: translateX(-270px);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .bottom-nav {
+        display: flex !important;
+    }
+}
+
+/* ═══════════════════════════════════════
+   GAME CARDS
+═══════════════════════════════════════ */
+.game-card {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.game-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    background: radial-gradient(circle at bottom right, rgba(13, 148, 136, 0.06), transparent);
+    transition: opacity 0.3s ease;
+}
+
+.game-card:hover::after {
+    opacity: 1;
+}
+
+/* ═══════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════ */
+.text-balance {
+    text-wrap: balance;
+}
+
+.badge-glow {
+    animation: badgePop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+    from {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 768px) {
+    .glass-card {
+        border-radius: var(--radius-md);
+    }
+
+    :root {
+        --radius-lg: 20px;
+        --radius-xl: 24px;
+    }
+}
+
+/* ═══════════════════════════════════════
+   PREMIUM AGRO-MASTER UTILS
+═══════════════════════════════════════ */
+
+/* Animación de entrada escalonada */
+.stagger-item {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: staggerIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes staggerIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efecto Hover Levantamiento */
+.hover-lift {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* Transición suave para tarjetas */
+.card-transition {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sombra Premium */
+.shadow-premium {
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03), 0 20px 40px -10px rgba(0, 0, 0, 0.04);
+}
+
+/* Iconos rotados para Headers (Agro-Pattern) */
+.icon-rotated {
+    transform: rotate-6;
+    transition: transform 0.3s ease;
+}
+
+.icon-rotated:hover {
+    transform: rotate(0deg) scale(1.1);
+}
+
+/* Scrollbar Custom (Agro Style) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(203, 213, 225, 0.4);
+    border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.6);
+}

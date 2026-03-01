@@ -1,0 +1,32 @@
+{# ═══════════════════════════════════════
+COMPONENTE: Pantalla de Carga (Curtain)
+Incluir al inicio del
+
+<body>
+    ═══════════════════════════════════════ #}
+    <div id="page-curtain" style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 50%,#0f172a 100%);">
+        <div class="flex flex-col items-center" style="position:relative;">
+            <div
+                style="position:relative;width:140px;height:140px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+                <div class="curtain-ring"></div>
+                <div
+                    style="width:100px;height:100px;background:rgba(13,148,136,0.15);border:2px solid rgba(13,148,136,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+                    <i class="fas fa-hand-holding-medical"
+                        style="font-size:2.8rem;color:#5eead4;filter:drop-shadow(0 0 20px rgba(94,234,212,0.6));"></i>
+                </div>
+            </div>
+            <h1 style="color:white;font-weight:900;letter-spacing:0.45em;font-size:1.5rem;margin-bottom:8px;">GLUCOAMIGO
+            </h1>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div
+                    style="width:6px;height:6px;background:#14b8a6;border-radius:50%;animation:curtainPulse 1.2s ease-in-out infinite;">
+                </div>
+                <p
+                    style="color:#5eead4;font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.15em;">
+                    Sincronizando Sistema Experto</p>
+                <div
+                    style="width:6px;height:6px;background:#14b8a6;border-radius:50%;animation:curtainPulse 1.2s ease-in-out infinite 0.4s;">
+                </div>
+            </div>
+        </div>
+    </div>

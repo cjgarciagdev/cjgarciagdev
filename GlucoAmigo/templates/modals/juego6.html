@@ -1,0 +1,47 @@
+<div class="text-center">
+        <h2 class="text-2xl font-bold mb-4 text-slate-800">El Laberinto del Dragón 🐉</h2>
+        <p class="mb-4 text-slate-600">¡Guía al pequeño dragón hacia la fruta saludable!</p>
+        <div id="maze-container"
+                class="relative w-64 h-64 bg-slate-800 rounded-3xl mx-auto border-4 border-slate-700 flex items-center justify-center mb-6">
+                <div id="dragon" class="absolute text-3xl transition-all" style="top: 10px; left: 10px;">🐉</div>
+                <div id="target" class="absolute text-3xl" style="bottom: 10px; right: 10px;">🍎</div>
+                <!-- Obstáculos -->
+                <div class="absolute bg-slate-600 rounded-full"
+                        style="width: 40px; height: 40px; top: 100px; left: 50px;">
+                </div>
+                <div class="absolute bg-slate-600 rounded-full"
+                        style="width: 40px; height: 40px; top: 40px; left: 150px;">
+                </div>
+                <div class="absolute bg-slate-600 rounded-full"
+                        style="width: 40px; height: 40px; bottom: 60px; right: 80px;">
+                </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2 w-32 mx-auto mb-4">
+                <div></div><button onclick="moveDragon(0,-20)" class="bg-slate-200 p-3 rounded-xl">⬆️</button>
+                <div></div>
+                <button onclick="moveDragon(-20,0)" class="bg-slate-200 p-3 rounded-xl">⬅️</button>
+                <button onclick="moveDragon(0,20)" class="bg-slate-200 p-3 rounded-xl">⬇️</button>
+                <button onclick="moveDragon(20,0)" class="bg-slate-200 p-3 rounded-xl">➡️</button>
+        </div>
+        <button class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl"
+                onclick="finalizarJuego(6)">Terminar</button>
+</div>
+<script>
+        const drag = document.getElementById('dragon');
+        let dPos = { x: 10, y: 10 };
+
+        function moveDragon(dx, dy) {
+                dPos.x = Math.max(0, Math.min(220, dPos.x + dx));
+                dPos.y = Math.max(0, Math.min(220, dPos.y + dy));
+                drag.style.left = dPos.x + 'px';
+                drag.style.top = dPos.y + 'px';
+        }
+
+        function finalizarJuego(id) {
+                // Puntos basados en cercanía al target
+                const dist = Math.sqrt((dPos.x - 220) ** 2 + (dPos.y - 220) ** 2);
+                const puntos = Math.max(0, 10 - Math.floor(dist / 30));
+                registrarPuntuacion(id, puntos);
+                document.getElementById('modal-juego-overlay').remove();
+        }
+</script>

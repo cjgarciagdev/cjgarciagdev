@@ -1,0 +1,12 @@
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.3
+Werkzeug==3.0.3
+xlsxwriter==3.2.0
+reportlab==4.2.0
+
+# runtime dependencies for deployment
+gunicorn==21.2.0
+# used by Postgres drivers; neon or render db needs a postgres adapter
+psycopg2-binary>=2.9.11
+python-dotenv==1.1.0

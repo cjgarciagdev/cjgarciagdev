@@ -1,0 +1,46 @@
+<div class="text-center">
+    <h2 class="text-2xl font-bold mb-4 text-slate-800">Rompecabezas Rápido 🧩</h2>
+    <p class="mb-4 text-slate-600">Haz clic en las piezas para moverlas al espacio vacío y ordenarlas (1 al 7).</p>
+    <div id="puzzle" class="grid grid-cols-3 gap-2 w-64 mx-auto mb-6">
+        <!-- 7 piezas + 2 vacías -->
+        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="1">1</div>
+        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="2">2</div>
+        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="3">3</div>
+        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="4">4</div>
+        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="5">5</div>
+        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="6">6</div>
+        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="7">7</div>
+        <div class="pieza empty w-full h-16 border-2 border-dashed border-slate-300 rounded"></div>
+        <div class="pieza empty w-full h-16 border-2 border-dashed border-slate-300 rounded"></div>
+    </div>
+    <button
+        class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg"
+        onclick="finalizarJuego(1)">¡Completar y Ganar Puntos!</button>
+</div>
+<script>
+    let p1_movimientos = 0;
+    // Lógica básica de intercambio (para el demo, cualquier click intercambia con una vacía al azar)
+    document.querySelectorAll('#puzzle .pieza:not(.empty)').forEach(p => {
+        p.addEventListener('click', () => {
+            const emptyNodes = document.querySelectorAll('#puzzle .empty');
+            if (emptyNodes.length > 0) {
+                const empty = emptyNodes[0];
+                empty.classList.remove('empty', 'border-2', 'border-dashed', 'border-slate-300');
+                empty.classList.add('bg-teal-100', 'p-4', 'cursor-pointer', 'text-xl', 'font-bold', 'text-teal-800');
+                empty.textContent = p.textContent;
+
+                p.classList.remove('bg-teal-100', 'p-4', 'cursor-pointer', 'text-xl', 'font-bold', 'text-teal-800');
+                p.classList.add('empty', 'border-2', 'border-dashed', 'border-slate-300');
+                p.textContent = '';
+
+                p1_movimientos++;
+            }
+        });
+    });
+
+    function finalizarJuego(id) {
+        const puntos = Math.max(0, 10 - Math.floor(p1_movimientos / 2)); // Menos mov = más puntos
+        registrarPuntuacion(id, puntos);
+        document.getElementById('modal-juego-overlay').remove();
+    }
+</script>

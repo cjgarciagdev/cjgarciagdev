@@ -1,0 +1,24 @@
+{# ════════════════════════════════════════════
+SECCIÓN: Gestión de Pacientes (Ficha Clínica)
+ID: sec-pacientes | Rol: especialista/admin
+════════════════════════════════════════════ #}
+<section id="sec-pacientes" class="content-section">
+    <div class="mb-8 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div
+                class="bg-gradient-to-br from-cyan-500 to-blue-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                <i class="fas fa-child text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Gestión de Pacientes</h2>
+                <p class="text-slate-500 font-medium text-sm">Fichas clínicas de los niños del estudio</p>
+            </div>
+        </div>
+    </div>
+    <div id="cards-pacientes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="text-center text-slate-500 col-span-3 py-12">
+            <i class="fas fa-circle-notch fa-spin text-cyan-400 text-2xl mb-4"></i>
+            <p class="text-[10px] font-black uppercase tracking-widest">Cargando fichas de pacientes...</p>
+        </div>
+    </div>
+</section>

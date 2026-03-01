@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box glassmorphism">
+        <h2>Módulo 1: Gestión de Identidad y Díada</h2>
+        <h4>Submódulo de Registro Parental</h4>
+
+        <form method="POST" action="{{ url_for('auth.registro_parental') }}">
+            <div class="input-group">
+                <label>Nombre del Cuidador</label>
+                <input type="text" name="nombre" required>
+            </div>
+            <div class="input-group">
+                <label>Cédula</label>
+                <input type="text" name="cedula" required>
+            </div>
+            <div class="input-group">
+                <label>Usuario</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="input-group">
+                <label>Contraseña</label>
+                <input type="password" name="password" required>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" name="consentimiento" required id="consent">
+                <label for="consent">Firma Digital: Acepto el consentimiento informado legal.</label>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Registrar Cuidador</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

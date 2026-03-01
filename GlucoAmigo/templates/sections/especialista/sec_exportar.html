@@ -1,0 +1,42 @@
+{# ════════════════════════════════════════════
+SECCIÓN: Generar Reportes — Exportar
+ID: sec-exportar | Rol: especialista/admin
+════════════════════════════════════════════ #}
+<section id="sec-exportar" class="content-section">
+    <div class="mb-8 flex items-center gap-4">
+        <div
+            class="bg-gradient-to-br from-indigo-500 to-violet-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+            <i class="fas fa-file-export text-white text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Generar Reportes</h2>
+            <p class="text-slate-500 font-medium text-sm">Exporta datos del estudio para análisis estadístico</p>
+        </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-8">
+        <div class="glass-card rounded-3xl p-10 text-center hover:border-teal-200">
+            <div class="w-24 h-24 bg-teal-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <span class="text-5xl">📊</span>
+            </div>
+            <h4 class="text-2xl font-black text-slate-800 mb-2">Dataset Excel</h4>
+            <p class="text-slate-700 text-sm mb-8 px-4">Variables clínicas y psicológicas listas para análisis
+                estadístico en SPSS o Excel.</p>
+            <a href="/api/panel/export/excel"
+                class="inline-flex items-center gap-2 bg-teal-600 text-white font-black py-4 px-10 rounded-2xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-95">
+                <i class="fas fa-file-excel"></i>Exportar Excel
+            </a>
+        </div>
+        <div class="glass-card rounded-3xl p-10 text-center hover:border-rose-200">
+            <div class="w-24 h-24 bg-rose-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <span class="text-5xl">📄</span>
+            </div>
+            <h4 class="text-2xl font-black text-slate-800 mb-2">Informe Clínico PDF</h4>
+            <p class="text-slate-700 text-sm mb-8 px-4">Resumen formal de resultados del estudio para archivos
+                hospitalarios.</p>
+            <a href="/api/panel/export/pdf"
+                class="inline-flex items-center gap-2 bg-rose-600 text-white font-black py-4 px-10 rounded-2xl hover:bg-rose-700 transition-all shadow-lg shadow-rose-600/20 active:scale-95">
+                <i class="fas fa-file-pdf"></i>Generar Informe
+            </a>
+        </div>
+    </div>
+</section>

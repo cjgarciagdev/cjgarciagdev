@@ -1,0 +1,59 @@
+{# ════════════════════════════════════════════
+SECCIÓN: Control de Glucemia / Dosificación
+ID: sec-glucosa | Rol: padre/niño
+════════════════════════════════════════════ #}
+<section id="sec-glucosa" class="content-section">
+    <div class="mb-8 flex items-center gap-4">
+        <div
+            class="bg-gradient-to-br from-rose-500 to-red-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+            <i class="fas fa-tint text-white text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Control de Glucemia</h2>
+            <p class="text-slate-500 font-medium text-sm">Calculadora de dosis y registro de niveles</p>
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-8">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-rose-50 hover:shadow-md transition-all">
+            <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                <span class="bg-rose-100 text-rose-600 p-2 rounded-xl"><i class="fas fa-plus-circle"></i></span>
+                Nueva Medición
+            </h4>
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Valor
+                        Glucemia (mg/dL)</label>
+                    <input type="number" id="input-glucemia" placeholder="Ej: 140"
+                        class="med-input text-lg py-4 border-slate-100 focus:border-rose-400">
+                </div>
+                <div>
+                    <label
+                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Carbohidratos
+                        (g)</label>
+                    <input type="number" id="input-carbos" placeholder="Ej: 45"
+                        class="med-input text-lg py-4 border-slate-100 focus:border-rose-400">
+                </div>
+                <div>
+                    <label class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Momento
+                        del día</label>
+                    <select id="input-momento" class="med-input border-slate-100 focus:border-rose-400">
+                        <option value="ayunas">🌅 En ayunas</option>
+                        <option value="pre-almuerzo">🍽️ Antes de almorzar</option>
+                        <option value="post-almuerzo">🍗 Después de almorzar</option>
+                        <option value="pre-cena">🌙 Antes de cenar</option>
+                        <option value="post-cena">🌛 Después de cenar</option>
+                        <option value="libre">🕐 Otros</option>
+                    </select>
+                </div>
+                <button onclick="calcularDosis()"
+                    class="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white font-black py-5 rounded-2xl hover:shadow-lg hover:shadow-rose-500/30 transition-all active:scale-[0.98] text-lg">
+                    <i class="fas fa-calculator mr-2"></i>Calcular dosis
+                </button>
+            </div>
+        </div>
+        <div id="resultado-dosis-box"
+            class="bg-white p-8 rounded-[2.5rem] flex flex-col items-center justify-center hidden border-2 border-dashed border-teal-100 bg-teal-50/20">
+            <div id="resultado-dosis-content" class="text-center w-full"></div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,56 @@
+<div class="text-center">
+    <h2 class="text-2xl font-bold mb-4 text-slate-800">Burbujas de Ánimo 🫧</h2>
+    <p class="mb-4 text-slate-600">¡Haz estallar las burbujas de pensamientos positivos!</p>
+    <div id="bubble-area"
+        class="relative h-64 bg-sky-50 rounded-2xl border-2 border-sky-100 overflow-hidden cursor-crosshair">
+        <!-- Burbujas dinámicas -->
+    </div>
+    <div id="bubble-score" class="mt-4 text-sky-700 font-bold">Burbujas: 0</div>
+    <button class="w-full mt-6 bg-sky-600 text-white font-bold py-3 rounded-xl"
+        onclick="finalizarJuego(4)">¡Listo!</button>
+</div>
+<script>
+    let bubbleCount = 0;
+    const area = document.getElementById('bubble-area');
+
+    function createBubble() {
+        const b = document.createElement('div');
+        const size = 40 + Math.random() * 40;
+        b.className = 'absolute bg-white/60 backdrop-blur-sm border border-white rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg cursor-pointer';
+        b.style.width = size + 'px';
+        b.style.height = size + 'px';
+        b.style.left = Math.random() * (area.clientWidth - size) + 'px';
+        b.style.top = area.clientHeight + 'px';
+        b.innerHTML = ['✨', '🌟', '💖', '🌈', '💪', '🧠'][Math.floor(Math.random() * 6)];
+
+        area.appendChild(b);
+
+        let pos = area.clientHeight;
+        const interval = setInterval(() => {
+            pos -= 1 + Math.random() * 2;
+            b.style.top = pos + 'px';
+            if (pos < -size) {
+                clearInterval(interval);
+                b.remove();
+            }
+        }, 30);
+
+        b.onclick = () => {
+            bubbleCount++;
+            document.getElementById('bubble-score').textContent = `Burbujas: ${bubbleCount}`;
+            clearInterval(interval);
+            b.style.transform = 'scale(2)';
+            b.style.opacity = '0';
+            setTimeout(() => b.remove(), 200);
+        };
+    }
+
+    const spawner = setInterval(createBubble, 1000);
+
+    function finalizarJuego(id) {
+        clearInterval(spawner);
+        const puntos = Math.min(10, bubbleCount);
+        registrarPuntuacion(id, puntos);
+        document.getElementById('modal-juego-overlay').remove();
+    }
+</script>

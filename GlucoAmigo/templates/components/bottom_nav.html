@@ -1,0 +1,52 @@
+{# ════════════════════════════════════════════
+COMPONENTE: Bottom Navigation Bar (Mobile)
+Cambia según el rol del usuario
+════════════════════════════════════════════ #}
+{# FAB — Solo para padres/niños #}
+{% if current_user.rol not in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+<button class="fab-main group" onclick="showSection('glucosa')" title="Medir Glucosa Ahora">
+    <i class="fas fa-plus"></i>
+    <span
+        class="absolute right-20 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Medir
+        Glucosa</span>
+</button>
+{% endif %}
+
+{# Bottom Nav #}
+<nav
+    class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
+    {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+    <div class="grid grid-cols-4 py-3">
+        <button onclick="showSection('dashboard')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-chart-pie text-lg"></i>Dashboard</button>
+        <button onclick="showSection('pacientes')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-child text-lg"></i>Pacientes</button>
+        <button onclick="showSection('alertas')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-bell text-lg"></i>Alertas</button>
+        <button onclick="showSection('exportar')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-file-export text-lg"></i>Reportes</button>
+    </div>
+    {% else %}
+    <div class="grid grid-cols-5 py-3">
+        <button onclick="showSection('miHeroe')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-mask text-lg"></i>Héroe</button>
+        <button onclick="showSection('glucosa')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-tint text-lg"></i>Glucosa</button>
+        <button onclick="showSection('comidas')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-utensils text-lg"></i>Comida</button>
+        <button onclick="showSection('bienestar')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-smile-beam text-lg"></i>Ánimo</button>
+        <button onclick="showSection('historial')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                class="fas fa-history text-lg"></i>Notas</button>
+    </div>
+    {% endif %}
+</nav>

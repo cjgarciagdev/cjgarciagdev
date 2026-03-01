@@ -1,0 +1,96 @@
+{# ════════════════════════════════════════════
+SECCIÓN: Diario Nutricional
+ID: sec-comidas | Rol: padre/niño
+════════════════════════════════════════════ #}
+<section id="sec-comidas" class="content-section">
+    <div class="mb-8 flex items-center gap-4">
+        <div
+            class="bg-gradient-to-br from-orange-500 to-amber-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+            <i class="fas fa-utensils text-white text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Diario Nutricional</h2>
+            <p class="text-slate-500 font-medium text-sm">Registro de ingesta y conteo de carbohidratos</p>
+        </div>
+    </div>
+    {# Stats Row #}
+    <div id="nutricion-resumen" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        {% for icon, label, stat_id, color in [('🥤','Carbos','nut-carbos',''), ('🔥','Kcal','nut-calorias',''),
+        ('🥩','Prot','nut-proteinas',''), ('🧈','Grasas','nut-grasas','')] %}
+        <div
+            class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:bg-orange-50 transition-colors">
+            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">{{ icon }}</span>
+            <div class="text-lg font-black text-slate-800" id="{{ stat_id }}">0g</div>
+            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ label }}</div>
+        </div>
+        {% endfor %}
+        <div
+            class="bg-orange-600 p-4 rounded-3xl shadow-lg flex flex-col items-center text-center group transform scale-105">
+            <span class="text-2xl mb-1">🍴</span>
+            <div class="text-lg font-black text-white" id="nut-comidas">0</div>
+            <div class="text-[10px] font-black text-orange-200 uppercase tracking-widest">Hoy</div>
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-8">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                <span class="bg-orange-100 text-orange-600 p-2 rounded-xl"><i class="fas fa-apple-alt"></i></span>
+                ¿Qué comimos?
+            </h4>
+            <div class="space-y-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Tipo
+                            de comida</label>
+                        <select id="comida-tipo" class="med-input border-slate-100">
+                            <option value="desayuno">🥞 Desayuno</option>
+                            <option value="almuerzo">🍗 Almuerzo</option>
+                            <option value="cena">🥗 Cena</option>
+                            <option value="merienda">🍎 Merienda</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Gramos
+                            Carbo.</label>
+                        <input type="number" id="comida-carbos" placeholder="Ej: 40" class="med-input border-slate-100">
+                    </div>
+                </div>
+                <div>
+                    <label
+                        class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Descripción</label>
+                    <input type="text" id="comida-desc" placeholder="Ej: Pasta con queso y manzana"
+                        class="med-input border-slate-100">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Calorías</label>
+                        <input type="number" id="comida-cal" placeholder="350" class="med-input border-slate-100">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Proteínas
+                            (g)</label>
+                        <input type="number" id="comida-prot" placeholder="10" class="med-input border-slate-100">
+                    </div>
+                </div>
+                <button onclick="registrarComida()"
+                    class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-4 rounded-2xl hover:shadow-lg transition-all active:scale-[0.98]">
+                    <i class="fas fa-plus mr-2"></i>Guardar en Diario
+                </button>
+            </div>
+        </div>
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+            <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                <span class="bg-slate-100 text-slate-600 p-2 rounded-xl"><i class="fas fa-book-open"></i></span>
+                Registro de hoy
+            </h4>
+            <div id="lista-comidas" class="space-y-4 overflow-y-auto pr-2 flex-1 min-h-[300px]">
+                <div class="flex flex-col items-center justify-center h-full text-slate-400 py-6 italic text-sm">
+                    <i class="fas fa-cookie-bite text-4xl mb-4 opacity-20"></i>
+                    No has registrado ninguna comida hoy
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

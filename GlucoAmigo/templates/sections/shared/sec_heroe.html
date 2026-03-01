@@ -1,0 +1,90 @@
+{# ════════════════════════════════════════════
+SECCIÓN: Zona de Juegos — Héroe (solo para niños/padres)
+ID: sec-heroe | Rol: padre
+════════════════════════════════════════════ #}
+<section id="sec-heroe" class="content-section p-6">
+    <div class="max-w-4xl mx-auto">
+        {# Hero Banner Arcade #}
+        <div
+            class="bg-gradient-to-r from-amber-400 to-orange-500 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden mb-12 group">
+            <div
+                class="absolute -right-10 -top-10 text-[12rem] opacity-10 group-hover:scale-110 transition-transform duration-700">
+                🦸</div>
+            <div class="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                <div class="relative">
+                    <div
+                        class="w-32 h-32 bg-white/20 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center border-4 border-white/40 shadow-2xl">
+                        <img id="heroe-img-main" src="/static/img/emoji/emoji7.svg"
+                            class="w-20 h-20 drop-shadow-2xl animate-float" alt="Hero">
+                    </div>
+                    <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-slate-800 text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-white animate-pulse"
+                        id="hero-level-badge">LVL 1</div>
+                </div>
+                <div class="text-center md:text-left flex-1">
+                    <h2 class="text-4xl font-black tracking-tight mb-2">¡Hola, <span
+                            id="heroe-nombre-span">Héroe</span>!</h2>
+                    <p class="text-white/90 font-bold text-lg mb-6">Tu misión de hoy: ¡Mantener tu energía al 100%!</p>
+                    <div
+                        class="bg-black/20 rounded-full h-10 w-full p-1.5 border border-white/20 shadow-inner relative">
+                        <div id="barra-puntos"
+                            class="bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,215,0,0.6)]"
+                            style="width: 0%"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="texto-puntos"
+                                class="text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-md">0 /
+                                70 Puntos de Poder</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Misiones Header #}
+        <div class="mb-10 flex items-center gap-4">
+            <div
+                class="bg-gradient-to-br from-amber-500 to-orange-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                <i class="fas fa-gamepad text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Centro de Misiones</h2>
+                <p class="text-slate-500 font-medium text-sm">¡Completa desafíos y gana increíbles premios!</p>
+            </div>
+        </div>
+
+        {# Cuadrícula de Juegos #}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% set juegos = [
+            (1, 'Rompecabezas', 'emoji4', 'teal', '+10 Pts'),
+            (2, 'Memoria', 'emoji5', 'rose', '+10 Pts'),
+            (3, 'Semáforo', 'emoji3', 'amber', '+10 Pts'),
+            (4, 'Burbujas', 'emoji2', 'sky', '+10 Pts'),
+            (5, 'Raspa y Gana', 'emoji1', 'emerald', '+10 Pts'),
+            (6, 'Laberinto', 'emoji6', 'indigo', '+10 Pts'),
+            (7, 'Tu Escudo', 'emoji7', 'orange', '+10 Pts')
+            ] %}
+            {% for jid, nombre, img, color, pts in juegos %}
+            <button onclick="abrirJuego({{ jid }})"
+                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                <div
+                    class="w-20 h-20 bg-{{ color }}-50 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-6 transition-all">
+                    <img src="/static/img/emoji/{{ img }}.svg" class="w-12 h-12" alt="{{ nombre }}">
+                </div>
+                <span class="font-black text-slate-800 text-sm uppercase">{{ nombre }}</span>
+                <span class="text-{{ color }}-600 font-bold text-xs mt-1">{{ pts }}</span>
+            </button>
+            {% endfor %}
+            {# Desafío del Sabio (quiz diario) #}
+            <button onclick="iniciarDesafioSabio()"
+                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-violet-100 flex flex-col items-center group relative overflow-hidden">
+                <div
+                    class="absolute top-3 right-3 bg-violet-600 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
+                    Diario</div>
+                <div
+                    class="w-20 h-20 bg-violet-50 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-6 transition-all text-4xl">
+                    🧙‍♂️</div>
+                <span class="font-black text-slate-800 text-sm uppercase">Desafío del Sabio</span>
+                <span class="text-violet-600 font-bold text-xs mt-1">+15 Pts</span>
+            </button>
+        </div>
+    </div>
+</section>

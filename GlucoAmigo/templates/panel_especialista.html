@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="panel-especialista dashboard-grid">
+    <div class="card glassmorphism wide" style="grid-column: 1 / -1;">
+        <h3>Módulo 5: Dashboard de Triangulación Clínica (Hospital Dr. Jesús García Coello)</h3>
+        <p>Vista General del Grupo de Estudio (N={{ pacientes|length }})</p>
+
+        <div class="export-actions" style="margin-bottom: 20px; text-align: right;">
+            <button class="btn btn-secondary">📥 Exportar Reporte a Excel/PDF (Tesis)</button>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Paciente (ID)</th>
+                    <th>Edad / Peso</th>
+                    <th>Última Glucemia</th>
+                    <th>Adherencia (SCI-R)</th>
+                    <th>Riesgo Depresivo (CDI)</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pacientes %}
+                <tr class="{{ 'row-riesgo' if p.riesgo else '' }}">
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.edad_peso }}</td>
+                    <td>{{ p.glucemia }}</td>
+                    <td>{{ p.adherencia }}</td>
+                    <td>{{ p.depresivo }}</td>
+                    <td>
+                        <span class="badge {{ 'badge-danger' if 'Crítico' in p.estado else 'badge-success' }}">
+                            {{ p.estado }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No hay pacientes registrados en el estudio.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="chart-container mt-4">
+            <h4>📈 Visualizador de Tendencias Clínicas</h4>
+            <p>Este módulo (interactivo próximamente) mostrará gráficos comparativos de la sintomatología depresiva vs
+                el control glucémico.</p>
+            <div class="mock-chart glassmorphism-dark">
+                <!-- Espacio para la librería Chart.js o similar -->
+                <p>Gráfica de Dispersión: Ánimo vs Hemoglobina Glicosilada Estimada</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

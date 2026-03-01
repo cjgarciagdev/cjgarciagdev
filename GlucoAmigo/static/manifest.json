@@ -1,0 +1,21 @@
+{
+    "name": "GlucoAmigo - mHealth Pediatría",
+    "short_name": "GlucoAmigo",
+    "description": "Sistema experto de ayuda para la diabetes pediátrica y bienestar emocional.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#6366f1",
+    "icons": [
+        {
+            "src": "img/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "img/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}

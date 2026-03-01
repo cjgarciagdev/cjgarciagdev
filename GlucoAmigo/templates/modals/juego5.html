@@ -1,0 +1,49 @@
+<div class="text-center">
+    <h2 class="text-2xl font-bold mb-4 text-slate-800">Raspa y Gana 🕵️‍♂️</h2>
+    <p class="mb-4 text-slate-600">¡Limpia la pantalla para descubrir al héroe oculto!</p>
+    <div class="relative w-64 h-64 mx-auto mb-6 bg-emerald-50 rounded-3xl overflow-hidden border-4 border-emerald-200">
+        <div class="absolute inset-0 flex items-center justify-center text-8xl">🦸‍♂️</div>
+        <canvas id="scratch-canvas" class="absolute inset-0 cursor-crosshair" width="256" height="256"></canvas>
+    </div>
+    <div id="reveal-pct" class="mb-4 text-emerald-700 font-bold">Descubierto: 0%</div>
+    <button class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl"
+        onclick="finalizarJuego(5)">Hecho</button>
+</div>
+<script>
+    const canvas = document.getElementById('scratch-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#CBD5E1'; // Slate-300
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let cleared = 0;
+    let isDrawing = false;
+
+    function scratch(e) {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Calcular porcentaje (aproximado)
+        cleared += 1;
+        document.getElementById('reveal-pct').textContent = `Descubierto: ${Math.min(100, Math.floor(cleared / 5))}%`;
+    }
+
+    canvas.addEventListener('mousedown', () => isDrawing = true);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mousemove', scratch);
+    canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); });
+    canvas.addEventListener('touchend', () => isDrawing = false);
+    canvas.addEventListener('touchmove', scratch);
+
+    function finalizarJuego(id) {
+        const puntos = Math.min(10, Math.floor(cleared / 10));
+        registrarPuntuacion(id, puntos);
+        document.getElementById('modal-juego-overlay').remove();
+    }
+</script>

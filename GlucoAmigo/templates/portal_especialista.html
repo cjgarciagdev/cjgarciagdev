@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlucoAmigo · Panel mHealth Pediátrico</title>
+    <meta name="description" content="Sistema experto mHealth para la gestión de diabetes pediátrica tipo 1">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 270px;
+            z-index: 50;
+            transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .sidebar.closed {
+            transform: translateX(-270px);
+        }
+
+        /* Main content */
+        body {
+            background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 50%, #f8fafc 100%);
+            background-attachment: fixed;
+            color: #334155;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Page Transition Curtain -->
+    <div id="page-curtain" style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 50%,#0f172a 100%);">
+        <div class="flex flex-col items-center" style="position:relative;">
+            <div
+                style="position:relative;width:140px;height:140px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+                <div class="curtain-ring"></div>
+                <div
+                    style="width:100px;height:100px;background:rgba(13,148,136,0.15);border:2px solid rgba(13,148,136,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+                    <i class="fas fa-hand-holding-medical"
+                        style="font-size:2.8rem;color:#5eead4;filter:drop-shadow(0 0 20px rgba(94,234,212,0.6));"></i>
+                </div>
+            </div>
+            <h1 style="color:white;font-weight:900;letter-spacing:0.45em;font-size:1.5rem;margin-bottom:8px;">GLUCOAMIGO
+            </h1>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div
+                    style="width:6px;height:6px;background:#14b8a6;border-radius:50%;animation:curtainPulse 1.2s ease-in-out infinite;">
+                </div>
+                <p
+                    style="color:#5eead4;font-weight:700;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.15em;">
+                    Sincronizando Sistema Experto</p>
+                <div
+                    style="width:6px;height:6px;background:#14b8a6;border-radius:50%;animation:curtainPulse 1.2s ease-in-out infinite 0.4s;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex min-h-screen">
+        <!-- ══════════════ SIDEBAR ══════════════ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="p-5" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div class="flex items-center gap-3">
+                    <div class="sidebar-logo-box w-12 h-12 rounded-2xl flex items-center justify-center">
+                        <span class="text-2xl">🩺</span>
+                    </div>
+                    <div>
+                        <p class="sidebar-brand-name font-black text-lg leading-none">GlucoAmigo</p>
+                        <p class="sidebar-brand-sub text-xs font-bold mt-0.5">Hospital J. García C.</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="py-3 flex-grow overflow-y-auto" id="sidebar-nav" style="display:flex;flex-direction:column;">
+                {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+                <!-- ZONA: ÁREA CLÍNICA -->
+                <div>
+                    <button onclick="toggleSidebarGroup('group-clinica', this)"
+                        class="sidebar-group-btn sidebar-section-label px-5 py-2 mt-2">
+                        <span>Área Clínica</span>
+                        <i class="fas fa-chevron-down" id="arrow-group-clinica"
+                            style="font-size:0.55rem;transition:transform 0.3s;"></i>
+                    </button>
+                    <div id="group-clinica">
+                        <div class="nav-item active stagger-item" style="animation-delay:0.45s"
+                            onclick="showSection('dashboard')" id="nav-dashboard">
+                            <i class="fas fa-th-large w-8 text-lg text-yellow-400"></i>Panel de Control
+                        </div>
+                        <div class="nav-item stagger-item" style="animation-delay:0.5s"
+                            onclick="showSection('pacientes')" id="nav-pacientes">
+                            <i class="fas fa-child w-8 text-lg text-cyan-400"></i>Gestión Pacientes
+                        </div>
+                        <div class="nav-item stagger-item" style="animation-delay:0.55s"
+                            onclick="showSection('graficos')" id="nav-graficos">
+                            <i class="fas fa-chart-area w-8 text-lg text-violet-400"></i>Análisis Avanzado
+                        </div>
+                        <div class="nav-item stagger-item" style="animation-delay:0.6s" onclick="showSection('alertas')"
+                            id="nav-alertas">
+                            <i class="fas fa-bell w-8 text-lg text-red-400"></i>Alertas Críticas
+                            <span id="badge-alertas"
+                                class="ml-auto bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden pulse-red">0</span>
+                        </div>
+                        <div class="nav-item stagger-item" style="animation-delay:0.65s"
+                            onclick="showSection('exportar')" id="nav-exportar">
+                            <i class="fas fa-file-export w-8 text-lg text-indigo-400"></i>Generar Reportes
+                        </div>
+                        <div class="nav-item stagger-item" style="animation-delay:0.7s"
+                            onclick="showSection('gestion-personal')" id="nav-gestion-personal">
+                            <i class="fas fa-users-cog w-8 text-lg text-emerald-400"></i>Gestión de Personal
+                        </div>
+                    </div>
+                </div>
+
+                {% else %}
+                <!-- ZONA: GESTIÓN REPRESENTANTE -->
+                <div>
+                    <button onclick="toggleSidebarGroup('group-rep', this)"
+                        class="sidebar-group-btn sidebar-section-label px-5 py-2 mt-2">
+                        <span>Gestión Representante</span>
+                        <i class="fas fa-chevron-down" id="arrow-group-rep"
+                            style="font-size:0.55rem;transition:transform 0.3s;"></i>
+                    </button>
+                    <div id="group-rep">
+                        <div class="nav-item active stagger-item" onclick="showSection('home-parent')"
+                            id="nav-home-parent">
+                            <i class="fas fa-house-user w-8 text-lg text-indigo-400"></i>Inicio
+                        </div>
+                        <div class="nav-item stagger-item" onclick="showSection('miHeroe')" id="nav-miHeroe">
+                            <i class="fas fa-users-cog w-8 text-lg text-teal-400"></i>Gestión de Héroes
+                        </div>
+                        <div class="nav-item stagger-item" onclick="showSection('perfil-parent')"
+                            id="nav-perfil-parent">
+                            <i class="fas fa-user-shield w-8 text-lg text-cyan-400"></i>Mi Perfil
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ZONA: SEGUIMIENTO HÉROE ACTIVE -->
+                <div id="sidebar-hero-tracking" class="mt-4">
+                    <div class="px-5 py-2 mb-2 flex justify-between items-end">
+                        <div>
+                            <p class="text-[10px] font-black uppercase text-white/30 tracking-[0.2em]">Seguimiento Héroe
+                            </p>
+                            <p id="active-hero-name-sidebar" class="text-xs font-bold text-teal-400 mt-1">Selecciona un
+                                héroe</p>
+                        </div>
+                        <button onclick="desmarcarHeroe()"
+                            class="text-[9px] font-black uppercase text-white/20 hover:text-rose-400 transition-colors"
+                            title="Cambiar de Héroe">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+
+                    <div>
+                        <button onclick="toggleSidebarGroup('group-diadia', this)"
+                            class="sidebar-group-btn sidebar-section-label px-5 py-2">
+                            <span>Métricas y Dieta</span>
+                            <i class="fas fa-chevron-down" id="arrow-group-diadia"
+                                style="font-size:0.55rem;transition:transform 0.3s;"></i>
+                        </button>
+                        <div id="group-diadia">
+                            <div class="nav-item stagger-item" onclick="showSection('glucosa')" id="nav-glucosa">
+                                <i class="fas fa-tint w-8 text-lg text-rose-400"></i>Medir Glucosa
+                            </div>
+                            <div class="nav-item stagger-item" onclick="showSection('comidas')" id="nav-comidas">
+                                <i class="fas fa-utensils w-8 text-lg text-orange-400"></i>Diario de Comidas
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div>
+                        <button onclick="toggleSidebarGroup('group-bienestar', this)"
+                            class="sidebar-group-btn sidebar-section-label px-5 py-2 mt-2">
+                            <span>Bienestar</span>
+                            <i class="fas fa-chevron-down" id="arrow-group-bienestar"
+                                style="font-size:0.55rem;transition:transform 0.3s;"></i>
+                        </button>
+                        <div id="group-bienestar">
+
+                            <div class="nav-item stagger-item" onclick="showSection('adherencia')" id="nav-adherencia">
+                                <i class="fas fa-clipboard-check w-8 text-lg text-sky-400"></i>Mi Adherencia
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button onclick="toggleSidebarGroup('group-consultas', this)"
+                            class="sidebar-group-btn sidebar-section-label px-5 py-2 mt-2">
+                            <span>Historial y Salud</span>
+                            <i class="fas fa-chevron-down" id="arrow-group-consultas"
+                                style="font-size:0.55rem;transition:transform 0.3s;"></i>
+                        </button>
+                        <div id="group-consultas">
+                            <div class="nav-item stagger-item" onclick="showSection('crecimiento')"
+                                id="nav-crecimiento">
+                                <i class="fas fa-ruler-vertical w-8 text-lg text-lime-400"></i>Estatura y Peso
+                            </div>
+                            <div class="nav-item stagger-item" onclick="showSection('recordatorios')"
+                                id="nav-recordatorios">
+                                <i class="fas fa-clock w-8 text-lg text-fuchsia-400"></i>Alarmas
+                            </div>
+                            <div class="nav-item stagger-item" onclick="showSection('historial')" id="nav-historial">
+                                <i class="fas fa-history w-8 text-lg text-blue-400"></i>Historial Clínico
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- ZONA SOS — Agro Master Emergency System -->
+                {% if current_user.rol not in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+                <div class="mt-auto px-5 mb-6 pt-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div class="bg-rose-500/10 border border-rose-500/20 rounded-3xl p-4 text-center">
+                        <p class="text-[9px] font-black text-rose-400 uppercase tracking-widest mb-3">¿Necesitas Ayuda?
+                        </p>
+                        <button onclick="abrirSOS()"
+                            class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-2xl shadow-lg shadow-rose-900/40 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-phone-alt animate-pulse"></i> SOS MÉDICO
+                        </button>
+                        <p class="text-[8px] text-white/30 font-bold mt-2">Chat directo con tu especialista</p>
+                    </div>
+                </div>
+                {% endif %}
+            </nav>
+
+            <!-- Sidebar Footer: User & Logout — Agro-Master pattern -->
+            <div class="p-4 flex-shrink-0"
+                style="border-top:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.18);">
+                <button onclick="toggleSidebarGroup('group-user', this)"
+                    class="w-full flex items-center gap-3 px-2 py-2 rounded-2xl transition-all"
+                    style="cursor:pointer;background:none;border:none;">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0"
+                        style="background:linear-gradient(135deg,#0d9488,#0891b2);">
+                        {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
+                    </div>
+                    <div class="flex-1 text-left min-w-0">
+                        <p class="text-sm font-black text-white truncate leading-tight">{{ current_user.nombre_completo
+                            or current_user.username }}</p>
+                        <p class="text-[0.6rem] font-black uppercase tracking-widest"
+                            style="color:rgba(94,234,212,0.6);">{{ current_user.rol }}</p>
+                    </div>
+                    <i id="arrow-group-user" class="fas fa-chevron-down"
+                        style="font-size:0.6rem;color:rgba(255,255,255,0.3);transition:transform 0.3s;"></i>
+                </button>
+                <div id="group-user" style="overflow:hidden;max-height:0;transition:max-height 0.3s ease;">
+                    {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+                    <button onclick="showSection('config-especialista')" class="nav-item flex w-full">
+                        <i class="fas fa-cog w-8 text-lg text-teal-400"></i>Mi Configuración
+                    </button>
+                    {% else %}
+                    <button onclick="showSection('perfil-parent')" class="nav-item flex w-full">
+                        <i class="fas fa-user-cog w-8 text-lg text-teal-400"></i>Mi Perfil
+                    </button>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}" class="nav-item text-rose-600 flex mt-1">
+                        <i class="fas fa-sign-out-alt w-8 text-lg" style="color:#f87171;"></i>Finalizar Sesión
+                    </a>
+                </div>
+                <p class="mt-3 text-center"
+                    style="font-size:0.58rem;color:rgba(94,234,212,0.2);text-transform:uppercase;letter-spacing:0.15em;">
+                    &copy; 2026 GlucoAmigo v2.0</p>
+            </div>
+        </aside>
+
+
+        <!-- ══════════════ MAIN ══════════════ -->
+        <main class="flex-1 md:ml-[270px] min-h-screen main-content">
+            <header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleSidebar()"
+                        class="md:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center transition-all hover:bg-teal-50 hover:text-teal-600">
+                        <i class="fas fa-bars text-slate-600"></i>
+                    </button>
+                    <div>
+                        <h2 id="page-title" class="text-xl font-black text-slate-800 leading-tight">Panel Principal</h2>
+                        <p id="page-sub" class="text-[11px] text-teal-600 font-bold tracking-wide">Gestión mHealth ·
+                            GlucoAmigo</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    {% if current_user.rol != 'especialista' %}
+                    <div id="xp-container" class="hidden md:flex items-center gap-3 px-4 py-2 rounded-2xl shadow-sm"
+                        style="background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);border:1px solid rgba(245,158,11,0.2);">
+                        <div class="relative">
+                            <span class="text-xl" style="filter:drop-shadow(0 0 6px rgba(245,158,11,0.5));">⭐</span>
+                        </div>
+                        <div class="w-28">
+                            <div class="flex justify-between items-center mb-1">
+                                <p id="hero-level"
+                                    class="text-[9px] font-black text-amber-700 uppercase tracking-widest">Nivel 1</p>
+                                <p id="xp-points" class="text-[10px] font-black text-amber-600">0 pts</p>
+                            </div>
+                            <div class="progress-container w-full">
+                                <div id="xp-progress-bar" class="progress-bar" style="width: 5%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="flex items-center gap-3 pl-2" style="border-left:1px solid rgba(226,232,240,0.7);">
+                        <div class="text-right hidden sm:block">
+                            <p class="text-xs font-black text-slate-800 leading-tight">{{ current_user.nombre_completo
+                                or current_user.username }}</p>
+                            <p class="text-[10px] text-teal-600 font-bold uppercase tracking-widest">{{ current_user.rol
+                                }}</p>
+                        </div>
+                        <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black"
+                            style="background:linear-gradient(135deg,#0d9488,#0891b2);box-shadow:0 6px 16px rgba(13,148,136,0.3);">
+                            {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6 max-w-7xl mx-auto pb-24">
+
+                {% if current_user.rol == 'padre' %}
+                <!-- ══ INICIO REPRESENTANTE ══ -->
+                <section id="sec-home-parent" class="content-section active">
+                    <div class="mb-8 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="bg-gradient-to-br from-indigo-500 to-purple-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                                <i class="fas fa-home text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Bienvenido/a, {{
+                                    current_user.nombre_completo or current_user.username }}</h2>
+                                <p class="text-slate-500 font-medium text-sm">Gestiona el bienestar de tus pequeños
+                                    héroes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="parent-heroes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Se llena dinámicamente -->
+                        <div class="col-span-full py-20 text-center glass-card rounded-3xl">
+                            <i class="fas fa-circle-notch fa-spin text-indigo-400 text-3xl mb-4"></i>
+                            <p class="text-slate-400 font-black uppercase text-xs tracking-widest">Cargando tus
+                                héroes...</p>
+                        </div>
+                    </div>
+
+                    <!-- Centro de Recomendaciones Dinámicas -->
+                    <div id="parent-recommendations" class="mt-12 hidden">
+                        <div class="mb-6 flex items-center gap-4">
+                            <div
+                                class="bg-gradient-to-br from-amber-400 to-orange-600 w-10 h-10 rounded-xl flex items-center justify-center shadow-md">
+                                <i class="fas fa-lightbulb text-white text-lg"></i>
+                            </div>
+                            <h3 class="text-xl font-black text-slate-800">Recomendaciones del Sistema</h3>
+                        </div>
+                        <div id="recommendations-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+
+                    <div
+                        class="mt-12 bg-white/50 backdrop-blur-md rounded-[2.5rem] p-10 border border-indigo-100 shadow-xl overflow-hidden relative">
+                        <div class="absolute -right-10 -bottom-10 text-[10rem] text-indigo-500/5">🛡️</div>
+                        <div class="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-black text-indigo-900 mb-4">¿Sabías que...?</h3>
+                                <p class="text-indigo-800/70 leading-relaxed mb-6 font-medium">
+                                    GlucoAmigo utiliza algoritmos de lógica difusa para predecir posibles
+                                    desequilibrios.
+                                    Mantener los registros al día ayuda a mejorar la precisión del sistema para tus
+                                    hijos.
+                                </p>
+                                <div class="flex gap-4">
+                                    <button onclick="showSection('miHeroe')"
+                                        class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all active:scale-95">
+                                        Registrar otro hijo
+                                    </button>
+                                    <button onclick="mostrarToast('Manual de usuario en camino 📚', 'info')"
+                                        class="bg-white text-indigo-600 border border-indigo-200 px-6 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all active:scale-95">
+                                        Ver Guía de Ayuda
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="w-48 h-48 bg-indigo-100 rounded-[3rem] flex items-center justify-center border-4 border-indigo-200/50 shadow-inner">
+                                <span class="text-8xl">🧬</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+                <!-- ══ DASHBOARD ESPECIALISTA ══ -->
+                <section id="sec-dashboard" class="content-section active">
+
+                    <!-- Section Header — Agro-Master pattern: gradient box -rotate-6 -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-teal-500 to-cyan-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-th-large text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Triangulación Clínica</h2>
+                            <p class="text-slate-500 font-medium text-sm">Hospital Dr. Jesús García Coello &bull;
+                                Gestión mHealth Pediátrica</p>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards — Agro-Master stats card pattern -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+                        <!-- KPI: Total Pacientes -->
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-cyan-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+                            style="animation-delay:0.1s;">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-cyan-50 rounded-2xl group-hover:bg-cyan-100 transition-colors">
+                                    <i class="fas fa-child text-cyan-600 text-xl"></i>
+                                </div>
+                                <span
+                                    class="bg-cyan-50 text-cyan-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Sujetos</span>
+                            </div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Pacientes
+                                Registrados</p>
+                            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-total">—</h3>
+                            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1">
+                                <i class="fas fa-users text-cyan-400"></i> Total en el estudio
+                            </p>
+                        </div>
+
+                        <!-- KPI: Riesgo -->
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+                            style="animation-delay:0.2s;">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-rose-50 rounded-2xl group-hover:bg-rose-100 transition-colors">
+                                    <i class="fas fa-exclamation-triangle text-rose-600 text-xl"></i>
+                                </div>
+                                <span
+                                    class="bg-rose-50 text-rose-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Acción</span>
+                            </div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Pacientes en
+                                Riesgo</p>
+                            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-riesgo">—</h3>
+                            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1">
+                                <i class="fas fa-heart-broken text-rose-400"></i> Glucemia fuera de rango
+                            </p>
+                        </div>
+
+                        <!-- KPI: Alertas -->
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-amber-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+                            style="animation-delay:0.3s;">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-amber-50 rounded-2xl group-hover:bg-amber-100 transition-colors">
+                                    <i class="fas fa-bell text-amber-600 text-xl"></i>
+                                </div>
+                                <span
+                                    class="bg-amber-50 text-amber-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Alertas</span>
+                            </div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Avisos Pendientes
+                            </p>
+                            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-alertas">—</h3>
+                            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1">
+                                <i class="fas fa-clock text-amber-400"></i> Revisiones requeridas
+                            </p>
+                        </div>
+
+                        <!-- KPI: Mediciones -->
+                        <div class="bg-white p-6 rounded-3xl shadow-sm border border-teal-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+                            style="animation-delay:0.4s;">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-teal-50 rounded-2xl group-hover:bg-teal-100 transition-colors">
+                                    <i class="fas fa-database text-teal-600 text-xl"></i>
+                                </div>
+                                <span
+                                    class="bg-teal-50 text-teal-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Data</span>
+                            </div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Total Mediciones
+                            </p>
+                            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-registros">—</h3>
+                            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1">
+                                <i class="fas fa-chart-bar text-teal-400"></i> Registros glucemia
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- Tabla de Pacientes — Agro-Master premium table system -->
+                    <div class="glass-card rounded-[2.5rem] overflow-hidden border border-slate-200/60 shadow-xl stagger-item"
+                        style="animation-delay:0.5s;">
+
+                        <!-- Filtros y Búsqueda -->
+                        <div
+                            class="px-8 py-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
+                            <div class="relative w-full md:w-96">
+                                <i
+                                    class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-black"></i>
+                                <input type="text" id="busqueda-pacientes" placeholder="Buscar por nombre o ID..."
+                                    class="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm font-bold focus:ring-2 ring-teal-500 outline-none transition-all"
+                                    onkeyup="filtrarPacientes()">
+                            </div>
+                            <div class="flex gap-4 w-full md:w-auto items-center">
+                                <div class="flex gap-4">
+                                    <span
+                                        class="flex items-center gap-2 text-[10px] text-gray-400 font-black uppercase"><i
+                                            class="fas fa-circle text-emerald-500"></i>Estable</span>
+                                    <span
+                                        class="flex items-center gap-2 text-[10px] text-gray-400 font-black uppercase"><i
+                                            class="fas fa-circle text-amber-500"></i>Alerta</span>
+                                    <span
+                                        class="flex items-center gap-2 text-[10px] text-gray-400 font-black uppercase"><i
+                                            class="fas fa-circle text-rose-500"></i>Crítico</span>
+                                </div>
+                                <select id="filtro-riesgo" onchange="filtrarPacientes()"
+                                    class="bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-black text-slate-600 outline-none transition-all">
+                                    <option value="todos">Todos</option>
+                                    <option value="Crítico">🚨 Crítico</option>
+                                    <option value="Alerta">⚠️ Alerta</option>
+                                    <option value="Estable">✅ Estable</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50/50 sticky top-0 z-10 backdrop-blur-md">
+                                    <tr>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Código</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Edad / Peso</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Glucemia</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            TIR (Rango)</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            SCI-R (Adh)</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            CDI (Ánimo)</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Prioridad</th>
+                                        <th
+                                            class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                            Detalle</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-pacientes-body" class="bg-white divide-y divide-slate-100">
+                                    <tr>
+                                        <td colspan="7" class="p-12 text-center">
+                                            <i class="fas fa-circle-notch fa-spin text-teal-400 text-2xl mb-4"></i>
+                                            <p class="text-gray-400 font-black uppercase text-[10px] tracking-widest">
+                                                Analizando base de datos pediátrica...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ PACIENTES ══ -->
+                <section id="sec-pacientes" class="content-section">
+                    <!-- Section Header -->
+                    <div class="mb-8 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="bg-gradient-to-br from-cyan-500 to-blue-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                                <i class="fas fa-child text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Gestión de Pacientes
+                                </h2>
+                                <p class="text-slate-500 font-medium text-sm">Fichas clínicas de los niños del estudio
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cards-pacientes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="text-center text-slate-500 col-span-3 py-12">
+                            <i class="fas fa-circle-notch fa-spin text-cyan-400 text-2xl mb-4"></i>
+                            <p class="text-[10px] font-black uppercase tracking-widest">Cargando fichas de pacientes...
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ GRÁFICOS ══ -->
+                <section id="sec-graficos" class="content-section">
+                    <!-- Section Header -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-violet-500 to-indigo-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-chart-area text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Análisis Avanzado</h2>
+                            <p class="text-slate-500 font-medium text-sm">Visualizador de tendencias clínicas y
+                                psicoemocionales</p>
+                        </div>
+                    </div>
+
+                    <!-- Chart panel + patient selector — Agro chart panel pattern -->
+                    <div
+                        class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 mb-8 transition-all duration-500 hover:shadow-lg">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                            <div>
+                                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-3">
+                                    <span class="bg-violet-100 text-violet-600 p-2 rounded-lg"><i
+                                            class="fas fa-chart-line"></i></span>
+                                    Visualizador de Tendencias
+                                </h3>
+                                <p class="text-sm text-gray-500 ml-11">Relación entre control metabólico y estado
+                                    psicoemocional</p>
+                            </div>
+                            <div class="relative w-full sm:w-auto">
+                                <select id="select-heroe-grafico" onchange="cargarGraficos()"
+                                    class="w-full sm:w-80 appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 transition cursor-pointer font-bold text-sm">
+                                    <option value="">— Elegir Paciente —</option>
+                                </select>
+                                <div
+                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="h-72 bg-gradient-to-b from-transparent to-gray-50/50 rounded-2xl p-2">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-black text-gray-700 flex items-center gap-2 text-sm">
+                                        <span class="bg-rose-100 text-rose-500 p-1.5 rounded-lg"><i
+                                                class="fas fa-tint text-xs"></i></span>
+                                        Curva de Glucemia
+                                    </h4>
+                                    <span
+                                        class="text-[10px] font-black text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">mg/dL</span>
+                                </div>
+                                <canvas id="chart-glucemia"></canvas>
+                            </div>
+                            <div class="h-72 bg-gradient-to-b from-transparent to-gray-50/50 rounded-2xl p-2">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="font-black text-gray-700 flex items-center gap-2 text-sm">
+                                        <span class="bg-indigo-100 text-indigo-500 p-1.5 rounded-lg"><i
+                                                class="fas fa-brain text-xs"></i></span>
+                                        Evaluación CDI
+                                    </h4>
+                                    <span
+                                        class="text-[10px] font-black text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">Puntaje</span>
+                                </div>
+                                <canvas id="chart-cdi"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ ALERTAS ══ -->
+                <section id="sec-alertas" class="content-section">
+                    <div id="lista-alertas" class="grid gap-4">
+                        <div class="text-center text-slate-600 py-12">Sincronizando alertas críticas...</div>
+                    </div>
+                </section>
+
+                <!-- ══ EXPORTAR ══ -->
+                <section id="sec-exportar" class="content-section">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="glass-card rounded-3xl p-10 text-center hover:border-teal-200">
+                            <div
+                                class="w-24 h-24 bg-teal-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                <span class="text-5xl">📊</span>
+                            </div>
+                            <h4 class="text-2xl font-black text-slate-800 mb-2">Dataset Excel</h4>
+                            <p class="text-slate-700 text-sm mb-8 px-4">Variables clínicas y psicológicas listas para
+                                análisis estadístico en SPSS o Excel.</p>
+                            <a href="/api/panel/export/excel"
+                                class="inline-flex items-center gap-2 bg-teal-600 text-white font-black py-4 px-10 rounded-2xl hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/20 active:scale-95">
+                                <i class="fas fa-file-excel"></i>Exportar Excel
+                            </a>
+                        </div>
+                        <div class="glass-card rounded-3xl p-10 text-center hover:border-rose-200">
+                            <div
+                                class="w-24 h-24 bg-rose-50 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                <span class="text-5xl">📄</span>
+                            </div>
+                            <h4 class="text-2xl font-black text-slate-800 mb-2">Informe Clínico PDF</h4>
+                            <p class="text-slate-700 text-sm mb-8 px-4">Resumen formal de resultados del estudio para
+                                archivos hospitalarios.</p>
+                            <a href="/api/panel/export/pdf"
+                                class="inline-flex items-center gap-2 bg-rose-600 text-white font-black py-4 px-10 rounded-2xl hover:bg-rose-700 transition-all shadow-lg shadow-rose-600/20 active:scale-95">
+                                <i class="fas fa-file-pdf"></i>Generar Informe
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ GESTIÓN DE PERSONAL ══ -->
+                <section id="sec-gestion-personal" class="content-section">
+                    <div class="mb-8 flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="bg-gradient-to-br from-emerald-500 to-teal-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                                <i class="fas fa-users-cog text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Gestión de Personal
+                                </h2>
+                                <p class="text-slate-500 font-medium text-sm">Representantes y cuidadores registrados en
+                                    el sistema</p>
+                            </div>
+                        </div>
+                        <button onclick="mostrarModalNuevoRepresentante()"
+                            class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black px-6 py-3 rounded-2xl shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
+                            <i class="fas fa-user-plus"></i> Agregar Representante
+                        </button>
+                    </div>
+
+                    <!-- Cards de Estadísticas -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                        <div
+                            class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-users text-emerald-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total
+                                    Representantes</p>
+                                <p class="text-2xl font-black text-slate-800" id="stat-total-reps">—</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-teal-100 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-user-check text-teal-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activos</p>
+                                <p class="text-2xl font-black text-slate-800" id="stat-activos-reps">—</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-cyan-100 shadow-sm flex items-center gap-4">
+                            <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-child text-cyan-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Con Héroes
+                                </p>
+                                <p class="text-2xl font-black text-slate-800" id="stat-con-heroes">—</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Representantes -->
+                    <div class="glass-card rounded-[2.5rem] overflow-hidden border border-slate-200/60 shadow-xl">
+                        <div
+                            class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                            <h3
+                                class="font-black text-slate-700 text-sm uppercase tracking-widest flex items-center gap-2">
+                                <i class="fas fa-list-ul text-emerald-500"></i> Lista de Representantes
+                            </h3>
+                            <div class="relative">
+                                <i
+                                    class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="buscar-representante" placeholder="Buscar representante..."
+                                    oninput="filtrarRepresentantes()"
+                                    class="bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm font-bold focus:ring-2 ring-emerald-500 outline-none transition-all">
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left font-sans">
+                                <thead class="bg-slate-50">
+                                    <tr>
+                                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Representante</th>
+                                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Cédula</th>
+                                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Contacto</th>
+                                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Tel. Emergencia</th>
+                                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                            Último Acceso</th>
+                                        <th
+                                            class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+                                            Estado</th>
+                                        <th
+                                            class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">
+                                            Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-representantes-body"
+                                    class="bg-white divide-y divide-slate-100 text-xs">
+                                    <tr>
+                                        <td colspan="7" class="p-12 text-center">
+                                            <i class="fas fa-circle-notch fa-spin text-emerald-400 text-2xl mb-3"></i>
+                                            <p
+                                                class="text-slate-400 font-black uppercase text-[10px] tracking-widest mt-2">
+                                                Cargando representantes...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ CONFIGURACIÓN ESPECIALISTA ══ -->
+                <section id="sec-config-especialista" class="content-section">
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-teal-500 to-cyan-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-sliders-h text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Panel de Configuración
+                            </h2>
+                            <p class="text-slate-500 font-medium text-sm">Gestiona tu perfil y parámetros del sistema
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl">
+
+                        <!-- Card: Perfil Especialista -->
+                        <div
+                            class="glass-card rounded-[2rem] p-8 border border-teal-500/10 shadow-xl bg-white/60 backdrop-blur-md">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div
+                                    class="w-16 h-16 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg">
+                                    {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-black text-slate-800">Mi Perfil Clínico</h3>
+                                    <p class="text-teal-600 text-xs font-bold uppercase tracking-widest">{{
+                                        current_user.rol }}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nombre
+                                        Completo</label>
+                                    <input type="text" id="especialista-nombre"
+                                        value="{{ current_user.nombre_completo or '' }}" class="med-input bg-white/60"
+                                        placeholder="Dr. Nombre Apellido">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Cédula
+                                            / ID</label>
+                                        <input type="text" id="especialista-cedula"
+                                            value="{{ current_user.cedula or '' }}" class="med-input bg-white/60">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Teléfono</label>
+                                        <input type="tel" id="especialista-tel"
+                                            value="{{ current_user.telefono or '' }}" class="med-input bg-white/60">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Email
+                                        Profesional</label>
+                                    <input type="email" id="especialista-email" value="{{ current_user.email or '' }}"
+                                        class="med-input bg-white/60">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Especialidad</label>
+                                    <input type="text" id="especialista-especialidad"
+                                        value="{{ current_user.especialidad or '' }}" class="med-input bg-white/60"
+                                        placeholder="Ej: Endocrinólogo Pediátrico">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Consultorio
+                                        / Clínica</label>
+                                    <input type="text" id="especialista-clinica"
+                                        value="{{ current_user.consultorio or '' }}" class="med-input bg-white/60"
+                                        placeholder="Ej: Hospital Dr. J. García Coello">
+                                </div>
+                                <button onclick="guardarPerfilEspecialista()"
+                                    class="w-full bg-teal-600 hover:bg-teal-500 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fas fa-save"></i> Guardar Perfil
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+
+                            <!-- Card: Seguridad -->
+                            <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-indigo-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-black text-slate-800">Seguridad de Cuenta</h3>
+                                        <p class="text-xs text-slate-500">Protege tu acceso al sistema</p>
+                                    </div>
+                                </div>
+                                <button onclick="abrirModalPassword()"
+                                    class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-black py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-100">
+                                    <i class="fas fa-key"></i> Cambiar Contraseña
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {% else %}
+                <!-- 🦸 SECCIÓN HÉROE (Interactiva para el Niño) -->
+                <section id="sec-heroe" class="content-section p-6">
+                    <div class="max-w-4xl mx-auto">
+                        <!-- Hero Banner — Premium Arcade Style -->
+                        <div
+                            class="bg-gradient-to-r from-amber-400 to-orange-500 rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden mb-12 group">
+                            <div
+                                class="absolute -right-10 -top-10 text-[12rem] opacity-10 group-hover:scale-110 transition-transform duration-700">
+                                🦸</div>
+                            <div class="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                                <div class="relative">
+                                    <div
+                                        class="w-32 h-32 bg-white/20 backdrop-blur-md rounded-[2.5rem] flex items-center justify-center border-4 border-white/40 shadow-2xl">
+                                        <img id="heroe-img-main" src="/static/img/emoji/emoji7.svg"
+                                            class="w-20 h-20 drop-shadow-2xl animate-float" alt="Hero">
+                                    </div>
+                                    <div class="absolute -bottom-2 -right-2 bg-yellow-400 text-slate-800 text-[10px] font-black px-3 py-1 rounded-full shadow-lg border-2 border-white animate-pulse"
+                                        id="hero-level-badge">
+                                        LVL 1
+                                    </div>
+                                </div>
+                                <div class="text-center md:text-left flex-1">
+                                    <h2 class="text-4xl font-black tracking-tight mb-2">¡Hola, <span
+                                            id="heroe-nombre-span">Héroe</span>!</h2>
+                                    <p class="text-white/90 font-bold text-lg mb-6">Tu misión de hoy: ¡Mantener tu
+                                        energía al 100%!</p>
+
+                                    <!-- Power Bar — Premium Style -->
+                                    <div
+                                        class="bg-black/20 rounded-full h-10 w-full p-1.5 border border-white/20 shadow-inner relative">
+                                        <div id="barra-puntos"
+                                            class="bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(255,215,0,0.6)]"
+                                            style="width: 0%"></div>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span id="texto-puntos"
+                                                class="text-[10px] font-black uppercase tracking-[0.2em] text-white drop-shadow-md">0
+                                                / 70 Puntos de Poder</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Missions Header — Agro Pattern -->
+                        <div class="mb-10 flex items-center gap-4">
+                            <div
+                                class="bg-gradient-to-br from-amber-500 to-orange-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                                <i class="fas fa-gamepad text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Centro de Misiones
+                                </h2>
+                                <p class="text-slate-500 font-medium text-sm">¡Completa desafíos y gana increíbles
+                                    premios!</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Juego 1 -->
+                            <button onclick="abrirJuego(1)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-teal-50 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-6 transition-all">
+                                    <img src="/static/img/emoji/emoji4.svg" class="w-12 h-12" alt="Puzzle">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Rompecabezas</span>
+                                <span class="text-teal-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+
+                            <!-- Juego 2 -->
+                            <button onclick="abrirJuego(2)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-rose-50 rounded-2xl flex items-center justify-center mb-4 group-hover:-rotate-6 transition-all">
+                                    <img src="/static/img/emoji/emoji5.svg" class="w-12 h-12" alt="Memory">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Memoria</span>
+                                <span class="text-rose-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+
+                            <!-- Juego 3 -->
+                            <button onclick="abrirJuego(3)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-amber-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all">
+                                    <img src="/static/img/emoji/emoji3.svg" class="w-12 h-12" alt="Semáforo">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Semáforo</span>
+                                <span class="text-amber-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+
+                            <!-- Juego 4 -->
+                            <button onclick="abrirJuego(4)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-sky-50 rounded-2xl flex items-center justify-center mb-4 group-hover:translate-y-1 transition-all">
+                                    <img src="/static/img/emoji/emoji2.svg" class="w-12 h-12" alt="Burbujas">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Burbujas</span>
+                                <span class="text-sky-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+
+                            <!-- Juego 5 -->
+                            <button onclick="abrirJuego(5)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4 group-hover:rotate-12 transition-all">
+                                    <img src="/static/img/emoji/emoji1.svg" class="w-12 h-12" alt="Raspa">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Raspa y Gana</span>
+                                <span class="text-emerald-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+
+                            <!-- Juego 6 -->
+                            <button onclick="abrirJuego(6)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 group-hover:-rotate-12 transition-all">
+                                    <img src="/static/img/emoji/emoji6.svg" class="w-12 h-12" alt="Laberinto">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Laberinto</span>
+                                <span class="text-indigo-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+
+                            <!-- Juego 7 -->
+                            <button onclick="abrirJuego(7)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-orange-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-95 transition-all">
+                                    <img src="/static/img/emoji/emoji7.svg" class="w-12 h-12" alt="Escudo">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Tu Escudo</span>
+                                <span class="text-orange-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- ══════════════════════════════════════════════════ -->
+                <!--                 MODO PADRE / LUZ                 -->
+                <!-- ══════════════════════════════════════════════════ -->
+
+                <!-- ══ MI HÉROE (PERFIL) ══ -->
+                <section id="sec-miHeroe" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-teal-500 to-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-mask text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Mi Héroe</h2>
+                            <p class="text-slate-500 font-medium text-sm">Gestiona la identidad y el progreso de tu
+                                pequeño guerrero</p>
+                        </div>
+                    </div>
+
+                    <div id="heroe-container">
+                        <div
+                            class="flex flex-col items-center justify-center py-20 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
+                            <i class="fas fa-circle-notch fa-spin text-teal-400 text-3xl mb-4"></i>
+                            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Sincronizando
+                                perfil del Héroe...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ GLUCOSA ══ -->
+                <section id="sec-glucosa" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-rose-500 to-red-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-tint text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Control de Glucemia</h2>
+                            <p class="text-slate-500 font-medium text-sm">Calculadora de dosis y registro de niveles</p>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div
+                            class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-rose-50 hover:shadow-md transition-all">
+                            <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                                <span class="bg-rose-100 text-rose-600 p-2 rounded-xl"><i
+                                        class="fas fa-plus-circle"></i></span>
+                                Nueva Medición
+                            </h4>
+                            <div class="space-y-6">
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Valor
+                                        Glucemia (mg/dL)</label>
+                                    <input type="number" id="input-glucemia" placeholder="Ej: 140"
+                                        class="med-input text-lg py-4 border-slate-100 focus:border-rose-400">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Carbohidratos
+                                        (g)</label>
+                                    <input type="number" id="input-carbos" placeholder="Ej: 45"
+                                        class="med-input text-lg py-4 border-slate-100 focus:border-rose-400">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Momento
+                                        del día</label>
+                                    <select id="input-momento" class="med-input border-slate-100 focus:border-rose-400">
+                                        <option value="ayunas">🌅 En ayunas</option>
+                                        <option value="pre-almuerzo">🍽️ Antes de almorzar</option>
+                                        <option value="post-almuerzo">🍗 Después de almorzar</option>
+                                        <option value="pre-cena">🌙 Antes de cenar</option>
+                                        <option value="post-cena">🌛 Después de cenar</option>
+                                        <option value="libre">🕐 Otros</option>
+                                    </select>
+                                </div>
+                                <button onclick="calcularDosis()"
+                                    class="w-full bg-gradient-to-r from-rose-500 to-rose-600 text-white font-black py-5 rounded-2xl hover:shadow-lg hover:shadow-rose-500/30 transition-all active:scale-[0.98] text-lg">
+                                    <i class="fas fa-calculator mr-2"></i>Calcular dosis
+                                </button>
+                            </div>
+                        </div>
+                        <div id="resultado-dosis-box"
+                            class="bg-white p-8 rounded-[2.5rem] flex flex-col items-center justify-center hidden border-2 border-dashed border-teal-100 bg-teal-50/20">
+                            <div id="resultado-dosis-content" class="text-center w-full"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ DIARIO NUTRICIONAL ══ -->
+                <section id="sec-comidas" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-orange-500 to-amber-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-utensils text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Diario Nutricional</h2>
+                            <p class="text-slate-500 font-medium text-sm">Registro de ingesta y conteo de carbohidratos
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Stats Row — Agro Stats Pattern -->
+                    <div id="nutricion-resumen" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                        <div
+                            class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:bg-orange-50 transition-colors">
+                            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">🥤</span>
+                            <div class="text-lg font-black text-slate-800" id="nut-carbos">0g</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Carbos</div>
+                        </div>
+                        <div
+                            class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:bg-orange-50 transition-colors">
+                            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">🔥</span>
+                            <div class="text-lg font-black text-slate-800" id="nut-calorias">0</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kcal</div>
+                        </div>
+                        <div
+                            class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:bg-orange-50 transition-colors">
+                            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">🥩</span>
+                            <div class="text-lg font-black text-slate-800" id="nut-proteinas">0g</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Prot</div>
+                        </div>
+                        <div
+                            class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:bg-orange-50 transition-colors">
+                            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">🧈</span>
+                            <div class="text-lg font-black text-slate-800" id="nut-grasas">0g</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Grasas</div>
+                        </div>
+                        <div
+                            class="bg-orange-600 p-4 rounded-3xl shadow-lg border-none flex flex-col items-center text-center group transform scale-105">
+                            <span class="text-2xl mb-1">🍴</span>
+                            <div class="text-lg font-black text-white" id="nut-comidas">0</div>
+                            <div class="text-[10px] font-black text-orange-200 uppercase tracking-widest">Hoy</div>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                                <span class="bg-orange-100 text-orange-600 p-2 rounded-xl"><i
+                                        class="fas fa-apple-alt"></i></span>
+                                ¿Qué comimos?
+                            </h4>
+                            <div class="space-y-5">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Tipo
+                                            de comida</label>
+                                        <select id="comida-tipo" class="med-input border-slate-100">
+                                            <option value="desayuno">🥞 Desayuno</option>
+                                            <option value="almuerzo">🍗 Almuerzo</option>
+                                            <option value="cena">🥗 Cena</option>
+                                            <option value="merienda">🍎 Merienda</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Gramos
+                                            Carbo.</label>
+                                        <input type="number" id="comida-carbos" placeholder="Ej: 40"
+                                            class="med-input border-slate-100">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Descripción</label>
+                                    <input type="text" id="comida-desc" placeholder="Ej: Pasta con queso y manzana"
+                                        class="med-input border-slate-100">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Calorías</label>
+                                        <input type="number" id="comida-cal" placeholder="350"
+                                            class="med-input border-slate-100">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Proteínas
+                                            (g)</label>
+                                        <input type="number" id="comida-prot" placeholder="10"
+                                            class="med-input border-slate-100">
+                                    </div>
+                                </div>
+                                <button onclick="registrarComida()"
+                                    class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-black py-4 rounded-2xl hover:shadow-lg transition-all active:scale-[0.98]">
+                                    <i class="fas fa-plus mr-2"></i>Guardar en Diario
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+                            <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                                <span class="bg-slate-100 text-slate-600 p-2 rounded-xl"><i
+                                        class="fas fa-book-open"></i></span>
+                                Registro de hoy
+                            </h4>
+                            <div id="lista-comidas"
+                                class="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-[300px]">
+                                <div
+                                    class="flex flex-col items-center justify-center h-full text-slate-400 py-6 italic text-sm">
+                                    <i class="fas fa-cookie-bite text-4xl mb-4 opacity-20"></i>
+                                    No has registrado ninguna comida hoy
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ BIENESTAR ══ -->
+                <section id="sec-bienestar" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4 text-center justify-center flex-col">
+                        <div
+                            class="bg-gradient-to-br from-pink-500 to-rose-700 w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg transform -rotate-6">
+                            <i class="fas fa-smile-beam text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Estado de Bienestar</h2>
+                            <p class="text-slate-500 font-medium text-sm">Evaluación psicoemocional (CDI) para
+                                seguimiento integral</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-[3rem] p-10 max-w-2xl mx-auto shadow-xl border border-pink-50 relative overflow-hidden">
+                        <!-- Decorative shadow -->
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-pink-50/50 rounded-full blur-3xl"></div>
+
+                        <div id="cdi-form" class="relative z-10">
+                            <div id="cdi-pregunta-container" class="text-center py-10">
+                                <i class="fas fa-circle-notch fa-spin text-pink-400 text-3xl mb-4"></i>
+                                <p class="text-slate-400 font-black uppercase tracking-widest text-[10px]">Preparando
+                                    evaluación emocional...</p>
+                            </div>
+                            <div id="cdi-progreso" class="hidden">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest"
+                                        id="cdi-prog-text">Paso 1 de 7</span>
+                                    <span
+                                        class="text-[10px] font-black text-pink-600 bg-pink-50 px-3 py-1 rounded-full uppercase"
+                                        id="cdi-puntaje-parcial">0 pts</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 mb-10 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-pink-500 to-rose-500 h-full rounded-full transition-all duration-500"
+                                        id="cdi-prog-bar" style="width:0%"></div>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="text-2xl font-black text-slate-800 mb-8 leading-tight h-20"
+                                        id="cdi-pregunta-texto"></h4>
+                                    <div class="flex justify-center gap-6 flex-wrap">
+                                        <button
+                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:rotate-6 focus:ring-4 focus:ring-pink-100 rounded-full"
+                                            onclick="responderCDI(0)">😊</button>
+                                        <button
+                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:rotate-0 focus:ring-4 focus:ring-pink-100 rounded-full"
+                                            onclick="responderCDI(1)">😐</button>
+                                        <button
+                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:-rotate-6 focus:ring-4 focus:ring-pink-100 rounded-full"
+                                            onclick="responderCDI(2)">😕</button>
+                                        <button
+                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:-rotate-12 focus:ring-4 focus:ring-pink-100 rounded-full"
+                                            onclick="responderCDI(3)">😢</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="cdi-resultado" class="hidden text-center py-6">
+                                <!-- El contenido se inyecta desde app.js -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ ADHERENCIA (SCI-R) ══ -->
+                <section id="sec-adherencia" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4 text-center justify-center flex-col">
+                        <div
+                            class="bg-gradient-to-br from-sky-500 to-indigo-700 w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-lg transform -rotate-6">
+                            <i class="fas fa-clipboard-check text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Cuestionario de Adherencia
+                            </h2>
+                            <p class="text-slate-500 font-medium text-sm">Escala SCI-R para evaluar la gestión del
+                                tratamiento</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-[3rem] p-10 max-w-3xl mx-auto shadow-xl border border-sky-50 relative overflow-hidden">
+                        <div class="absolute -left-10 -top-10 w-40 h-40 bg-sky-50/50 rounded-full blur-3xl"></div>
+
+                        <div id="scir-form-container" class="relative z-10">
+                            <div class="text-center py-10">
+                                <i class="fas fa-circle-notch fa-spin text-sky-400 text-3xl mb-4"></i>
+                                <p class="text-slate-400 font-black uppercase tracking-widest text-[10px]">Cargando
+                                    cuestionario de adherencia...</p>
+                            </div>
+                        </div>
+                        <div id="scir-resultado" class="hidden text-center py-6"></div>
+
+                        <div id="tips-autocuidado" class="hidden mt-10 border-t border-slate-100 pt-8 relative z-10">
+                            <h5 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                                <span class="bg-amber-100 text-amber-600 p-2 rounded-lg"><i
+                                        class="fas fa-lightbulb"></i></span>
+                                Recomendaciones Pediátricas
+                            </h5>
+                            <div class="grid md:grid-cols-2 gap-4 text-left">
+                                <div
+                                    class="bg-teal-50/50 p-5 rounded-3xl border border-teal-100 hover:shadow-md transition-all group">
+                                    <p
+                                        class="text-teal-900 font-black text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <i class="fas fa-utensils text-teal-500"></i> Alimentación
+                                    </p>
+                                    <p class="text-slate-600 text-xs">Mantener horarios fijos ayuda a estabilizar la
+                                        glucosa basal.</p>
+                                </div>
+                                <div
+                                    class="bg-rose-50/50 p-5 rounded-3xl border border-rose-100 hover:shadow-md transition-all group">
+                                    <p
+                                        class="text-rose-900 font-black text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2">
+                                        <i class="fas fa-syringe text-rose-500"></i> Inyección
+                                    </p>
+                                    <p class="text-slate-600 text-xs">Rote el sitio de aplicación cada día para evitar
+                                        molestias en la piel.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ CRECIMIENTO ══ -->
+                <section id="sec-crecimiento" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-lime-500 to-emerald-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-ruler-vertical text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Estatura y Peso</h2>
+                            <p class="text-slate-500 font-medium text-sm">Seguimiento del desarrollo físico pediátrico
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 mb-8" id="growth-metrics">
+                        <div
+                            class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:bg-lime-50 transition-colors">
+                            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">⚖️</span>
+                            <div class="text-xl font-black text-slate-800" id="gm-peso">—</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peso (kg)</div>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center text-center group hover:bg-lime-50 transition-colors">
+                            <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">📐</span>
+                            <div class="text-xl font-black text-slate-800" id="gm-estatura">—</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estatura (cm)
+                            </div>
+                        </div>
+                        <div
+                            class="bg-lime-600 p-6 rounded-3xl shadow-lg border-none flex flex-col items-center text-center group transform scale-105">
+                            <span class="text-2xl mb-1">📊</span>
+                            <div class="text-xl font-black text-white" id="gm-imc">—</div>
+                            <div class="text-[10px] font-black text-lime-100 uppercase tracking-widest">IMC</div>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                                <span class="bg-lime-100 text-lime-600 p-2 rounded-xl"><i
+                                        class="fas fa-edit"></i></span>
+                                Registrar Medida
+                            </h4>
+                            <div class="space-y-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Peso
+                                            (kg)</label>
+                                        <input type="number" step="0.1" id="growth-peso"
+                                            class="med-input border-slate-100 focus:border-lime-400"
+                                            placeholder="Ej: 28.5">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Estatura
+                                            (cm)</label>
+                                        <input type="number" step="0.1" id="growth-estatura"
+                                            class="med-input border-slate-100 focus:border-lime-400"
+                                            placeholder="Ej: 128">
+                                    </div>
+                                </div>
+                                <button onclick="registrarCrecimiento()"
+                                    class="w-full bg-gradient-to-r from-lime-600 to-emerald-600 text-white font-black py-4 rounded-2xl hover:shadow-lg transition-all active:scale-[0.98]">
+                                    <i class="fas fa-check-circle mr-2"></i>Actualizar Medidas
+                                </button>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col items-center justify-center group overflow-hidden relative">
+                            <div
+                                class="absolute -right-10 -bottom-10 w-40 h-40 bg-lime-50/30 rounded-full blur-3xl group-hover:bg-lime-100/40 transition-colors">
+                            </div>
+                            <div class="relative z-10 w-full h-full min-h-[250px]">
+                                <canvas id="chart-crecimiento"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ RECORDATORIOS ══ -->
+                <section id="sec-recordatorios" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-fuchsia-500 to-purple-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-clock text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Recordatorios</h2>
+                            <p class="text-slate-500 font-medium text-sm">Gestiona tus alarmas de insulina, glucosa y
+                                comidas</p>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-1">
+                            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-fuchsia-50 sticky top-24">
+                                <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                                    <span class="bg-fuchsia-100 text-fuchsia-600 p-2 rounded-xl"><i
+                                            class="fas fa-plus"></i></span>
+                                    Nueva Alarma
+                                </h4>
+                                <div class="space-y-5">
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Tipo</label>
+                                        <select id="rec-tipo"
+                                            class="med-input border-slate-100 focus:border-fuchsia-300">
+                                            <option value="insulina">💉 Insulina</option>
+                                            <option value="glucosa">🩸 Glucosa</option>
+                                            <option value="peso">⚖️ Monitor de Peso</option>
+                                            <option value="comida">🍽️ Comida</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Hora</label>
+                                        <input type="time" id="rec-hora"
+                                            class="med-input border-slate-100 focus:border-fuchsia-300" value="08:00">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-slate-400 text-[10px] font-black mb-2 uppercase tracking-widest">Mensaje</label>
+                                        <input type="text" id="rec-mensaje" placeholder="Ej: Es hora del bolo"
+                                            class="med-input border-slate-100 focus:border-fuchsia-300">
+                                    </div>
+                                    <button onclick="crearRecordatorio()"
+                                        class="w-full bg-gradient-to-r from-fuchsia-600 to-purple-600 text-white font-black py-4 rounded-2xl hover:shadow-lg transition-all active:scale-[0.98]">
+                                        <i class="fas fa-bell mr-2"></i>Activar Alarma
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 min-h-[500px]">
+                                <h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
+                                    <span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><i
+                                            class="fas fa-list-ul"></i></span>
+                                    Alarmas Configuradas
+                                </h4>
+                                <div id="lista-recordatorios" class="grid sm:grid-cols-2 gap-4 text-center">
+                                    <div class="col-span-2 py-20">
+                                        <i class="fas fa-bell-slash text-4xl text-slate-200 mb-4"></i>
+                                        <p class="text-slate-400 font-medium italic">Sincronizando recordatorios...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ══ HISTORIAL ══ -->
+                <section id="sec-historial" class="content-section">
+                    <!-- Section Header — Agro Pattern -->
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-blue-500 to-indigo-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-history text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Historial de Registros
+                            </h2>
+                            <p class="text-slate-500 font-medium text-sm">Bitácora completa de mediciones, comidas y
+                                bienestar</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50/50 backdrop-blur-md">
+                                    <tr>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Fecha y Hora</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Glucemia</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Carbos</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Dosis</th>
+                                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                            Momento</th>
+                                        <th
+                                            class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                            Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historial-body" class="divide-y divide-gray-50">
+                                    <tr>
+                                        <td colspan="6" class="p-16 text-center">
+                                            <i class="fas fa-spinner fa-spin text-2xl mb-4 text-blue-400"></i>
+                                            <p class="text-[10px] font-black uppercase tracking-widest mt-2">Recuperando
+                                                diario familiar...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <!-- ══ PERFIL REPRESENTANTE ══ -->
+                <section id="sec-perfil-parent" class="content-section">
+                    <div class="mb-8 flex items-center gap-4">
+                        <div
+                            class="bg-gradient-to-br from-teal-500 to-cyan-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                            <i class="fas fa-user-shield text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Perfil del Representante
+                            </h2>
+                            <p class="text-slate-500 font-medium text-sm">Tus datos personales y seguridad</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="glass-card rounded-[2.5rem] p-8 max-w-2xl mx-auto border border-teal-500/10 shadow-xl bg-white/50 backdrop-blur-md">
+                        <div class="flex items-center gap-6 mb-8">
+                            <div
+                                class="w-24 h-24 bg-teal-600 rounded-3xl flex items-center justify-center text-white text-4xl font-black shadow-lg">
+                                {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-black text-slate-800">{{ current_user.username }}</h3>
+                                <p class="text-teal-600 font-bold uppercase tracking-widest text-[10px]">Rol: {{
+                                    current_user.rol }}</p>
+                                <p class="text-slate-400 text-xs mt-1">Registrado: {{
+                                    current_user.fecha_registro.strftime('%d/%m/%Y') if current_user.fecha_registro else
+                                    'N/A' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Nombre
+                                        Completo</label>
+                                    <input type="text" id="parent-nombre"
+                                        value="{{ current_user.nombre_completo or '' }}" class="med-input bg-white/50">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Cédula
+                                        / ID</label>
+                                    <input type="text" id="parent-cedula" value="{{ current_user.cedula or '' }}"
+                                        class="med-input bg-white/50">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Email</label>
+                                    <input type="email" id="parent-email" value="{{ current_user.email or '' }}"
+                                        class="med-input bg-white/50">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Teléfono
+                                        de Emergencia</label>
+                                    <input type="tel" id="parent-tel" value="{{ current_user.telefono or '' }}"
+                                        class="med-input bg-white/50">
+                                </div>
+                            </div>
+
+                            <div class="pt-6 border-t border-slate-100 flex gap-4">
+                                <button onclick="guardarPerfilParent()"
+                                    class="flex-1 bg-teal-600 hover:bg-teal-500 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95">
+                                    <i class="fas fa-save mr-2"></i>Guardar mis datos
+                                </button>
+                                <button onclick="mostrarToast('Funcionalidad en desarrollo 🛠️', 'info')"
+                                    class="px-6 border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold rounded-xl transition-all active:scale-95">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
+
+
+
+
+            </div>
+        </main>
+    </div>
+    <!-- Floating Action Button -->
+    {% if current_user.rol not in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+    <button class="fab-main group" onclick="showSection('glucosa')" title="Medir Glucosa Ahora">
+        <i class="fas fa-plus"></i>
+        <span
+            class="absolute right-20 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Medir
+            Glucosa</span>
+    </button>
+    {% endif %}
+
+    <!-- BOTTOM NAV (Mobile) -->
+    <nav
+        class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
+        {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+        <div class="grid grid-cols-4 py-3">
+            <button onclick="showSection('dashboard')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-chart-pie text-lg"></i>Dashboard</button>
+            <button onclick="showSection('pacientes')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-child text-lg"></i>Pacientes</button>
+            <button onclick="showSection('alertas')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-bell text-lg"></i>Alertas</button>
+            <button onclick="showSection('exportar')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-file-export text-lg"></i>Reportes</button>
+        </div>
+        {% else %}
+        <div class="grid grid-cols-5 py-3">
+            <button onclick="showSection('miHeroe')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-mask text-lg"></i>Héroe</button>
+            <button onclick="showSection('glucosa')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-tint text-lg"></i>Glucosa</button>
+            <button onclick="showSection('comidas')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-utensils text-lg"></i>Comida</button>
+            <button onclick="showSection('bienestar')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-smile-beam text-lg"></i>Ánimo</button>
+            <button onclick="showSection('historial')"
+                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
+                    class="fas fa-history text-lg"></i>Notas</button>
+        </div>
+        {% endif %}
+    </nav>
+
+    <!-- MODAL: FICHA CLÍNICA EXPANDIDA (ESPECIALISTA) -->
+    <div id="modal-ficha-paciente" class="hidden fixed inset-0 z-[4000] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="cerrarFichaPaciente()"></div>
+        <div
+            class="relative bg-white w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-modal-in">
+            <!-- Header Modal -->
+            <div class="bg-gradient-to-r from-teal-600 to-cyan-700 p-6 text-white flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div id="ficha-avatar"
+                        class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-3xl">🦸</div>
+                    <div>
+                        <h3 id="ficha-nombre" class="text-2xl font-black">Nombre del Paciente</h3>
+                        <p id="ficha-sub" class="text-teal-100 text-xs font-bold uppercase tracking-widest">Código:
+                            P-000 · 10 años</p>
+                    </div>
+                </div>
+                <button onclick="cerrarFichaPaciente()"
+                    class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-all">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Content Modal -->
+            <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                    <!-- Columna Izquierda: Parámetros Médicos -->
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-3xl border border-teal-100 shadow-sm">
+                            <h4 class="font-black text-slate-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-sliders-h text-teal-600"></i> Parámetros Médicos
+                            </h4>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Ratio
+                                        Carbohidratos (g/UI)</label>
+                                    <input type="number" id="edit-ratio" step="0.1"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Factor
+                                        Sensibilidad (mg/dL/UI)</label>
+                                    <input type="number" id="edit-sensibilidad" step="0.1"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Glucemia
+                                        Objetivo (mg/dL)</label>
+                                    <input type="number" id="edit-glucemia-obj"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Dosis
+                                        Máxima Seguirdad (UI/kg)</label>
+                                    <input type="number" id="edit-dosis-max" step="0.1"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-slate-700">
+                                </div>
+                                <button onclick="guardarConfigPaciente()"
+                                    class="w-full bg-teal-600 text-white font-black py-3 rounded-xl hover:shadow-lg transition-all active:scale-95">
+                                    Actualizar Parámetros
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="ficha-alertas-box" class="bg-rose-50 p-6 rounded-3xl border border-rose-100">
+                            <h4 class="font-black text-rose-700 mb-3 text-sm">Alertas Pendientes</h4>
+                            <ul id="ficha-lista-alertas" class="text-xs text-rose-600 space-y-2 font-medium">
+                                <!-- Dinámico -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Gráficos y Evolución -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-[9px] font-black text-slate-400 uppercase">Estado CDI</p>
+                                <p id="ficha-val-cdi" class="text-lg font-black text-slate-800">—</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-[9px] font-black text-slate-400 uppercase">SCI-R (Adh)</p>
+                                <p id="ficha-val-scir" class="text-lg font-black text-slate-800">—</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-[9px] font-black text-slate-400 uppercase">Peso Actual</p>
+                                <p id="ficha-val-peso" class="text-lg font-black text-slate-800">—</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                                <p class="text-[9px] font-black text-slate-400 uppercase">IMC</p>
+                                <p id="ficha-val-imc" class="text-lg font-black text-slate-800">—</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-64">
+                            <canvas id="chart-ficha-glucemia"></canvas>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                            <h4 class="font-black text-slate-800 mb-4 text-sm uppercase tracking-widest">Historial
+                                Reciente</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left">
+                                    <thead class="bg-slate-50">
+                                        <tr>
+                                            <th class="p-3">Fecha</th>
+                                            <th class="p-3">Glucemia</th>
+                                            <th class="p-3">Dosis Sugerida</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ficha-tabla-historial">
+                                        <!-- Dinámico -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes modal-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .animate-modal-in {
+            animation: modal-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+
+    <!-- MODAL: VINCULAR CO-REPRESENTANTE -->
+    <div id="modal-vincular-parent" class="hidden fixed inset-0 z-[5000] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="cerrarVincularParent()"></div>
+        <div class="relative bg-white w-full max-w-md rounded-[2rem] shadow-2xl p-8 animate-modal-in">
+            <h3 class="text-xl font-black text-slate-800 mb-2">Vincular Co-Representante</h3>
+            <p class="text-slate-500 text-sm mb-6 font-medium">Invita a otra persona (ej. Papá/Mamá) para que también
+                pueda supervisar el perfil del héroe.</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Nombre de Usuario del
+                        Invitado</label>
+                    <input type="text" id="vincular-username" placeholder="Ej: mama_demo"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:ring-2 ring-indigo-500 outline-none">
+                </div>
+                <button onclick="ejecutarVinculacion()"
+                    class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30">
+                    Enviar Invitación
+                </button>
+                <button onclick="cerrarVincularParent()"
+                    class="w-full text-slate-400 font-bold text-sm py-2">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NUEVO REPRESENTANTE (Gestión de Personal) -->
+    <div id="modal-nuevo-representante" class="hidden fixed inset-0 z-[5500] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="cerrarModalNuevoRepresentante()"></div>
+        <div class="relative bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-modal-in">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black">Nuevo Representante</h3>
+                        <p class="text-emerald-100 text-xs font-medium">Crear cuenta de cuidador/padre</p>
+                    </div>
+                </div>
+                <button onclick="cerrarModalNuevoRepresentante()"
+                    class="w-9 h-9 bg-white/10 hover:bg-white/25 rounded-xl flex items-center justify-center transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Usuario
+                            *</label>
+                        <input type="text" id="rep-username" placeholder="Ej: madre_garcia"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:ring-2 ring-emerald-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Contraseña
+                            *</label>
+                        <input type="password" id="rep-password" placeholder="Mín. 8 caracteres"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:ring-2 ring-emerald-500 outline-none text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nombre
+                        Completo *</label>
+                    <input type="text" id="rep-nombre" placeholder="Ej: Carmen García de Rodríguez"
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:ring-2 ring-emerald-500 outline-none text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Cédula
+                            / ID</label>
+                        <input type="text" id="rep-cedula" placeholder="Ej: V-12345678"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:ring-2 ring-emerald-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label
+                            class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Email</label>
+                        <input type="email" id="rep-email" placeholder="correo@ejemplo.com"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:ring-2 ring-emerald-500 outline-none text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">
+                        <i class="fas fa-phone-alt text-rose-400 mr-1"></i> Tel. de Emergencia
+                    </label>
+                    <input type="tel" id="rep-telefono" placeholder="Ej: 04141234567"
+                        class="w-full bg-slate-50 border border-rose-200 rounded-xl px-4 py-3 font-bold text-slate-700 focus:ring-2 ring-rose-400 outline-none text-sm">
+                </div>
+                <!-- Info box -->
+                <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 flex gap-3">
+                    <i class="fas fa-info-circle text-emerald-500 mt-0.5 flex-shrink-0"></i>
+                    <p class="text-xs text-emerald-700 font-medium">El representante podrá acceder con las credenciales
+                        creadas y gestionar el perfil de sus hijos en el sistema.</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 pb-6 flex gap-3">
+                <button onclick="cerrarModalNuevoRepresentante()"
+                    class="flex-1 border border-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-50 transition-all active:scale-95">
+                    Cancelar
+                </button>
+                <button onclick="guardarNuevoRepresentante()"
+                    class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fas fa-user-plus"></i> Crear Representante
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SOS / EMERGENCIA CLINICA -->
+    <div id="modal-sos" class="hidden fixed inset-0 z-[6000] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onclick="cerrarSOS()"></div>
+        <div class="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-modal-in">
+            <div class="bg-rose-600 p-8 text-center text-white">
+                <div
+                    class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <h3 class="text-2xl font-black mb-1">Contacto de Emergencia</h3>
+                <p class="text-rose-100 text-sm font-medium">Estamos aquí para ayudarte. Contacto directo con el equipo
+                    médico.</p>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <!-- Información del Especialista -->
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-center gap-4">
+                    <div
+                        class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm border border-slate-100">
+                        👨‍⚕️
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Especialista
+                            Asignado</p>
+                        <h4 class="font-black text-slate-800" id="sos-doctor-name">Dr. Jesús García Coello</h4>
+                        <p class="text-xs text-slate-500 font-bold" id="sos-doctor-specialty">Endocrinólogo Pediátrico
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="tel:04141234567" id="sos-btn-call"
+                        class="bg-slate-800 text-white font-black py-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-all shadow-lg active:scale-95">
+                        <i class="fas fa-phone-alt text-rose-400"></i>
+                        <span class="text-xs">Llamar Ahora</span>
+                    </a>
+                    <a href="https://wa.me/584141234567" id="sos-btn-whatsapp" target="_blank"
+                        class="bg-emerald-600 text-white font-black py-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
+                        <i class="fab fa-whatsapp text-white"></i>
+                        <span class="text-xs">WhatsApp</span>
+                    </a>
+                </div>
+
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100 flex gap-3">
+                    <i class="fas fa-exclamation-triangle text-amber-500 mt-1"></i>
+                    <p class="text-[10px] text-amber-700 font-bold leading-relaxed">
+                        IMPORTANTE: Si se trata de una emergencia vital y no hay respuesta inmediata, acude al centro de
+                        salud más cercano.
+                    </p>
+                </div>
+
+                <button onclick="cerrarSOS()" class="w-full text-slate-400 font-bold py-2 text-sm">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+
+    {# ── Modales Complementarios ── #}
+    {% include 'components/modal_editar_usuario.html' %}
+    {% include 'components/modal_cambiar_password.html' %}
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+
+</html>

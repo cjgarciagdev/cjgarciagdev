@@ -1,0 +1,49 @@
+<div class="text-center">
+    <h2 class="text-2xl font-bold mb-4 text-slate-800">Semáforo de Glucosa 🚦</h2>
+    <p class="mb-4 text-slate-600">Clasifica los alimentos en Verde, Amarillo o Rojo según su impacto en el azúcar.</p>
+    <div id="game-area"
+        class="relative h-64 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-4">
+        <div id="item-to-sort" class="text-6xl mb-4 p-4 bg-white rounded-3xl shadow-lg animate-bounce">🍎</div>
+        <p id="item-name" class="font-bold text-slate-800 mb-6">Manzana</p>
+        <div class="flex gap-4 w-full justify-center">
+            <button onclick="sortItem('verde')"
+                class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl py-3 font-bold transition-all shadow-md">Verde</button>
+            <button onclick="sortItem('amarillo')"
+                class="flex-1 bg-amber-500 hover:bg-amber-400 text-white rounded-xl py-3 font-bold transition-all shadow-md">Amarillo</button>
+            <button onclick="sortItem('rojo')"
+                class="flex-1 bg-rose-500 hover:bg-rose-400 text-white rounded-xl py-3 font-bold transition-all shadow-md">Rojo</button>
+        </div>
+    </div>
+    <div id="score" class="mt-4 text-slate-500 font-bold">Aciertos: 0</div>
+    <button class="w-full mt-6 bg-slate-800 text-white font-bold py-3 rounded-xl"
+        onclick="finalizarJuego(3)">Terminar</button>
+</div>
+<script>
+    const items = [
+        { e: '🍎', n: 'Manzana', c: 'verde' },
+        { e: '🥦', n: 'Brócoli', c: 'verde' },
+        { e: '🍦', n: 'Helado', c: 'rojo' },
+        { e: '🍕', n: 'Pizza', c: 'amarillo' },
+        { e: '🍫', n: 'Chocolate', c: 'rojo' },
+        { e: '🥚', n: 'Huevo', c: 'verde' },
+        { e: '🥯', n: 'Pan Blanco', c: 'amarillo' }
+    ];
+    let currentIdx = 0;
+    let aciertos = 0;
+
+    function sortItem(color) {
+        if (items[currentIdx].c === color) {
+            aciertos++;
+            document.getElementById('score').textContent = `Aciertos: ${aciertos}`;
+        }
+        currentIdx = (currentIdx + 1) % items.length;
+        document.getElementById('item-to-sort').textContent = items[currentIdx].e;
+        document.getElementById('item-name').textContent = items[currentIdx].n;
+    }
+
+    function finalizarJuego(id) {
+        const puntos = Math.min(10, aciertos);
+        registrarPuntuacion(id, puntos);
+        document.getElementById('modal-juego-overlay').remove();
+    }
+</script>

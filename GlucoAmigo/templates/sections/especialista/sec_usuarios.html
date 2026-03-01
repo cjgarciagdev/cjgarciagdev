@@ -1,0 +1,48 @@
+{# ════════════════════════════════════════════
+SECCIÓN: Gestión de Usuarios
+ID: sec-usuarios | Rol: especialista/admin
+════════════════════════════════════════════ #}
+<section id="sec-usuarios" class="content-section">
+    <div class="mb-8 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div
+                class="bg-gradient-to-br from-emerald-500 to-teal-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+                <i class="fas fa-users-cog text-white text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Gestión de Usuarios</h2>
+                <p class="text-slate-500 font-medium text-sm">Registro de especialistas y representantes</p>
+            </div>
+        </div>
+        <button onclick="mostrarModalNuevoUsuario()"
+            class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3 rounded-2xl shadow-xl transition-all active:scale-95 flex items-center gap-2">
+            <i class="fas fa-plus"></i> Agregar Persona
+        </button>
+    </div>
+    <div class="glass-card rounded-[2.5rem] overflow-hidden border border-slate-200 shadow-xl">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Username</th>
+                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nombre Completo</th>
+                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Rol</th>
+                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
+                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Último Acceso</th>
+                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado</th>
+                        <th class="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body" class="bg-white divide-y divide-slate-100 text-xs">
+                    <tr>
+                        <td colspan="7" class="p-12 text-center text-slate-400 font-bold uppercase tracking-widest">
+                            <i class="fas fa-circle-notch fa-spin text-emerald-400 text-2xl mb-4"></i>
+                            <p class="text-[10px] font-black uppercase tracking-widest mt-2">Recuperando base de datos
+                                de usuarios...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

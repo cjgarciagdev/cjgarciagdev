@@ -1,0 +1,36 @@
+<div class="text-center">
+    <h2 class="text-2xl font-bold mb-4 text-slate-800">Crea tu Escudo de Héroe 🛡️</h2>
+    <p class="mb-4 text-slate-600">Personaliza tu escudo protector para el consultorio.</p>
+    <div id="shield-canvas"
+        class="relative w-48 h-48 bg-slate-100 rounded-[3rem] mx-auto border-4 border-slate-200 flex items-center justify-center mb-6 overflow-hidden">
+        <div id="shield-base" class="text-8xl">🛡️</div>
+        <div id="stickers-placed" class="absolute inset-0"></div>
+    </div>
+    <div class="grid grid-cols-4 gap-2 mb-6">
+        ${['⭐', '🔥', '💧', '⚡', '🍀', '💎', '🎨', '🦴'].map(s => `
+        <button onclick="addSticker('${s}')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-slate-50 transition-all">${s}</button>
+        `).join('')}
+    </div>
+    <button class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 rounded-xl shadow-lg"
+        onclick="finalizarJuego(7)">¡Guardar Mi Escudo!</button>
+</div>
+<script>
+    let stickerCount = 0;
+    function addSticker(s) {
+        if (stickerCount >= 10) return;
+        const st = document.createElement('div');
+        st.className = 'absolute text-2xl cursor-move';
+        st.style.left = (20 + Math.random() * 60) + '%';
+        st.style.top = (20 + Math.random() * 60) + '%';
+        st.textContent = s;
+        document.getElementById('stickers-placed').appendChild(st);
+        stickerCount++;
+    }
+
+    function finalizarJuego(id) {
+        const puntos = Math.min(10, stickerCount);
+        registrarPuntuacion(id, puntos);
+        document.getElementById('modal-juego-overlay').remove();
+    }
+</script>

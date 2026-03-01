@@ -1,0 +1,139 @@
+{# ═══════════════════════════════════════
+SECCIÓN: Dashboard Especialista
+ID: sec-dashboard | Rol: especialista/admin
+═══════════════════════════════════════ #}
+<section id="sec-dashboard" class="content-section active">
+
+    <div class="mb-8 flex items-center gap-4">
+        <div
+            class="bg-gradient-to-br from-teal-500 to-cyan-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+            <i class="fas fa-th-large text-white text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Triangulación Clínica</h2>
+            <p class="text-slate-500 font-medium text-sm">{{ current_user.consultorio or 'Hospital Dr. Jesús García
+                Coello' }} &bull; Gestión mHealth Pediátrica</p>
+        </div>
+    </div>
+
+    {# KPI Cards #}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-cyan-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+            style="animation-delay:0.1s;">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-cyan-50 rounded-2xl group-hover:bg-cyan-100 transition-colors"><i
+                        class="fas fa-child text-cyan-600 text-xl"></i></div>
+                <span
+                    class="bg-cyan-50 text-cyan-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Sujetos</span>
+            </div>
+            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Pacientes Registrados</p>
+            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-total">—</h3>
+            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1"><i
+                    class="fas fa-users text-cyan-400"></i> Total en el estudio</p>
+        </div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+            style="animation-delay:0.2s;">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-rose-50 rounded-2xl group-hover:bg-rose-100 transition-colors"><i
+                        class="fas fa-exclamation-triangle text-rose-600 text-xl"></i></div>
+                <span
+                    class="bg-rose-50 text-rose-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Acción</span>
+            </div>
+            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Pacientes en Riesgo</p>
+            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-riesgo">—</h3>
+            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1"><i
+                    class="fas fa-heart-broken text-rose-400"></i> Glucemia fuera de rango</p>
+        </div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-amber-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+            style="animation-delay:0.3s;">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-amber-50 rounded-2xl group-hover:bg-amber-100 transition-colors"><i
+                        class="fas fa-bell text-amber-600 text-xl"></i></div>
+                <span
+                    class="bg-amber-50 text-amber-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Alertas</span>
+            </div>
+            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Avisos Pendientes</p>
+            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-alertas">—</h3>
+            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1"><i
+                    class="fas fa-clock text-amber-400"></i> Revisiones requeridas</p>
+        </div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-teal-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
+            style="animation-delay:0.4s;">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-teal-50 rounded-2xl group-hover:bg-teal-100 transition-colors"><i
+                        class="fas fa-database text-teal-600 text-xl"></i></div>
+                <span
+                    class="bg-teal-50 text-teal-700 text-[0.625rem] uppercase font-black px-2 py-1 rounded-full">Data</span>
+            </div>
+            <p class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Total Mediciones</p>
+            <h3 class="text-4xl font-black text-gray-800 tracking-tight" id="kpi-registros">—</h3>
+            <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1"><i
+                    class="fas fa-chart-bar text-teal-400"></i> Registros glucemia</p>
+        </div>
+    </div>
+
+    {# Analytics Charts #}
+    <div id="dashboard-global-stats" class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 hidden">
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+            <h4 class="font-black text-slate-800 text-sm mb-6 flex items-center gap-3"><span
+                    class="bg-teal-100 text-teal-600 p-2 rounded-xl"><i class="fas fa-chart-pie"></i></span>Distribución
+                de TIR</h4>
+            <div class="h-48"><canvas id="chart-global-tir"></canvas></div>
+        </div>
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex flex-col">
+            <h4 class="font-black text-slate-800 text-sm mb-6 flex items-center gap-3"><span
+                    class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><i class="fas fa-brain"></i></span>Estado
+                Emocional Agregado (CDI)</h4>
+            <div class="h-48"><canvas id="chart-global-cdi"></canvas></div>
+        </div>
+    </div>
+
+    {# Tabla de Pacientes con filtros #}
+    <div class="glass-card rounded-[2.5rem] overflow-hidden border border-slate-200/60 shadow-xl stagger-item"
+        style="animation-delay:0.5s;">
+        <div
+            class="px-8 py-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
+            <div class="relative w-full md:w-80">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-black"></i>
+                <input type="text" id="busqueda-pacientes" placeholder="Buscar por nombre o ID..."
+                    class="w-full bg-white border border-slate-200 rounded-xl pl-12 pr-4 py-3 text-sm font-bold focus:ring-2 ring-teal-500 outline-none transition-all shadow-sm"
+                    onkeyup="filtrarPacientes()">
+            </div>
+            <div class="flex gap-4 w-full md:w-auto items-center">
+                <select id="filtro-estado" onchange="filtrarPacientes()"
+                    class="bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 ring-teal-500 outline-none">
+                    <option value="">🎯 Todos los Estados</option>
+                    <option value="Crítico">🚨 Críticos</option>
+                    <option value="Alerta">⚠️ En Alerta</option>
+                    <option value="Estable">✅ Estables</option>
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-gray-50/50 sticky top-0 z-10 backdrop-blur-md">
+                    <tr>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Código</th>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Edad / Peso</th>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Glucemia</th>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">TIR (Rango)</th>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">SCI-R (Adh)</th>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">CDI (Ánimo)</th>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Prioridad</th>
+                        <th class="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                            Detalle</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-pacientes-body" class="bg-white divide-y divide-slate-100">
+                    <tr>
+                        <td colspan="7" class="p-12 text-center">
+                            <i class="fas fa-circle-notch fa-spin text-teal-400 text-2xl mb-4"></i>
+                            <p class="text-gray-400 font-black uppercase text-[10px] tracking-widest">Analizando base de
+                                datos pediátrica...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

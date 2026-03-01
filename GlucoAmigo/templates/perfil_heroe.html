@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box glassmorphism">
+        <h2>Submódulo Perfil del Héroe 🦸</h2>
+        <p>Registremos al niño(a) para personalizar la experiencia.</p>
+
+        <form method="POST" action="{{ url_for('core.perfil_heroe') }}">
+            <div class="input-group">
+                <label>Nombre del Niño/Héroe</label>
+                <input type="text" name="nombre_nino" required>
+            </div>
+            <div class="input-group">
+                <label>Edad</label>
+                <input type="number" name="edad_nino" required>
+            </div>
+            <div class="input-group">
+                <label>Peso Actual (kg)</label>
+                <input type="number" step="0.1" name="peso_nino" required>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Crear Perfil</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{# ═══════════════════════════════════════
+COMPONENTE: Topbar / Header Principal
+Sticky — muestra título de sección y usuario
+═══════════════════════════════════════ #}
+<header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+        <button onclick="toggleSidebar()"
+            class="md:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center transition-all hover:bg-teal-50 hover:text-teal-600">
+            <i class="fas fa-bars text-slate-600"></i>
+        </button>
+        <div>
+            <h2 id="page-title" class="text-xl font-black text-slate-800 leading-tight">Panel Principal</h2>
+            <p id="page-sub" class="text-[11px] text-teal-600 font-bold tracking-wide">Gestión mHealth · GlucoAmigo</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-3">
+        {# Barra XP — solo visible para representantes/niños #}
+        {% if current_user.rol == 'padre' %}
+        <div id="xp-container" class="hidden md:flex items-center gap-3 px-4 py-2 rounded-2xl shadow-sm"
+            style="background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);border:1px solid rgba(245,158,11,0.2);">
+            <div class="relative">
+                <span class="text-xl" style="filter:drop-shadow(0 0 6px rgba(245,158,11,0.5));">⭐</span>
+            </div>
+            <div class="w-28">
+                <div class="flex justify-between items-center mb-1">
+                    <p id="hero-level" class="text-[9px] font-black text-amber-700 uppercase tracking-widest">Nivel 1
+                    </p>
+                    <p id="xp-points" class="text-[10px] font-black text-amber-600">0 pts</p>
+                </div>
+                <div class="progress-container w-full">
+                    <div id="xp-progress-bar" class="progress-bar" style="width: 5%"></div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {# Avatar de usuario #}
+        <div class="flex items-center gap-3 pl-2" style="border-left:1px solid rgba(226,232,240,0.7);">
+            <div class="text-right hidden sm:block">
+                <p class="text-xs font-black text-slate-800 leading-tight">{{ current_user.nombre_completo or
+                    current_user.username }}</p>
+                <p class="text-[10px] text-teal-600 font-bold uppercase tracking-widest">{{ current_user.rol }}</p>
+            </div>
+            <div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-black"
+                style="background:linear-gradient(135deg,#0d9488,#0891b2);box-shadow:0 6px 16px rgba(13,148,136,0.3);">
+                {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
+            </div>
+        </div>
+    </div>
+</header>

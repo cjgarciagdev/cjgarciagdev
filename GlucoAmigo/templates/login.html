@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlucoAmigo | Iniciar Sesión</title>
+    <meta name="description" content="GlucoAmigo - Sistema mHealth para gestión de diabetes pediátrica tipo 1">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🩺</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #134e4a 40%, #0c4a6e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* Animated background orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            pointer-events: none;
+            animation: orbMove 15s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #14b8a6;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 350px;
+            height: 350px;
+            background: #6366f1;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+
+        .orb-3 {
+            width: 280px;
+            height: 280px;
+            background: #f59e0b;
+            top: 50%;
+            left: 50%;
+            animation-delay: 10s;
+            opacity: 0.08;
+        }
+
+        @keyframes orbMove {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(20px, -20px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-15px, 15px) scale(0.92);
+            }
+        }
+
+        /* Main container */
+        .login-container {
+            width: 100%;
+            max-width: 1040px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+            animation: containerIn 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            position: relative;
+        }
+
+        @keyframes containerIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Panels */
+        .hero-panel {
+            background: linear-gradient(160deg, #0d9488 0%, #0891b2 50%, #0e7490 100%);
+            padding: 52px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-panel {
+            background: rgba(255, 255, 255, 0.97);
+            padding: 50px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Inputs & Buttons */
+        .tab-switcher {
+            background: #f1f5f9;
+            border-radius: 14px;
+            padding: 5px;
+            display: flex;
+            gap: 4px;
+            margin-bottom: 32px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #0d9488;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px 18px 14px 46px;
+            font-weight: 700;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #0d9488;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            bottom: 14px;
+            color: #94a3b8;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #0d9488 0%, #0891b2 100%);
+            color: white;
+            font-weight: 900;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 12px 28px rgba(13, 148, 136, 0.35);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px rgba(13, 148, 136, 0.45);
+        }
+
+        .demo-chip {
+            background: rgba(13, 148, 136, 0.07);
+            border: 1px solid rgba(13, 148, 136, 0.15);
+            color: #0f766e;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 5px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .mascot-ring {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: mascotFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes mascotFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                max-width: 480px;
+            }
+
+            .hero-panel {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="login-container">
+        <!-- Hero Panel -->
+        <div class="hero-panel">
+            <div>
+                <h1 style="color:white;font-size:2.6rem;font-weight:900;line-height:1.1;">Gluco<span
+                        style="color:#a7f3d0;">Amigo</span></h1>
+                <p style="color:rgba(255,255,255,0.75);font-size:0.9rem;margin-top:8px;">Sistema experto de gestión de
+                    diabetes pediátrica</p>
+            </div>
+            <div class="mascot-ring">
+                <span style="font-size:5rem;">🦸</span>
+            </div>
+            <div style="color:white;font-size:0.8rem;opacity:0.6;">Hospital Dr. Jesús García Coello</div>
+        </div>
+
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div style="max-width:380px;width:100%;margin:0 auto;">
+                <h2 style="font-weight:900;color:#0f172a;font-size:1.5rem;margin-bottom:24px;">Bienvenido</h2>
+
+
+
+                <div id="panel-login">
+                    <form action="{{ url_for('auth.login') }}" method="POST">
+                        <div class="input-group">
+                            <label class="input-label">Usuario</label>
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" name="username" placeholder="Nombre de usuario" class="input-field"
+                                required>
+                        </div>
+                        <div class="input-group" style="margin-bottom:12px;">
+                            <label class="input-label">Contraseña</label>
+                            <i class="fas fa-key input-icon"></i>
+                            <input type="password" name="password" placeholder="••••••••" class="input-field" required>
+                        </div>
+
+                        <div style="text-align:right; margin-bottom:24px;">
+                            <a href="{{ url_for('auth.api_identificar_usuario') }}"
+                                style="color:#0d9488; font-size:0.75rem; font-weight:800; text-decoration:none;">¿Olvidaste
+                                tu contraseña?</a>
+                        </div>
+
+                        <button type="submit" class="btn-submit">ACCEDER AL SISTEMA</button>
+                    </form>
+
+                    <div style="margin-top:24px;padding-top:20px;border-top:1px solid #f1f5f9;text-align:center;">
+                        <p style="color:#94a3b8;font-size:0.68rem;font-weight:800;margin-bottom:12px;">CUENTAS DEMO</p>
+                        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+                            <div class="demo-chip" onclick="fillDemo('admin','1234')">admin / 1234</div>
+                            <div class="demo-chip" onclick="fillDemo('papa_demo','1234')">papa_demo / 1234</div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function fillDemo(u, p) {
+            document.querySelector('[name="username"]').value = u;
+            document.querySelector('[name="password"]').value = p;
+        }
+    </script>
+</body>
+
+</html>

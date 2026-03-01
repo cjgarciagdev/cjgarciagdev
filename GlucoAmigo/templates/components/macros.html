@@ -1,0 +1,17 @@
+{# Common Jinja macros for componentización #}
+
+{% macro hero_card(h) %}
+<div class="hero-card p-4 bg-white rounded shadow">
+    <div class="flex items-center gap-3">
+        <div class="text-3xl">{{ h.foto_emoji or '🦸' }}</div>
+        <div>
+            <div class="font-semibold">{{ h.nombre }}</div>
+            <div class="text-sm text-slate-500">Edad: {{ h.edad }} • Peso: {{ h.peso }}kg</div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro user_modal() %}
+{% include 'components/modal_nuevo_usuario.html' %}
+{% endmacro %}

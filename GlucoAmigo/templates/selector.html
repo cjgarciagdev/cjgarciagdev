@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selector de Perfil · GlucoAmigo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 50%, #f8fafc 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body class="p-6">
+    <div class="max-w-4xl w-full mx-auto">
+        <div class="text-center mb-10">
+            <div
+                class="w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-3xl flex items-center justify-center text-white text-4xl mx-auto mb-6 shadow-xl transform -rotate-6">
+                🩺
+            </div>
+            <h1 class="text-4xl font-black text-slate-800 tracking-tight mb-2">¿Quién entrará hoy?</h1>
+            <p class="text-slate-500 font-bold">Selecciona el perfil que vas a usar en este momento</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Representante -->
+            <a href="{{ url_for('portal_representante') }}"
+                class="group block glass-card bg-white p-10 rounded-[3rem] shadow-lg border border-indigo-100 hover:border-indigo-300 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center cursor-pointer">
+                <div
+                    class="w-32 h-32 bg-indigo-50 rounded-full flex items-center justify-center text-6xl mx-auto mb-8 group-hover:bg-indigo-100 transition-colors">
+                    🛡️
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 mb-3">Representante</h2>
+                <p class="text-slate-500 font-medium px-4">Accede a las configuraciones, registra datos y revisa los
+                    reportes médicos.</p>
+                <div
+                    class="mt-8 bg-indigo-600 text-white font-black py-4 px-8 rounded-2xl inline-block group-hover:bg-indigo-700 transition-colors">
+                    Entrar al panel
+                </div>
+            </a>
+
+            <!-- Niño -->
+            <a href="{{ url_for('portal_nino') }}"
+                class="group block glass-card bg-white p-10 rounded-[3rem] shadow-lg border-amber-100 hover:border-amber-300 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center cursor-pointer relative overflow-hidden">
+                <div
+                    class="absolute -right-6 -top-6 text-[8rem] opacity-5 group-hover:rotate-12 group-hover:scale-110 transition-all duration-500 pointer-events-none">
+                    🎮</div>
+                <div
+                    class="w-32 h-32 bg-amber-50 rounded-full flex items-center justify-center text-6xl mx-auto mb-8 group-hover:bg-amber-100 transition-colors relative z-10">
+                    🦸
+                </div>
+                <h2 class="text-2xl font-black text-slate-800 mb-3 relative z-10">ZONA DE NIÑOS</h2>
+                <p class="text-slate-500 font-medium px-4 relative z-10">Juegos educativos, registro de misiones y
+                    evaluación de estado de ánimo.</p>
+                <div
+                    class="mt-8 bg-amber-500 text-white font-black py-4 px-8 rounded-2xl inline-block group-hover:bg-amber-600 transition-colors relative z-10">
+                    ¡A jugar!
+                </div>
+            </a>
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="{{ url_for('auth.logout') }}"
+                class="text-slate-400 font-bold text-sm hover:text-rose-500 transition-colors"><i
+                    class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión</a>
+        </div>
+    </div>
+</body>
+
+</html>

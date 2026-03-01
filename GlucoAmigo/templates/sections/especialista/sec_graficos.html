@@ -1,0 +1,62 @@
+{# ════════════════════════════════════════════
+SECCIÓN: Análisis Avanzado — Gráficos
+ID: sec-graficos | Rol: especialista/admin
+════════════════════════════════════════════ #}
+<section id="sec-graficos" class="content-section">
+    <div class="mb-8 flex items-center gap-4">
+        <div
+            class="bg-gradient-to-br from-violet-500 to-indigo-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
+            <i class="fas fa-chart-area text-white text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Análisis Avanzado</h2>
+            <p class="text-slate-500 font-medium text-sm">Visualizador de tendencias clínicas y psicoemocionales</p>
+        </div>
+    </div>
+
+    <div
+        class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100 mb-8 transition-all duration-500 hover:shadow-lg">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <div>
+                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-3">
+                    <span class="bg-violet-100 text-violet-600 p-2 rounded-lg"><i class="fas fa-chart-line"></i></span>
+                    Visualizador de Tendencias
+                </h3>
+                <p class="text-sm text-gray-500 ml-11">Relación entre control metabólico y estado psicoemocional</p>
+            </div>
+            <div class="relative w-full sm:w-auto">
+                <select id="select-heroe-grafico" onchange="cargarGraficos()"
+                    class="w-full sm:w-80 appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-xl focus:outline-none focus:bg-white focus:border-teal-500 transition cursor-pointer font-bold text-sm">
+                    <option value="">— Elegir Paciente —</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="h-72 bg-gradient-to-b from-transparent to-gray-50/50 rounded-2xl p-2">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-black text-gray-700 flex items-center gap-2 text-sm">
+                        <span class="bg-rose-100 text-rose-500 p-1.5 rounded-lg"><i
+                                class="fas fa-tint text-xs"></i></span>
+                        Curva de Glucemia
+                    </h4>
+                    <span class="text-[10px] font-black text-teal-600 bg-teal-50 px-2 py-1 rounded-lg">mg/dL</span>
+                </div>
+                <canvas id="chart-glucemia"></canvas>
+            </div>
+            <div class="h-72 bg-gradient-to-b from-transparent to-gray-50/50 rounded-2xl p-2">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-black text-gray-700 flex items-center gap-2 text-sm">
+                        <span class="bg-indigo-100 text-indigo-500 p-1.5 rounded-lg"><i
+                                class="fas fa-brain text-xs"></i></span>
+                        Evaluación CDI
+                    </h4>
+                    <span class="text-[10px] font-black text-rose-600 bg-rose-50 px-2 py-1 rounded-lg">Puntaje</span>
+                </div>
+                <canvas id="chart-cdi"></canvas>
+            </div>
+        </div>
+    </div>
+</section>
