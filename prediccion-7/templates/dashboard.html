@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">📊 Dashboard de Análisis</h1>
+        <p style="color: var(--text-secondary);">Análisis estadístico y predicciones basadas en datos históricos</p>
+    </div>
+
+    {% if stats %}
+    <!-- Estadísticas Principales -->
+    <div class="grid grid-4" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.total_muestras }}</div>
+            <div class="stat-label">Total de Muestras</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.media|round(1) }}</div>
+            <div class="stat-label">Media</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.moda }}</div>
+            <div class="stat-label">Moda (Más Frecuente)</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.rango }}</div>
+            <div class="stat-label">Rango</div>
+        </div>
+    </div>
+
+    <!-- Predicciones -->
+    {% if predicciones and 'combinado' in predicciones %}
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h2 class="card-title">🔮 Predicción del Próximo Número</h2>
+        </div>
+
+        <div class="grid grid-3">
+            {% for metodo, pred in predicciones.items() %}
+            {% if 'error' not in pred %}
+            <div
+                style="text-align: center; padding: 2rem; background: var(--bg-tertiary); border-radius: var(--radius-lg);">
+                <div
+                    style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 1px;">
+                    {{ metodo }}
+                </div>
+                <div style="font-size: 3rem; font-weight: 800; margin: 1rem 0;" class="gradient-text">
+                    {{ pred.numero }}
+                </div>
+                <div style="font-size: 1.25rem; font-weight: 600; color: var(--success); margin-bottom: 0.5rem;">
+                    {{ (pred.confianza * 100)|round(1) }}% confianza
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                    {{ pred.metodo }}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Análisis Estadístico -->
+    <div class="grid grid-2" style="margin-bottom: 2rem;">
+        <!-- Información General -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">📈 Estadísticas Generales</h3>
+            </div>
+
+            <div style="display: grid; gap: 0.75rem;">
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">Mediana:</span>
+                    <span style="font-weight: 600;">{{ stats.mediana|round(1) }}</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">Desviación Estándar:</span>
+                    <span style="font-weight: 600;">{{ stats.desviacion_estandar|round(2) }}</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">Mínimo:</span>
+                    <span style="font-weight: 600;">{{ stats.minimo }}</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">Máximo:</span>
+                    <span style="font-weight: 600;">{{ stats.maximo }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Análisis de Patrones -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">🎯 Análisis de Patrones</h3>
+            </div>
+
+            <div style="display: grid; gap: 0.75rem;">
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">Diferencia Promedio:</span>
+                    <span style="font-weight: 600;">{{ stats.diferencia_promedio|round(2) }}</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">Racha Máxima:</span>
+                    <span style="font-weight: 600;">{{ stats.racha_maxima }}</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">% Números Pares:</span>
+                    <span style="font-weight: 600;">{{ stats.porcentaje_pares|round(1) }}%</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                    <span style="color: var(--text-secondary);">% Números Impares:</span>
+                    <span style="font-weight: 600;">{{ stats.porcentaje_impares|round(1) }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 10 Números Más Frecuentes -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">🏆 Top 10 Números Más Frecuentes</h3>
+        </div>
+
+        <div class="grid grid-2">
+            {% for numero, frecuencia in stats.frecuencias_top_10 %}
+            <div
+                style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                <div
+                    style="font-size: 2rem; font-weight: 700; color: var(--primary); min-width: 60px; text-align: center;">
+                    {{ numero }}
+                </div>
+                <div style="flex: 1;">
+                    <div style="height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden;">
+                        <div
+                            style="height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); width: {{ (frecuencia / stats.frecuencias_top_10[0][1] * 100)|round }}%;">
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); min-width: 80px; text-align: right;">
+                    {{ frecuencia }} veces
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Números Recientes -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">⏱️ Últimos 10 Números</h3>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+            {% for numero in stats.numeros_recientes %}
+            <div
+                style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); border-radius: var(--radius-md); font-size: 1.5rem; font-weight: 700; color: var(--primary);">
+                {{ numero }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <!-- No hay datos suficientes -->
+    <div class="card" style="text-align: center; padding: 4rem;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">📊</div>
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">No hay datos suficientes</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Se necesitan al menos 50 números para generar análisis y predicciones.
+            <br>Actualmente tienes {{ numeros|length }} números.
+        </p>
+        <a href="{{ url_for('scraper_config') }}" class="btn btn-primary">
+            🕷️ Configurar Scraper
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

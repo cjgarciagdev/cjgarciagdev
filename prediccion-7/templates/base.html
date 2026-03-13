@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Predicción-7{% endblock %} | Sistema de Predicción Inteligente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🔮</span>
+                <span>Predicción-7</span>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    Inicio
+                </a>
+                <a href="{{ url_for('dashboard') }}"
+                    class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+                <a href="{{ url_for('carga_datos') }}"
+                    class="nav-link {% if request.endpoint == 'carga_datos' %}active{% endif %}">
+                    📋 Carga de Datos
+                </a>
+                <a href="{{ url_for('historial') }}"
+                    class="nav-link {% if request.endpoint == 'historial' %}active{% endif %}">
+                    Historial
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

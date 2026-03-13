@@ -16,6 +16,7 @@
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
     <style>
         * {
             font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
@@ -46,7 +47,7 @@
     </style>
 </head>
 
-<body>
+<body class="has-mobile-header">
 
     <!-- Page Transition Curtain -->
     <div id="page-curtain" style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 50%,#0f172a 100%);">
@@ -76,10 +77,14 @@
         </div>
     </div>
 
+    <!-- Mobile Header -->
+    {% include 'components/header_mobile.html' %}
+
     <div class="flex min-h-screen">
         <!-- ══════════════ SIDEBAR ══════════════ -->
-        <aside class="sidebar" id="sidebar">
-            <div class="p-5" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+        <aside id="sidebar"
+            class="sidebar fixed top-0 left-0 h-full w-[270px] bg-gradient-to-b from-[#0f172a] to-[#1a2744] text-white shadow-2xl z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out flex flex-col pt-4 lg:pt-0 sidebar-transition">
+            <div class="p-5 flex justify-between items-start" style="border-bottom:1px solid rgba(255,255,255,0.08);">
                 <div class="flex items-center gap-3">
                     <div class="sidebar-logo-box w-12 h-12 rounded-2xl flex items-center justify-center">
                         <span class="text-2xl">🩺</span>
@@ -89,6 +94,9 @@
                         <p class="sidebar-brand-sub text-xs font-bold mt-0.5">Hospital J. García C.</p>
                     </div>
                 </div>
+                <button onclick="toggleSidebar()" class="lg:hidden text-white/50 hover:text-white p-2">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
             <nav class="py-3 flex-grow overflow-y-auto" id="sidebar-nav" style="display:flex;flex-direction:column;">
@@ -208,6 +216,11 @@
                 </button>
                 <div id="group-user" style="overflow:hidden;max-height:0;transition:max-height 0.3s ease;">
 
+                    <!-- Botón cambiar a perfil representante -->
+                    <a href="{{ url_for('portal_representante') }}" class="nav-item text-indigo-400 flex mt-1">
+                        <i class="fas fa-user-shield w-8 text-lg" style="color:#818cf8;"></i>Cambiar a Representante
+                    </a>
+
                     <a href="{{ url_for('auth.logout') }}" class="nav-item text-rose-600 flex mt-1">
                         <i class="fas fa-sign-out-alt w-8 text-lg" style="color:#f87171;"></i>Finalizar Sesión
                     </a>
@@ -221,7 +234,7 @@
 
         <!-- ══════════════ MAIN ══════════════ -->
         <main class="flex-1 md:ml-[270px] min-h-screen main-content">
-            <header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+            <header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between hidden">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSidebar()"
                         class="md:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center transition-all hover:bg-teal-50 hover:text-teal-600">
@@ -309,7 +322,7 @@
                         </div>
                         <div>
                             <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Triangulación Clínica</h2>
-                            <p class="text-slate-500 font-medium text-sm">Hospital Dr. Jesús García Coello &bull;
+                            <p class="text-slate-500 font-medium text-sm">{{ config_sistema.hospital_nombre }} &bull;
                                 Gestión mHealth Pediátrica</p>
                         </div>
                     </div>
@@ -1144,19 +1157,8 @@
                                 <div class="text-center">
                                     <h4 class="text-2xl font-black text-slate-800 mb-8 leading-tight h-20"
                                         id="cdi-pregunta-texto"></h4>
-                                    <div class="flex justify-center gap-6 flex-wrap">
-                                        <button
-                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:rotate-6 focus:ring-4 focus:ring-pink-100 rounded-full"
-                                            onclick="responderCDI(0)">😊</button>
-                                        <button
-                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:rotate-0 focus:ring-4 focus:ring-pink-100 rounded-full"
-                                            onclick="responderCDI(1)">😐</button>
-                                        <button
-                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:-rotate-6 focus:ring-4 focus:ring-pink-100 rounded-full"
-                                            onclick="responderCDI(2)">😕</button>
-                                        <button
-                                            class="emoji-opt text-5xl transform transition-all hover:scale-125 hover:-rotate-12 focus:ring-4 focus:ring-pink-100 rounded-full"
-                                            onclick="responderCDI(3)">😢</button>
+                                    <div class="flex justify-center gap-4 flex-wrap" id="cdi-opciones-container">
+                                        <!-- Opciones dinámicas (Emoji + Texto) inyectadas por app.js -->
                                     </div>
                                 </div>
                             </div>
@@ -1430,74 +1432,67 @@
                 </section>
                 <!-- ══ PERFIL REPRESENTANTE ══ -->
                 <section id="sec-perfil-parent" class="content-section">
-                    <div class="mb-8 flex items-center gap-4">
+                    <div class="mb-6 flex items-center gap-4">
                         <div
                             class="bg-gradient-to-br from-teal-500 to-cyan-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
                             <i class="fas fa-user-shield text-white text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Perfil del Representante
+                            <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Mi Perfil
                             </h2>
-                            <p class="text-slate-500 font-medium text-sm">Tus datos personales y seguridad</p>
+                            <p class="text-slate-500 font-medium text-sm">Tus datos personales</p>
                         </div>
                     </div>
 
                     <div
-                        class="glass-card rounded-[2.5rem] p-8 max-w-2xl mx-auto border border-teal-500/10 shadow-xl bg-white/50 backdrop-blur-md">
-                        <div class="flex items-center gap-6 mb-8">
+                        class="glass-card rounded-[2rem] p-5 max-w-2xl mx-auto border border-teal-500/10 shadow-xl bg-white/50 backdrop-blur-md">
+                        <div class="flex items-center gap-4 mb-5">
                             <div
-                                class="w-24 h-24 bg-teal-600 rounded-3xl flex items-center justify-center text-white text-4xl font-black shadow-lg">
+                                class="w-16 h-16 bg-teal-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-lg">
                                 {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-2xl font-black text-slate-800">{{ current_user.username }}</h3>
+                                <h3 class="text-xl font-black text-slate-800">{{ current_user.username }}</h3>
                                 <p class="text-teal-600 font-bold uppercase tracking-widest text-[10px]">Rol: {{
                                     current_user.rol }}</p>
-                                <p class="text-slate-400 text-xs mt-1">Registrado: {{
-                                    current_user.fecha_registro.strftime('%d/%m/%Y') if current_user.fecha_registro else
-                                    'N/A' }}</p>
                             </div>
                         </div>
 
-                        <div class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Nombre
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Nombre
                                         Completo</label>
                                     <input type="text" id="parent-nombre"
-                                        value="{{ current_user.nombre_completo or '' }}" class="med-input bg-white/50">
+                                        value="{{ current_user.nombre_completo or '' }}"
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Cédula
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Cédula
                                         / ID</label>
                                     <input type="text" id="parent-cedula" value="{{ current_user.cedula or '' }}"
-                                        class="med-input bg-white/50">
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Email</label>
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Email</label>
                                     <input type="email" id="parent-email" value="{{ current_user.email or '' }}"
-                                        class="med-input bg-white/50">
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Teléfono
-                                        de Emergencia</label>
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Teléfono</label>
                                     <input type="tel" id="parent-tel" value="{{ current_user.telefono or '' }}"
-                                        class="med-input bg-white/50">
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                             </div>
 
-                            <div class="pt-6 border-t border-slate-100 flex gap-4">
+                            <div class="pt-4 border-t border-slate-100 flex gap-3">
                                 <button onclick="guardarPerfilParent()"
-                                    class="flex-1 bg-teal-600 hover:bg-teal-500 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95">
-                                    <i class="fas fa-save mr-2"></i>Guardar mis datos
-                                </button>
-                                <button onclick="mostrarToast('Funcionalidad en desarrollo 🛠️', 'info')"
-                                    class="px-6 border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold rounded-xl transition-all active:scale-95">
-                                    <i class="fas fa-key"></i>
+                                    class="flex-1 bg-teal-600 hover:bg-teal-500 text-white font-black py-3 rounded-xl shadow-lg transition-all active:scale-95">
+                                    <i class="fas fa-save mr-2"></i>Guardar
                                 </button>
                             </div>
                         </div>
@@ -1511,54 +1506,11 @@
             </div>
         </main>
     </div>
-    <!-- Floating Action Button -->
-    {% if current_user.rol not in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
-    <button class="fab-main group" onclick="showSection('glucosa')" title="Medir Glucosa Ahora">
-        <i class="fas fa-plus"></i>
-        <span
-            class="absolute right-20 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Medir
-            Glucosa</span>
-    </button>
-    {% endif %}
+
+
 
     <!-- BOTTOM NAV (Mobile) -->
-    <nav
-        class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
-        {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
-        <div class="grid grid-cols-4 py-3">
-            <button onclick="showSection('dashboard')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-chart-pie text-lg"></i>Dashboard</button>
-            <button onclick="showSection('pacientes')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-child text-lg"></i>Pacientes</button>
-            <button onclick="showSection('alertas')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-bell text-lg"></i>Alertas</button>
-            <button onclick="showSection('exportar')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-file-export text-lg"></i>Reportes</button>
-        </div>
-        {% else %}
-        <div class="grid grid-cols-5 py-3">
-            <button onclick="showSection('miHeroe')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-mask text-lg"></i>Héroe</button>
-            <button onclick="showSection('glucosa')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-tint text-lg"></i>Glucosa</button>
-            <button onclick="showSection('comidas')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-utensils text-lg"></i>Comida</button>
-            <button onclick="showSection('bienestar')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-smile-beam text-lg"></i>Ánimo</button>
-            <button onclick="showSection('historial')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-history text-lg"></i>Notas</button>
-        </div>
-        {% endif %}
-    </nav>
+    {% include 'components/bottom_nav_nino.html' %}
 
     <!-- MODAL: FICHA CLÍNICA EXPANDIDA (ESPECIALISTA) -->
     <div id="modal-ficha-paciente" class="hidden fixed inset-0 z-[4000] flex items-center justify-center p-4">

@@ -46,7 +46,7 @@
     </style>
 </head>
 
-<body>
+<body class="has-mobile-header">
 
     <!-- Page Transition Curtain -->
     <div id="page-curtain" style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 50%,#0f172a 100%);">
@@ -269,7 +269,7 @@
 
         <!-- ══════════════ MAIN ══════════════ -->
         <main class="flex-1 md:ml-[270px] min-h-screen main-content">
-            <header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+            <header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between hidden">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSidebar()"
                         class="md:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center transition-all hover:bg-teal-50 hover:text-teal-600">
@@ -874,6 +874,17 @@
                                 <span class="font-black text-slate-800 text-sm uppercase">Tu Escudo</span>
                                 <span class="text-orange-600 font-bold text-xs mt-1">+10 Pts</span>
                             </button>
+
+                            <!-- Juego 8 -->
+                            <button onclick="abrirJuego(8)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-lime-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all">
+                                    <img src="/static/img/emoji/emoji5.svg" class="w-12 h-12" alt="Comida">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Sana vs Chatarra</span>
+                                <span class="text-lime-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
                         </div>
                     </div>
                 </section>
@@ -1420,74 +1431,67 @@
                 </section>
                 <!-- ══ PERFIL REPRESENTANTE ══ -->
                 <section id="sec-perfil-parent" class="content-section">
-                    <div class="mb-8 flex items-center gap-4">
+                    <div class="mb-6 flex items-center gap-4">
                         <div
                             class="bg-gradient-to-br from-teal-500 to-cyan-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6 flex-shrink-0">
                             <i class="fas fa-user-shield text-white text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Perfil del Representante
+                            <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Mi Perfil
                             </h2>
-                            <p class="text-slate-500 font-medium text-sm">Tus datos personales y seguridad</p>
+                            <p class="text-slate-500 font-medium text-sm">Tus datos personales</p>
                         </div>
                     </div>
 
                     <div
-                        class="glass-card rounded-[2.5rem] p-8 max-w-2xl mx-auto border border-teal-500/10 shadow-xl bg-white/50 backdrop-blur-md">
-                        <div class="flex items-center gap-6 mb-8">
+                        class="glass-card rounded-[2rem] p-5 max-w-2xl mx-auto border border-teal-500/10 shadow-xl bg-white/50 backdrop-blur-md">
+                        <div class="flex items-center gap-4 mb-5">
                             <div
-                                class="w-24 h-24 bg-teal-600 rounded-3xl flex items-center justify-center text-white text-4xl font-black shadow-lg">
+                                class="w-16 h-16 bg-teal-600 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-lg">
                                 {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-2xl font-black text-slate-800">{{ current_user.username }}</h3>
+                                <h3 class="text-xl font-black text-slate-800">{{ current_user.username }}</h3>
                                 <p class="text-teal-600 font-bold uppercase tracking-widest text-[10px]">Rol: {{
                                     current_user.rol }}</p>
-                                <p class="text-slate-400 text-xs mt-1">Registrado: {{
-                                    current_user.fecha_registro.strftime('%d/%m/%Y') if current_user.fecha_registro else
-                                    'N/A' }}</p>
                             </div>
                         </div>
 
-                        <div class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Nombre
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Nombre
                                         Completo</label>
                                     <input type="text" id="parent-nombre"
-                                        value="{{ current_user.nombre_completo or '' }}" class="med-input bg-white/50">
+                                        value="{{ current_user.nombre_completo or '' }}"
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Cédula
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Cédula
                                         / ID</label>
                                     <input type="text" id="parent-cedula" value="{{ current_user.cedula or '' }}"
-                                        class="med-input bg-white/50">
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Email</label>
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Email</label>
                                     <input type="email" id="parent-email" value="{{ current_user.email or '' }}"
-                                        class="med-input bg-white/50">
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Teléfono
-                                        de Emergencia</label>
+                                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Teléfono</label>
                                     <input type="tel" id="parent-tel" value="{{ current_user.telefono or '' }}"
-                                        class="med-input bg-white/50">
+                                        class="med-input bg-white/50 text-sm py-2">
                                 </div>
                             </div>
 
-                            <div class="pt-6 border-t border-slate-100 flex gap-4">
+                            <div class="pt-4 border-t border-slate-100 flex gap-3">
                                 <button onclick="guardarPerfilParent()"
-                                    class="flex-1 bg-teal-600 hover:bg-teal-500 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95">
-                                    <i class="fas fa-save mr-2"></i>Guardar mis datos
-                                </button>
-                                <button onclick="mostrarToast('Funcionalidad en desarrollo 🛠️', 'info')"
-                                    class="px-6 border border-slate-200 text-slate-600 hover:bg-slate-50 font-bold rounded-xl transition-all active:scale-95">
-                                    <i class="fas fa-key"></i>
+                                    class="flex-1 bg-teal-600 hover:bg-teal-500 text-white font-black py-3 rounded-xl shadow-lg transition-all active:scale-95">
+                                    <i class="fas fa-save mr-2"></i>Guardar
                                 </button>
                             </div>
                         </div>
@@ -1501,15 +1505,8 @@
             </div>
         </main>
     </div>
-    <!-- Floating Action Button -->
-    {% if current_user.rol not in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
-    <button class="fab-main group" onclick="showSection('glucosa')" title="Medir Glucosa Ahora">
-        <i class="fas fa-plus"></i>
-        <span
-            class="absolute right-20 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Medir
-            Glucosa</span>
-    </button>
-    {% endif %}
+
+
 
     <!-- BOTTOM NAV (Mobile) -->
     <nav

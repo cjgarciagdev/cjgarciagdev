@@ -3,6 +3,10 @@
 //  Módulos 1–5 + Nutrición + Crecimiento + Recordatorios
 // ═══════════════════════════════════════════════════════════════
 
+// DESARROLLADOR: Cristian J Garcia
+// CI: 32.170.910
+// Email: cjgarciag.dev@gmail.com
+
 const STATE = {
     heroes: [],
     heroe: null,
@@ -103,31 +107,63 @@ function abrirJuego(id) {
 
     // Cargar el contenido del juego
     fetch(`/api/juego/template/${id}`)
-        .then(r => r.text())
+        .then(r => {
+            if (!r.ok) throw new Error('Not found');
+            return r.text();
+        })
         .then(html => {
-            document.getElementById('juego-content').innerHTML = html;
+            const container = document.getElementById('juego-content');
+            if (!container) return;
+            // Separar HTML y scripts para ejecutar correctamente
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            // Extraer scripts antes de insertar HTML
+            const scripts = temp.querySelectorAll('script');
+            const scriptContents = [];
+            scripts.forEach(s => {
+                scriptContents.push(s.textContent);
+                s.remove();
+            });
+            // Insertar HTML sin scripts
+            container.innerHTML = temp.innerHTML;
+            // Ejecutar scripts en orden
+            scriptContents.forEach(code => {
+                try {
+                    const scriptEl = document.createElement('script');
+                    scriptEl.textContent = code;
+                    container.appendChild(scriptEl);
+                } catch (e) {
+                    console.error('Error ejecutando script del juego:', e);
+                }
+            });
         })
         .catch(() => {
-            document.getElementById('juego-content').innerHTML = `
-                <div class="text-center py-8">
-                    <p class="text-5xl mb-4">🧩</p>
-                    <h3 class="text-xl font-bold text-slate-800">¡Juego no encontrado!</h3>
-                    <p class="text-slate-700 text-sm">Próximamente estaremos añadiendo más retos.</p>
-                </div>
-            `;
+            const container = document.getElementById('juego-content');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-5xl mb-4">🧩</p>
+                        <h3 class="text-xl font-bold text-slate-800">¡Juego no encontrado!</h3>
+                        <p class="text-slate-700 text-sm">Próximamente estaremos añadiendo más retos.</p>
+                    </div>
+                `;
+            }
         });
 }
 
 async function registrarPuntuacion(juegoId, puntos) {
+    if (!STATE.heroe) { mostrarToast('Perfil de Héroe no cargado', 'warning'); return; }
     try {
         const res = await apiPost(`/api/juego/${juegoId}`, { puntos, heroe_id: STATE.heroe.id });
         if (res.ok) {
             STATE.heroe.puntos_juego = res.total;
             actualizarBarraPuntos();
-            mostrarToast(`¡Ganaste ${puntos} puntos de poder! ✨`, 'success');
-
-            // Efecto de confeti si ganó puntos
-            if (puntos > 0) lanzarConfeti();
+            // Actualizar badge en las tarjetas de héroe del dashboard
+            const ptsBadges = document.querySelectorAll('[id="tienda-puntos-disp"]');
+            ptsBadges.forEach(b => b.textContent = res.total);
+            if (puntos > 0) {
+                celebrarMision(puntos);
+            }
         }
     } catch (e) {
         console.error('Error al registrar puntos:', e);
@@ -144,6 +180,74 @@ function actualizarBarraPuntos() {
         if (texto) texto.textContent = `${p} / 70 Puntos de Poder`;
     }
 }
+
+
+// ── Motor de Alarmas en Tiempo Real ─────────────────────────────────
+let _alarmaInterval = null;
+
+function iniciarMotorAlarmas() {
+    if (_alarmaInterval) clearInterval(_alarmaInterval);
+    _alarmaInterval = setInterval(verificarAlarmas, 60000); // Cada minuto
+    verificarAlarmas(); // Verificar inmediatamente al iniciar
+}
+
+async function verificarAlarmas() {
+    if (!STATE.heroe) return;
+    try {
+        const recs = await apiGet(`/api/recordatorios/${STATE.heroe.id}`);
+        if (!Array.isArray(recs) || !recs.length) return;
+
+        const ahora = new Date();
+        const hh = String(ahora.getHours()).padStart(2, '0');
+        const mm = String(ahora.getMinutes()).padStart(2, '0');
+        const horaActual = `${hh}:${mm}`;
+        const diasMap = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
+        const diaActual = diasMap[ahora.getDay()];
+
+        recs.forEach(r => {
+            // Verificar si la hora coincide (tolerancia de 1 min) y día corresponde
+            if (r.hora === horaActual || r.hora === `${hh}:${String(ahora.getMinutes() - 1).padStart(2, '0')}`) {
+                const dias = (r.dias || 'L,M,X,J,V,S,D').split(',');
+                if (dias.includes(diaActual)) {
+                    const clave = `alarma_${r.id}_${horaActual}`;
+                    if (!sessionStorage.getItem(clave)) {
+                        sessionStorage.setItem(clave, '1');
+                        dispararAlarma(r);
+                    }
+                }
+            }
+        });
+    } catch (e) { /* silencioso */ }
+}
+
+function dispararAlarma(rec) {
+    const iconMap = { insulina: '💉', glucosa: '🩸', cita: '🏥', peso: '⚖️', comida: '🍽️' };
+    const icono = iconMap[rec.tipo] || '⏰';
+    const titulo = `${icono} Recordatorio GlucoAmigo`;
+    const cuerpo = rec.mensaje || `Es hora de tu ${rec.tipo}`;
+
+    // Sonido de alerta (beep simple con Web Audio API)
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.5);
+    } catch (_) { }
+
+    // Notificación del sistema
+    mostrarNotificacion(titulo, cuerpo);
+
+    // Toast visible
+    mostrarToast(`${icono} ${cuerpo}`, 'warning');
+}
+
 
 
 // ── Utilidades ───────────────────────────────────────────────────
@@ -247,7 +351,31 @@ function showSection(name) {
 
 function toggleSidebar() {
     const sb = $('sidebar');
-    if (sb) sb.classList.toggle('open');
+    const overlay = $('sidebarOverlay');
+    if (sb) {
+        sb.classList.toggle('open');
+        // Toggle overlay for mobile
+        if (overlay) {
+            if (sb.classList.contains('open')) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.add('visible'), 10);
+            } else {
+                overlay.classList.remove('visible');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+    }
+}
+
+// Close sidebar when clicking overlay on mobile
+function closeSidebar() {
+    const sb = $('sidebar');
+    const overlay = $('sidebarOverlay');
+    if (sb) sb.classList.remove('open');
+    if (overlay) {
+        overlay.classList.remove('visible');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
 }
 
 // ── PWA ──────────────────────────────────────────────────────────
@@ -274,7 +402,7 @@ window.addEventListener('online', () => mostrarToast('🌐 Conexión recuperada.
 
 function filtrarPacientes() {
     const q = $('busqueda-pacientes')?.value?.toLowerCase() || '';
-    const estadoStr = $('filtro-estado')?.value;
+    const estadoStr = $('filtro-riesgo')?.value || $('filtro-estado')?.value;
     const f = estadoStr ? estadoStr.toLowerCase() : 'todos';
 
     const rows = document.querySelectorAll('#tabla-pacientes-body tr');
@@ -289,8 +417,39 @@ function filtrarPacientes() {
         row.style.display = (matchQ && matchF) ? '' : 'none';
     });
 }
+
+/**
+ * Filtra la tabla de pacientes por un estado específico y desliza la vista hacia la tabla.
+ */
+function scrollToAndFilter(estado = 'todos') {
+    const sel = $('filtro-riesgo') || $('filtro-estado');
+    if (sel) {
+        sel.value = estado;
+        filtrarPacientes();
+    }
+    const tableContainer = document.getElementById('tabla-pacientes-body')?.closest('.glass-card');
+    if (tableContainer) {
+        tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 // ── Toast Notifications ─────────────────────────────────────────
+// Variable global para controlar notificaciones existentes
+let _toastActivo = null;
+
 function mostrarToast(msg, tipo = 'success') {
+    // Eliminar notificación anterior si existe
+    if (_toastActivo && _toastActivo.parentNode) {
+        _toastActivo.style.transform = 'translateX(120%)';
+        _toastActivo.style.opacity = '0';
+        setTimeout(() => {
+            if (_toastActivo && _toastActivo.parentNode) {
+                _toastActivo.remove();
+            }
+            _toastActivo = null;
+        }, 300);
+    }
+
     const config = {
         success: { icon: '✅', gradient: 'from-emerald-600 to-teal-600' },
         warning: { icon: '⚠️', gradient: 'from-amber-500 to-orange-500' },
@@ -298,17 +457,30 @@ function mostrarToast(msg, tipo = 'success') {
         info: { icon: '💡', gradient: 'from-teal-500 to-cyan-500' },
     };
     const c = config[tipo] || config.info;
+    // Posición responsive: más abajo en móvil para evitar el header
+    const isMobile = window.innerWidth < 768;
+    const topPos = isMobile ? 'top-24' : 'top-5';
+    const maxWidth = isMobile ? 'max-w-[85vw]' : 'max-w-sm';
     const t = document.createElement('div');
-    t.className = `fixed top-5 right-5 z-[200] bg-gradient-to-r ${c.gradient} text-white px-6 py-4 rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.35)] border border-white/20 flex items-center gap-3 max-w-sm`;
+    t.className = `fixed ${topPos} right-5 z-[200] bg-gradient-to-r ${c.gradient} text-white px-6 py-4 rounded-2xl shadow-[0_15px_50px_rgba(0,0,0,0.35)] border border-white/20 flex items-center gap-3 ${maxWidth}`;
     t.innerHTML = `<span class="text-2xl flex-shrink-0">${c.icon}</span><p class="font-bold text-sm">${msg}</p>`;
     t.style.transform = 'translateX(120%)';
     t.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
     document.body.appendChild(t);
+    _toastActivo = t;
+
     requestAnimationFrame(() => t.style.transform = 'translateX(0)');
     setTimeout(() => {
-        t.style.transform = 'translateX(120%)';
-        t.style.opacity = '0';
-        setTimeout(() => t.remove(), 500);
+        if (t && t.parentNode) {
+            t.style.transform = 'translateX(120%)';
+            t.style.opacity = '0';
+            setTimeout(() => {
+                if (t && t.parentNode) {
+                    t.remove();
+                }
+                if (_toastActivo === t) _toastActivo = null;
+            }, 500);
+        }
     }, 4500);
 }
 
@@ -377,10 +549,11 @@ async function cargarPerfilHeroe() {
                     ${STATE.heroes.map(hero => `
                         <button onclick="seleccionarHeroe(${hero.id})" 
                             class="flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${hero.id === h.id ? 'bg-teal-600 text-white shadow-lg' : 'bg-white text-slate-600 border border-slate-200'}">
-                            <span class="text-xl">${hero.foto_emoji}</span>
-                            <span class="font-bold text-xs">${hero.nombre}</span>
+                            <span class="text-xl">${hero.foto_emoji || '🦸'}</span>
+                            <span class="font-bold text-xs">${hero.nombre || 'Sin nombre'}</span>
                         </button>
                     `).join('')}
+
                     <button onclick="mostrarNuevoHeroeForm()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-teal-600 border border-teal-200 border-dashed hover:bg-teal-50">
                         <span class="text-xl">+</span>
                         <span class="font-bold text-xs">Nuevo</span>
@@ -485,11 +658,12 @@ function seleccionarHeroe(hid) {
     if (hero) {
         STATE.heroe = hero;
         localStorage.setItem('last_hero_id', hid);
-        mostrarToast(`Cambiando a perfil de ${hero.nombre} 🦸`, 'info');
+        mostrarToast(`Cambiando a perfil de ${hero.nombre || 'Héroe'} 🦸`, 'info');
 
         // Actualizar UI Sidebar
         const hs = $('active-hero-name-sidebar');
-        if (hs) hs.textContent = `Héroe: ${hero.nombre}`;
+        if (hs) hs.textContent = `Héroe: ${hero.nombre || 'Sin nombre'}`;
+
 
         cargarPerfilHeroe();
         cargarRecomendaciones(hero.id);
@@ -741,8 +915,12 @@ async function confirmarDosis(regId, dosis) {
 //  MÓDULO 3: CDI
 // ══════════════════════════════════════════════════════════
 async function iniciarCDI() {
-    if (!STATE.heroe) return;
+    if (!STATE.heroe) {
+        mostrarToast('Primero selecciona o crea un Héroe 🦸', 'warning');
+        return;
+    }
     const data = await apiGet('/api/psico/preguntas/CDI');
+
     STATE.cdiPreguntas = data.preguntas;
     STATE.cdiRespuestas = [];
     STATE.cdiIndex = 0;
@@ -755,16 +933,62 @@ function mostrarPreguntaCDI() {
     const idx = STATE.cdiIndex;
     const total = STATE.cdiPreguntas.length;
     if (idx >= total) { enviarCDI(); return; }
+
+    const q = STATE.cdiPreguntas[idx];
+    const texto = typeof q === 'string' ? q : q.texto;
+    const opciones = q.opciones || ['Muy Bien', 'Normal', 'Triste', 'Muy Triste'];
+    const icons = ['😊', '😐', '😕', '😢'];
+    const colors = [
+        { bg: 'bg-pink-100', hover: 'hover:bg-pink-200', text: 'text-pink-700', border: 'border-pink-200' },
+        { bg: 'bg-slate-50', hover: 'hover:bg-slate-100', text: 'text-slate-700', border: 'border-slate-200' },
+        { bg: 'bg-orange-50', hover: 'hover:bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' },
+        { bg: 'bg-rose-50', hover: 'hover:bg-rose-100', text: 'text-rose-700', border: 'border-rose-200' }
+    ];
+
+    const container = $('cdi-opciones-container');
+    if (container) {
+        container.innerHTML = opciones.map((label, v) => {
+            const c = colors[v];
+            return `
+                <button class="emoji-opt ${c.bg} ${c.hover} ${c.text} font-bold px-6 py-4 rounded-2xl transform transition-all hover:scale-105 active:scale-95 shadow-sm border ${c.border} flex flex-col items-center gap-2 min-w-[120px]"
+                    onclick="responderCDI(${v})">
+                    <span class="text-3xl">${icons[v]}</span>
+                    <span class="text-[11px] md:text-xs uppercase tracking-wide border-t border-black/5 pt-1 w-full text-center">${label}</span>
+                </button>
+            `;
+        }).join('');
+    }
+
     $('cdi-prog-text').textContent = `Pregunta ${idx + 1} de ${total}`;
     $('cdi-prog-bar').style.width = `${((idx) / total) * 100}%`;
     $('cdi-puntaje-parcial').textContent = `${STATE.cdiRespuestas.reduce((a, b) => a + b, 0)} pts`;
-    $('cdi-pregunta-texto').textContent = STATE.cdiPreguntas[idx];
+    $('cdi-pregunta-texto').textContent = texto;
 }
 
 function responderCDI(valor) {
     STATE.cdiRespuestas.push(valor);
     STATE.cdiIndex++;
+    if ($('cdi-respuesta-custom')) {
+        $('cdi-respuesta-custom').value = '';
+    }
     mostrarPreguntaCDI();
+}
+
+function responderCustomCDI() {
+    const input = $('cdi-respuesta-custom');
+    if (!input) return;
+    const txt = input.value.trim().toLowerCase();
+    if (!txt) {
+        mostrarToast('Por favor escribe cómo te sientes.', 'warning');
+        return;
+    }
+
+    let valor = 1; // Default a 'Normal'
+    if (txt.match(/(bien|feliz|excelente|alegre|genial|contento|bueno)/i)) valor = 0;
+    else if (txt.match(/(muy mal|pésimo|peor|deprimid|odio|morir|nada)/i)) valor = 3;
+    else if (txt.match(/(mal|triste|llorar|enojad|solo|cansad|aburrid|molest)/i)) valor = 2;
+
+    responderCDI(valor);
 }
 
 async function enviarCDI() {
@@ -777,24 +1001,54 @@ async function enviarCDI() {
 
     let html = '';
     if (res.estado === 'Riesgo') {
-        html = `<div class="bg-rose-50 border-2 border-rose-200 rounded-2xl p-6">
-            <p class="text-5xl mb-3">⚠️</p>
-            <p class="font-black text-rose-600 text-xl">Riesgo de Sintomatología Depresiva</p>
-            <p class="text-slate-600 text-sm mt-2">Puntaje CDI: <b class="text-slate-800">${res.puntaje} pts</b> (umbral: 19)</p>
-            <p class="text-slate-700 text-sm mt-1">Se recomienda evaluación psicológica y sesión de TCC.</p>
-            <p class="text-teal-600 text-sm mt-2 font-bold">✅ Alerta enviada al especialista automáticamente.</p>
+        html = `<div class="bg-rose-50 border-2 border-rose-200 rounded-[2rem] p-8 text-center">
+            <div class="text-6xl mb-4 flex items-center justify-center gap-3">😰⚠️💔</div>
+            <p class="font-black text-rose-600 text-xl mb-2">Riesgo de Sintomatología Depresiva 😟</p>
+            <p class="text-slate-600 text-sm mt-2">📊 Puntaje CDI: <b class="text-slate-800">${res.puntaje} pts</b> (umbral: 19)</p>
+            <p class="text-slate-700 text-sm mt-2">🩺 Se recomienda evaluación psicológica y sesión de TCC.</p>
+            <p class="text-teal-600 text-sm mt-3 font-bold bg-teal-50 rounded-xl p-3 border border-teal-200">✅ Alerta enviada al especialista automáticamente 📨</p>
         </div>`;
         inyectarApoyoPsicologico();
     } else {
-        html = `<div class="text-center">
-            <p class="text-7xl mb-3">😊</p>
-            <p class="font-black text-emerald-600 text-xl">¡Estado Emocional Estable!</p>
-            <p class="text-slate-700 text-sm mt-2">CDI: <b class="text-slate-800">${res.puntaje} pts</b> · Rango normal</p>
+        // Determinar nivel de bienestar con emojis según puntaje
+        let emojiSet, titulo, subtitulo;
+        if (res.puntaje <= 5) {
+            emojiSet = '🌟😄💪🎉';
+            titulo = '¡Excelente Estado Emocional!';
+            subtitulo = '¡Tu héroe se siente increíble! Sigue así 🌈';
+        } else if (res.puntaje <= 10) {
+            emojiSet = '😊✨👍🌤️';
+            titulo = '¡Estado Emocional Muy Bueno!';
+            subtitulo = 'Tu héroe está bien y con buena energía ☀️';
+        } else if (res.puntaje <= 15) {
+            emojiSet = '🙂💚👌🌻';
+            titulo = '¡Estado Emocional Estable!';
+            subtitulo = 'Todo dentro del rango normal 🌿';
+        } else {
+            emojiSet = '😐💛🤔🌥️';
+            titulo = 'Estado Emocional Aceptable';
+            subtitulo = 'Cerca del umbral, vale la pena estar atentos 👀';
+        }
+        html = `<div class="text-center bg-emerald-50 border-2 border-emerald-200 rounded-[2rem] p-8">
+            <div class="text-5xl mb-4 flex items-center justify-center gap-2">${emojiSet.split('').map(e => `<span class="inline-block animate-bounce" style="animation-delay:${Math.random() * 0.5}s">${e}</span>`).join('')}</div>
+            <p class="font-black text-emerald-600 text-xl mb-2">${titulo}</p>
+            <p class="text-slate-600 text-sm">${subtitulo}</p>
+            <p class="text-slate-500 text-sm mt-3 bg-white/60 rounded-xl p-3 border border-emerald-100">📊 CDI: <b class="text-slate-800">${res.puntaje} pts</b> · Rango normal ✅</p>
         </div>`;
         sumarXP(40);
     }
-    resDiv.innerHTML = html + `<button onclick="resetCDI()" class="mt-5 bg-white/10 hover:bg-white/15 text-white font-bold px-5 py-3 rounded-xl transition-all active:scale-95">Realizar otra evaluación</button>`;
+    resDiv.innerHTML = html + `<button onclick="resetCDI()" class="mt-5 bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all active:scale-95 shadow-lg">🔄 Realizar otra evaluación</button>`;
+    mostrarNotificacion('Evaluación CDI Guardada', 'Se ha registrado el estado emocional del héroe.', 'info');
 }
+
+
+function mostrarNotificacion(titulo, msj, tipo = 'info') {
+    if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(titulo, { body: msj, icon: '/static/img/icon-192x192.png' });
+    }
+    mostrarToast(`${titulo}: ${msj}`, tipo);
+}
+
 
 function inyectarApoyoPsicologico() {
     const parent = $('cdi-resultado');
@@ -836,24 +1090,23 @@ async function cargarSCIR() {
     if (!cont) return;
     const data = await apiGet('/api/psico/preguntas/SCIR');
     STATE.scirPreguntas = data.preguntas;
-    STATE.scirRespuestas = new Array(data.preguntas.length).fill(2);
+    STATE.scirRespuestas = new Array(data.preguntas.length).fill(-1);  // -1 = sin selección
 
     let html = `<h4 class="font-black text-slate-800 text-lg mb-6 flex items-center gap-3">
         <span class="bg-sky-100 text-sky-600 p-2 rounded-xl"><i class="fas fa-list-check"></i></span>
         Frecuencia de actividades de cuidado
     </h4>
     <div class="space-y-4" id="scir-preguntas">`;
-    data.preguntas.forEach((p, i) => {
+    data.preguntas.forEach((prog, i) => {
+        const opciones = prog.opciones || ['Nunca', 'A veces', 'Casi siempre', 'Siempre'];
         html += `<div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 hover-lift stagger-item" style="animation-delay: ${i * 0.05}s">
-            <p class="text-sm font-bold mb-4 text-slate-700">${i + 1}. ${p}</p>
-            <div class="flex gap-2 justify-between items-center bg-white/50 p-3 rounded-xl border border-dashed border-slate-200">
-                <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Nunca</span>
-                <div class="flex gap-2">
-                    ${['😞', '😐', '🙂', '😊'].map((e, v) => `
-                    <button class="scir-btn text-2xl p-2 rounded-xl bg-white border border-slate-200 hover:shadow-md transition-all ${v === 2 ? 'ring-2 ring-sky-500 shadow-lg' : ''}" 
+            <p class="text-sm font-bold mb-4 text-slate-700">${i + 1}. ${prog.texto}</p>
+            <div class="flex justify-center items-center bg-white/50 p-4 rounded-xl border border-dashed border-slate-200">
+                <div class="flex gap-2 flex-wrap justify-center w-full">
+                    ${opciones.map((e, v) => `
+                    <button class="scir-btn text-[10px] md:text-[11px] font-black py-3 px-4 md:px-5 rounded-xl bg-white text-slate-600 border border-slate-200 hover:shadow-md hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 transition-all uppercase tracking-widest" 
                         onclick="selScir(${i},${v},this)">${e}</button>`).join('')}
                 </div>
-                <span class="text-[10px] text-slate-400 font-black uppercase tracking-widest">Siempre</span>
             </div>
         </div>`;
     });
@@ -878,6 +1131,14 @@ function selScir(idx, val, btn) {
 
 async function enviarSCIR() {
     if (!STATE.heroe) { mostrarToast('Primero crea el perfil del Héroe', 'warning'); return; }
+
+    // Validar que todas las preguntas tengan respuesta
+    const sinResponder = STATE.scirRespuestas.filter(r => r === -1).length;
+    if (sinResponder > 0) {
+        mostrarToast(`Responde todas las preguntas primero (${sinResponder} sin responder)`, 'warning');
+        return;
+    }
+
     const res = await apiPost('/api/psico/guardar', {
         heroe_id: STATE.heroe.id, tipo: 'SCIR', respuestas: STATE.scirRespuestas
     });
@@ -902,7 +1163,9 @@ async function enviarSCIR() {
         <p class="text-slate-600 text-sm mt-2">Porcentaje: <b class="text-slate-800">${res.puntaje}%</b> · Excelente.</p>
     </div>`;
         sumarXP(50);
+        mostrarNotificacion('Evaluación SCI-R Guardada', 'Se ha registrado la adherencia al tratamiento.', 'success');
     }
+
     resDiv.innerHTML = html + `<button onclick="location.reload()" class="mt-5 bg-white/10 hover:bg-white/15 text-white font-bold px-5 py-3 rounded-xl transition-all active:scale-95">Nueva evaluación</button>`;
 }
 
@@ -1069,8 +1332,11 @@ async function crearRecordatorio() {
         mostrarToast('¡Alarma configurada con éxito! ⏰', 'success');
         $('rec-mensaje').value = '';
         cargarRecordatorios();
+        // Reiniciar motor para que detecte la nueva alarma
+        iniciarMotorAlarmas();
     }
 }
+
 
 async function eliminarRecordatorio(id) {
     if (!confirm('¿Eliminar esta alarma?')) return;
@@ -1099,8 +1365,9 @@ async function cargarDashboardEspecialista() {
         const pgTitle = $('page-title');
         const pgSub = $('page-sub');
         if (pgTitle && pgTitle.textContent.includes('Pacientes')) {
-            pgTitle.textContent = `👶 Pacientes (N=${n})`;
+            pgTitle.textContent = `👶 Pacientes`;
         }
+
         if (pgSub && pgSub.textContent.includes('Grupo')) {
             pgSub.textContent = `${n} pacientes registrados en el Hospital Dr. Jesús García Coello`;
         }
@@ -1206,18 +1473,18 @@ async function cargarDashboardEspecialista() {
             }
 
             return `<tr class="${cls} hover:bg-slate-50 transition-all">
-            <td class="px-5 py-4 font-mono font-bold text-teal-700">${p.id}</td>
-            <td class="px-5 py-4 text-slate-600">${p.edad}a / ${p.peso}kg</td>
-            <td class="px-5 py-4 text-slate-800 font-semibold">${p.ultima_glucemia ? p.ultima_glucemia + ' mg/dL' : '—'} <span class="text-slate-600 text-[10px] block opacity-60">${p.fecha_glucemia}</span></td>
+            <td class="px-5 py-4 font-mono font-bold text-teal-700">${p.id || '—'}</td>
+            <td class="px-5 py-4 text-slate-600">${p.edad || '—'}a / ${p.peso || '—'}kg</td>
+            <td class="px-5 py-4 text-slate-800 font-semibold">${p.ultima_glucemia ? p.ultima_glucemia + ' mg/dL' : '—'} <span class="text-slate-600 text-[10px] block opacity-60">${p.fecha_glucemia || '—'}</span></td>
             <td class="px-5 py-4">
                 <div class="flex items-center gap-2">
                     <div class="w-12 h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div class="h-full ${p.tir < 70 ? 'bg-amber-400' : 'bg-emerald-500'}" style="width: ${p.tir}%"></div>
+                        <div class="h-full ${(p.tir || 0) < 70 ? 'bg-amber-400' : 'bg-emerald-500'}" style="width: ${p.tir || 0}%"></div>
                     </div>
-                    <span class="text-[11px] font-black ${p.tir < 70 ? 'text-amber-600' : 'text-emerald-600'}">${p.tir}%</span>
+                    <span class="text-[11px] font-black ${(p.tir || 0) < 70 ? 'text-amber-600' : 'text-emerald-600'}">${p.tir || 0}%</span>
                 </div>
             </td>
-            <td class="px-5 py-4"><span class="${p.adherencia_estado === 'Baja' ? 'text-amber-600' : 'text-emerald-600'} font-bold">${p.adherencia_pct !== null ? p.adherencia_pct + '% (' + p.adherencia_estado + ')' : '—'}</span></td>
+            <td class="px-5 py-4"><span class="${p.adherencia_estado === 'Baja' ? 'text-amber-600' : 'text-emerald-600'} font-bold">${p.adherencia_pct !== null ? p.adherencia_pct + '% (' + (p.adherencia_estado || 'N/A') + ')' : '—'}</span></td>
             <td class="px-5 py-4"><span class="${p.cdi_estado === 'Riesgo' ? 'text-red-600' : 'text-emerald-600'} font-bold">${p.cdi_puntaje !== null ? p.cdi_puntaje + 'pts' : '—'}</span></td>
             <td class="px-5 py-4">${badge}</td>
             <td class="px-5 py-4 text-center">
@@ -1226,6 +1493,7 @@ async function cargarDashboardEspecialista() {
                 </button>
             </td>
         </tr>`;
+
         }).join('');
 
         const sel = $('select-heroe-grafico');
@@ -1241,9 +1509,9 @@ async function cargarDashboardEspecialista() {
                 return `<div class="glass-card rounded-3xl p-5 ${r ? 'border-l-4 border-red-500' : 'border-l-4 border-emerald-500'}">
                 <div class="flex justify-between items-start mb-3">
                     <div>
-                        <p class="font-mono font-black text-teal-700 text-lg">${p.id}</p>
-                        <p class="font-bold text-slate-800">${p.nombre}</p>
-                        <p class="text-slate-600 text-xs">${p.edad}a · ${p.peso}kg</p>
+                        <p class="font-mono font-black text-teal-700 text-lg">${p.id || '—'}</p>
+                        <p class="font-bold text-slate-800">${p.nombre || '—'}</p>
+                        <p class="text-slate-600 text-xs">${p.edad || '—'}a · ${p.peso || '—'}kg</p>
                     </div>
                     <span class="${r ? 'bg-red-100 text-red-600 border border-red-200' : 'bg-emerald-100 text-emerald-600 border border-emerald-200'} px-2 py-1 rounded-full text-[10px] font-bold">
                         ${r ? '⚠️ Crítico' : '✅ Estable'}
@@ -1254,6 +1522,7 @@ async function cargarDashboardEspecialista() {
                     <p class="text-slate-700">CDI: <span class="${p.cdi_estado === 'Riesgo' ? 'text-red-600' : 'text-emerald-600'} font-semibold">${p.cdi_puntaje !== null ? p.cdi_puntaje + ' pts' : '—'}</span></p>
                     <p class="text-slate-700">SCI-R: <span class="${p.adherencia_estado === 'Baja' ? 'text-amber-600' : 'text-emerald-600'} font-semibold">${p.adherencia_pct !== null ? p.adherencia_pct + '%' : '—'}</span></p>
                 </div>
+
                 ${p.alertas_pendientes > 0 ? `<div class="mt-3 bg-red-50 border border-red-100 rounded-lg px-3 py-2 text-xs text-red-600 font-bold flex items-center gap-2 animate-pulse"><i class="fas fa-bell"></i> ${p.alertas_pendientes} alerta(s)</div>` : ''}
                 <button onclick="abrirFichaPaciente(${p.heroe_id})" class="mt-4 w-full text-xs bg-slate-800 hover:bg-teal-600 text-white font-black py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
                     <i class="fas fa-user-md"></i> Abrir Ficha Clínica
@@ -1281,9 +1550,10 @@ async function abrirFichaPaciente(hid) {
         const h = data.heroe;
 
         // Llenar cabecera
-        $('ficha-nombre').textContent = h.nombre;
-        $('ficha-sub').textContent = `Código: ${h.codigo} · ${h.edad} años · ${h.peso} kg`;
+        $('ficha-nombre').textContent = h.nombre || 'Sin nombre';
+        $('ficha-sub').textContent = `Código: ${h.codigo || '—'} · ${h.edad || '—'} años · ${h.peso || '—'} kg`;
         $('ficha-avatar').textContent = h.foto_emoji || '🦸';
+
 
         // Llenar parámetros médicos
         $('edit-ratio').value = h.ratio_carbohidratos;
@@ -2030,10 +2300,11 @@ function actualizarTendencia(data) {
     // Lógica para mostrar resumen en el header o perfil
     const tit = $('page-sub');
     if (tit && data.length >= 2) {
-        const d = data[0].glucemia_actual - data[1].glucemia_actual;
+        const d = (data[0].glucemia_actual || 0) - (data[1].glucemia_actual || 0);
         const msg = d > 0 ? 'Tendencia alcista' : 'Tendencia estable/baja';
         tit.innerHTML = `Módulo 2 · ${msg} <span class="ml-2">${d > 0 ? '📈' : '📉'}</span>`;
     }
+
 }
 
 // ── Gamificación Premium ─────────────────────────────────────────
@@ -2130,7 +2401,7 @@ function celebrarMision(puntos) {
     }, 2500);
 
     // Actualizar mascota
-    actualizarEstadoHeroe(STATE.heroe ? STATE.heroe.ultima_glucemia : 100);
+    actualizarMascotaDinamica(STATE.heroe ? STATE.heroe.ultima_glucemia : 100);
 }
 
 // ── TIENDA DE RECOMPENSAS ─────────────────────────────────────────
@@ -2160,6 +2431,12 @@ async function init() {
             console.error('ServiceWorker registration failed: ', err);
         }
     }
+
+    // Solicitar permiso para notificaciones
+    if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+    }
+
 
     // Cortina suave con revelación tipo Agro-Master
     setTimeout(() => {
@@ -2205,8 +2482,11 @@ async function init() {
                 cargarRecordatorios(),
                 cargarRecomendaciones(STATE.heroe.id)
             ]);
+            // Arrancar motor de alarmas en tiempo real
+            iniciarMotorAlarmas();
             setTimeout(() => iniciarCDI(), 2000);
         }
+
     }
 
     // Tooltips genéricos
@@ -2248,9 +2528,8 @@ async function cargarDashboardParent() {
                 };
                 const status = h.estado || 'Estable';
 
-                return `
-                <div class="glass-card rounded-[2rem] p-6 hover:shadow-2xl transition-all group border-l-4 ${colors[status]} relative overflow-hidden">
-                    ${h.alertas_pendientes > 0 ? `<div class="absolute top-0 right-0 bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-bl-xl animate-pulse">🔔 ${h.alertas_pendientes} Alertas</div>` : ''}
+                return `<div class="glass-card rounded-[2rem] p-6 hover:shadow-2xl transition-all group border-l-4 ${colors[status]} relative overflow-hidden">
+                    ${(h.alertas_pendientes || 0) > 0 ? `<div class="absolute top-0 right-0 bg-rose-600 text-white text-[10px] font-black px-3 py-1 rounded-bl-xl animate-pulse">🔔 ${h.alertas_pendientes} Alertas</div>` : ''}
                     
                     <div class="flex items-start justify-between mb-4">
                         <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-4xl shadow-sm border border-slate-100 group-hover:scale-110 transition-all">
@@ -2259,8 +2538,9 @@ async function cargarDashboardParent() {
                         <span class="border ${badgeCls[status]} text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-widest">${status}</span>
                     </div>
 
-                    <h4 class="text-xl font-black text-slate-800 mb-1">${h.nombre}</h4>
-                    <p class="text-slate-400 text-xs font-bold mb-4">${h.edad} años · ${h.peso} kg</p>
+                    <h4 class="text-xl font-black text-slate-800 mb-1">${h.nombre || 'Héroe Sin Nombre'}</h4>
+                    <p class="text-slate-400 text-xs font-bold mb-4">${h.edad || '—'} años · ${h.peso || '—'} kg</p>
+
                     
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div class="bg-white/50 p-3 rounded-xl border border-slate-100">
@@ -2337,10 +2617,10 @@ function abrirSOS() {
     // Si tenemos un héroe seleccionado, intentamos usar los datos de su especialista
     const h = STATE.heroe;
     if (h) {
-        if ($('sos-doctor-name')) $('sos-doctor-name').textContent = h.especialista_nombre || 'Dr. Jesús García Coello';
-        if ($('sos-doctor-specialty')) $('sos-doctor-specialty').textContent = h.especialista_especialidad || 'Endocrinólogo Pediátrico';
+        if ($('sos-doctor-name')) $('sos-doctor-name').textContent = h.especialista_nombre || 'No asignado';
+        if ($('sos-doctor-specialty')) $('sos-doctor-specialty').textContent = h.especialista_especialidad || 'Sin especialidad';
 
-        const tel = h.especialista_telefono || '04141234567';
+        const tel = h.especialista_telefono || '';
         // Limpiar el teléfono para el link de whatsapp (quitar guiones, espacios, etc.)
         let telClean = tel.replace(/[^0-9]/g, '');
         // Si empieza con 0, reemplazar por 58
@@ -2348,8 +2628,14 @@ function abrirSOS() {
             telClean = '58' + telClean.substring(1);
         }
 
-        if ($('sos-btn-call')) $('sos-btn-call').href = `tel:${telClean}`;
-        if ($('sos-btn-whatsapp')) $('sos-btn-whatsapp').href = `https://wa.me/${telClean}`;
+        if ($('sos-btn-call')) $('sos-btn-call').href = telClean ? `tel:${telClean}` : '#';
+        if ($('sos-btn-whatsapp')) $('sos-btn-whatsapp').href = telClean ? `https://wa.me/${telClean}` : '#';
+    } else {
+        // Sin héroe seleccionado - mostrar mensaje
+        if ($('sos-doctor-name')) $('sos-doctor-name').textContent = 'Selecciona un niño';
+        if ($('sos-doctor-specialty')) $('sos-doctor-specialty').textContent = 'Para usar SOS';
+        if ($('sos-btn-call')) $('sos-btn-call').href = '#';
+        if ($('sos-btn-whatsapp')) $('sos-btn-whatsapp').href = '#';
     }
 
     modal.classList.remove('hidden');
@@ -2458,6 +2744,96 @@ async function guardarPerfilEspecialista() {
         setTimeout(() => window.location.reload(), 1500);
     } else {
         mostrarToast('Error al actualizar perfil', 'error');
+    }
+}
+
+// Guardar perfil completo (datos personales + profesionales + configuración del sistema)
+async function guardarPerfilCompleto() {
+    // Datos personales y profesionales del especialista
+    const bodyPerfil = {
+        nombre_completo: $('especialista-nombre')?.value || '',
+        cedula: $('especialista-cedula')?.value || '',
+        email: $('especialista-email')?.value || '',
+        telefono: $('especialista-tel')?.value || '',
+        especialidad: $('especialista-especialidad')?.value || '',
+        consultorio: $('especialista-clinica')?.value || '',
+    };
+
+    if (!bodyPerfil.nombre_completo) { mostrarToast('El nombre es obligatorio', 'warning'); return; }
+
+    // Primero guardamos el perfil del usuario
+    const resPerfil = await apiPut('/api/auth/perfil', bodyPerfil);
+    if (resPerfil.status !== 'success') {
+        mostrarToast('Error al guardar perfil personal', 'error');
+        return;
+    }
+
+    // Ahora guardamos la configuración del sistema
+    const telefonoEmergencia = (document.getElementById('config-telefono-emergencia')?.value || '').trim();
+    const hospitalNombre = (document.getElementById('config-hospital-nombre')?.value || '').trim();
+    const especialistaDefault = (document.getElementById('config-especialista-default')?.value || '').trim();
+    const especialistaTelefono = (document.getElementById('config-especialista-telefono')?.value || '').trim();
+
+    if (telefonoEmergencia || hospitalNombre || especialistaDefault || especialistaTelefono) {
+        try {
+            const response = await fetch('/api/configuracionSistema', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telefono_emergencia: telefonoEmergencia,
+                    hospital_nombre: hospitalNombre,
+                    especialista_default: especialistaDefault,
+                    especialista_default_telefono: especialistaTelefono
+                })
+            });
+            const data = await response.json();
+            if (data.status !== 'success') {
+                console.error('Error al guardar configuración del sistema:', data);
+            }
+        } catch (e) {
+            console.error('Error de red al guardar configuración:', e);
+        }
+    }
+
+    mostrarToast('¡Perfil y configuración guardados con éxito! ✅', 'success');
+    setTimeout(() => window.location.reload(), 1500);
+}
+
+// Guardar configuración del sistema (teléfono emergencia, hospital, especialista)
+async function guardarConfigSistema() {
+    console.log('>>> guardarConfigSistema called');
+    const telefonoEmergencia = (document.getElementById('config-telefono-emergencia')?.value || '').trim();
+    const hospitalNombre = (document.getElementById('config-hospital-nombre')?.value || '').trim();
+    const especialistaDefault = (document.getElementById('config-especialista-default')?.value || '').trim();
+    const especialistaTelefono = (document.getElementById('config-especialista-telefono')?.value || '').trim();
+    const especialistaEspecialidad = (document.getElementById('config-especialista-especialidad')?.value || '').trim();
+
+    if (!telefonoEmergencia && !hospitalNombre && !especialistaDefault && !especialistaTelefono && !especialistaEspecialidad) {
+        mostrarToast('Por favor complete al menos un campo', 'warning');
+        return;
+    }
+
+    try {
+        console.log('>>> Sending request...');
+        const response = await fetch('/api/configuracionSistema', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                telefono_emergencia: telefonoEmergencia,
+                hospital_nombre: hospitalNombre,
+                especialista_default: especialistaDefault,
+                especialista_telefono: especialistaTelefono,
+                especialista_default_especialidad: especialistaEspecialidad
+            })
+        });
+
+        console.log('>>> Response status:', response.status);
+
+        // Recargar la página para actualizar los valores en toda la aplicación
+        setTimeout(() => location.reload(), 1000);
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarToast('Error al guardar configuración', 'error');
     }
 }
 
@@ -2822,6 +3198,8 @@ window.comprarAvatarTienda = comprarAvatarTienda;
 window.guardarPreguntasSeguridad = guardarPreguntasSeguridad;
 window.vincularCoRep = vincularCoRep;
 window.guardarPerfilEspecialista = guardarPerfilEspecialista;
+window.guardarPerfilCompleto = guardarPerfilCompleto;
+window.guardarConfigSistema = guardarConfigSistema;
 
 // ── Cambio de Contraseña Propia ──────────────────────────────────────────────
 window.abrirModalPassword = function () {
@@ -2845,9 +3223,33 @@ window.cerrarModalPassword = function () {
 window.guardarMiPassword = async function () {
     const np = $('mi-nueva-password')?.value;
     const cp = $('mi-nueva-password-conf')?.value;
+    const errDiv = $('password-error-msg');
 
-    if (!np || np.length < 6) return mostrarToast('La contraseña debe tener mínimo 6 caracteres', 'warning');
-    if (np !== cp) return mostrarToast('Las contraseñas no coinciden', 'warning');
+    // Validación más robusta
+    if (!np || np.length < 8) {
+        mostrarToast('La contraseña debe tener mínimo 8 caracteres', 'warning');
+        return;
+    }
+    if (!/[A-Z]/.test(np)) {
+        mostrarToast('La contraseña debe tener al menos una mayúscula', 'warning');
+        return;
+    }
+    if (!/[a-z]/.test(np)) {
+        mostrarToast('La contraseña debe tener al menos una minúscula', 'warning');
+        return;
+    }
+    if (!/\d/.test(np)) {
+        mostrarToast('La contraseña debe tener al menos un número', 'warning');
+        return;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{}|;:,.<>?]/.test(np)) {
+        mostrarToast('La contraseña debe tener al menos un símbolo especial', 'warning');
+        return;
+    }
+    if (np !== cp) {
+        mostrarToast('Las contraseñas no coinciden', 'warning');
+        return;
+    }
 
     const btn = $('btn-guardar-mi-password');
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Guardando...'; }

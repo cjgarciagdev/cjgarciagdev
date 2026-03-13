@@ -27,7 +27,6 @@ def registrar_comida():
         proteinas=float(data.get('proteinas', 0)),
         grasas=float(data.get('grasas', 0)),
         calorias=float(data.get('calorias', 0)),
-        foto_emoji=emoji_map.get(tipo, '🍽️'),
     )
     db.session.add(comida)
     db.session.commit()

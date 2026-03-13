@@ -1,8 +1,8 @@
 import io
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request, send_file
 from flask_login import login_required, current_user
-from models import db, Heroe, RegistroGlucosa, EvaluacionPsicometrica, AlertaClinica, Usuario, AuditLog
+from models import db, Heroe, RegistroGlucosa, EvaluacionPsicometrica, AlertaClinica, Usuario, AuditLog, RegistroComida, CrecimientoRegistro, Recordatorio
 from services.permissions import verificar_permiso
 from services.export_service import (
     export_group_excel, export_group_pdf,
@@ -71,6 +71,7 @@ def resumen_especialista():
     return jsonify({
         'pacientes'   : resultado,
         'total'       : len(heroes),
+        'total_pacientes': len(heroes),
         'en_riesgo'   : en_riesgo,
         'total_alertas': total_alertas,
     })
@@ -98,6 +99,173 @@ def detalle_paciente(hid):
             'scir': {'puntaje': u_scir.puntaje_total, 'estado': u_scir.estado, 'fecha': u_scir.fecha.strftime('%d/%m/%Y')} if u_scir else None,
         },
         'alertas': [a.mensaje for a in alertas]
+    })
+
+@panel_bp.route('/panel/paciente/<int:hid>/completo', methods=['GET'])
+@login_required
+def historial_completo_paciente(hid):
+    """Módulo 5: Ficha clínica COMPLETA para el especialista - incluye comidas, crecimiento, recordatorios."""
+    if not verificar_permiso(current_user, 'ver_pacientes'):
+        return jsonify({'error': 'No autorizado'}), 403
+    
+    h = Heroe.query.get_or_404(hid)
+    
+    # Datos del representante/padre
+    representante = None
+    if h.padre_id:
+        representante = Usuario.query.get(h.padre_id)
+    
+    # Registros de glucosa (últimos 30 días)
+    glucosa_registros = (RegistroGlucosa.query.filter_by(heroe_id=hid)
+                        .order_by(RegistroGlucosa.fecha.desc()).limit(100).all())
+    
+    # Comidas (últimos 30 días)
+    comidas = (RegistroComida.query.filter_by(heroe_id=hid)
+              .order_by(RegistroComida.fecha.desc()).limit(50).all())
+    
+    # Crecimiento
+    crecimiento = (CrecimientoRegistro.query.filter_by(heroe_id=hid)
+                  .order_by(CrecimientoRegistro.fecha.desc()).limit(20).all())
+    
+    # Recordatorios
+    recordatorios = (Recordatorio.query.filter_by(heroe_id=hid, activo=True)
+                    .order_by(Recordatorio.hora).all())
+    
+    # Evaluaciones psicométricas
+    evals_cdi = (EvaluacionPsicometrica.query.filter_by(heroe_id=hid, tipo='CDI')
+                .order_by(EvaluacionPsicometrica.fecha.desc()).all())
+    evals_scir = (EvaluacionPsicometrica.query.filter_by(heroe_id=hid, tipo='SCIR')
+                 .order_by(EvaluacionPsicometrica.fecha.desc()).all())
+    
+    # Alertas
+    alertas = AlertaClinica.query.filter_by(heroe_id=hid).order_by(AlertaClinica.fecha.desc()).limit(20).all()
+    
+    return jsonify({
+        'heroe': h.to_dict(),
+        'representante': {
+            'nombre': representante.nombre_completo if representante else None,
+            'telefono': representante.telefono if representante else None,
+            'email': representante.email if representante else None,
+        } if representante else None,
+        'glucosa': {
+            'total': len(glucosa_registros),
+            'registros': [{
+                'id': r.id,
+                'fecha': r.fecha.strftime('%d/%m/%Y %H:%M'),
+                'glucemia': r.glucemia_actual,
+                'carbohidratos': r.carbohidratos,
+                'dosis_sugerida': r.dosis_sugerida,
+                'dosis_aplicada': r.dosis_aplicada,
+                'momento_dia': r.momento_dia,
+                'alerta': r.alerta_disparada,
+                'notas': r.notas,
+                'confirmado_por': r.confirmador.nombre_completo if r.confirmador else None
+            } for r in glucosa_registros]
+        },
+        'comidas': {
+            'total': len(comidas),
+            'registros': [{
+                'id': c.id,
+                'fecha': c.fecha.strftime('%d/%m/%Y %H:%M'),
+                'tipo': c.tipo_comida,
+                'descripcion': c.descripcion,
+                'carbohidratos': c.carbohidratos,
+                'proteinas': c.proteinas,
+                'grasas': c.grasas,
+                'calorias': c.calorias
+            } for c in comidas]
+        },
+        'crecimiento': {
+            'total': len(crecimiento),
+            'registros': [{
+                'id': c.id,
+                'fecha': c.fecha.strftime('%d/%m/%Y'),
+                'peso': c.peso,
+                'estatura': c.estatura,
+                'imc': c.imc,
+                'notas': c.notas
+            } for c in crecimiento]
+        },
+        'recordatorios': [r.to_dict() for r in recordatorios],
+        'evaluaciones': {
+            'cdi': [{
+                'id': e.id,
+                'fecha': e.fecha.strftime('%d/%m/%Y'),
+                'puntaje': e.puntaje_total,
+                'estado': e.estado
+            } for e in evals_cdi],
+            'scir': [{
+                'id': e.id,
+                'fecha': e.fecha.strftime('%d/%m/%Y'),
+                'puntaje': e.puntaje_total,
+                'estado': e.estado
+            } for e in evals_scir]
+        },
+        'alertas': [{
+            'id': a.id,
+            'fecha': a.fecha.strftime('%d/%m/%Y %H:%M'),
+            'tipo': a.tipo,
+            'severidad': a.severidad,
+            'mensaje': a.mensaje,
+            'resuelta': a.resuelta,
+            'notas_medicas': a.notas_med
+        } for a in alertas]
+    })
+
+@panel_bp.route('/panel/paciente/<int:hid>/comidas', methods=['GET'])
+@login_required
+def comidas_paciente(hid):
+    """Obtiene el historial de comidas de un paciente."""
+    if not verificar_permiso(current_user, 'ver_pacientes'):
+        return jsonify({'error': 'No autorizado'}), 403
+    
+    dias = request.args.get('dias', 30, type=int)
+    limite = request.args.get('limite', 50, type=int)
+    
+    desde_fecha = datetime.now() - timedelta(days=dias)
+    comidas = (RegistroComida.query.filter_by(heroe_id=hid)
+              .filter(RegistroComida.fecha >= desde_fecha)
+              .order_by(RegistroComida.fecha.desc()).limit(limite).all())
+    
+    return jsonify({
+        'total': len(comidas),
+        'dias_consultados': dias,
+        'comidas': [c.to_dict() for c in comidas]
+    })
+
+@panel_bp.route('/panel/paciente/<int:hid>/crecimiento', methods=['GET'])
+@login_required
+def crecimiento_paciente(hid):
+    """Obtiene el historial de crecimiento de un paciente."""
+    if not verificar_permiso(current_user, 'ver_pacientes'):
+        return jsonify({'error': 'No autorizado'}), 403
+    
+    crecimiento = (CrecimientoRegistro.query.filter_by(heroe_id=hid)
+                  .order_by(CrecimientoRegistro.fecha.desc()).all())
+    
+    return jsonify({
+        'total': len(crecimiento),
+        'historial': [c.to_dict() for c in crecimiento]
+    })
+
+@panel_bp.route('/panel/paciente/<int:hid>/recordatorios', methods=['GET'])
+@login_required
+def recordatorios_paciente(hid):
+    """Obtiene los recordatorios activos de un paciente."""
+    if not verificar_permiso(current_user, 'ver_pacientes'):
+        return jsonify({'error': 'No autorizado'}), 403
+    
+    activos = request.args.get('activos', 'true').lower() == 'true'
+    
+    query = Recordatorio.query.filter_by(heroe_id=hid)
+    if activos:
+        query = query.filter_by(activo=True)
+    
+    recordatorios = query.order_by(Recordatorio.hora).all()
+    
+    return jsonify({
+        'total': len(recordatorios),
+        'recordatorios': [r.to_dict() for r in recordatorios]
     })
 
 @panel_bp.route('/panel/graficos/<int:hid>', methods=['GET'])
@@ -311,3 +479,8 @@ def export_audit_pdf():
     except ImportError:
         return jsonify({'error': 'reportlab no instalado'}), 500
     return send_file(output, as_attachment=True, download_name=filename, mimetype=mimetype)
+"""
+DESARROLLADOR: Cristian J Garcia
+CI: 32.170.910
+Email: cjgarciag.dev@gmail.com
+"""

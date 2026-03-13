@@ -1,0 +1,89 @@
+<section id="sec-usuarios" class="content-section hidden fade-in">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div
+                    class="bg-gradient-to-br from-indigo-500 to-purple-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                    <i class="fas fa-users-cog text-white text-2xl"></i>
+                </div>
+                <h2 class="text-4xl font-extrabold text-gray-800 tracking-tight">Gestión de Personal</h2>
+            </div>
+            <p class="text-gray-500 ml-16">Administración de acceso y roles especializados</p>
+        </div>
+
+        {% if has_perm('gestionar_usuarios') %}
+        <button onclick="openUserModal()"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-indigo-100 transition transform hover:-translate-y-1 flex items-center">
+            <i class="fas fa-user-plus mr-2"></i> Nuevo Usuario
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Mobile View (Cards) -->
+    <div id="userMobileCards" class="grid grid-cols-1 gap-4 md:hidden mb-8">
+        <!-- Populated by JS -->
+    </div>
+
+    <!-- Desktop View (Table) -->
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden border hidden md:block">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Nombre Completo</th>
+                        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Usuario / Email</th>
+                        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Rol</th>
+                        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Estado</th>
+                        <th class="p-4 text-xs font-bold text-gray-400 uppercase">Último Acceso</th>
+                        <th class="p-4 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-gray-400">Cargando usuarios...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Guía de Roles (Info) -->
+    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+            <h4 class="font-bold text-red-700 text-xs uppercase mb-2">Administrador</h4>
+            <p class="text-[0.625rem] text-red-600">Control total del sistema, gestión de seguridad y configuración
+                global.
+            </p>
+        </div>
+        <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
+            <h4 class="font-bold text-orange-700 text-xs uppercase mb-2">Gerente</h4>
+            <p class="text-[0.625rem] text-orange-600">Acceso a dashboards estratégicos y aprobación de acciones.</p>
+        </div>
+        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+            <h4 class="font-bold text-emerald-700 text-xs uppercase mb-2">Veterinario</h4>
+            <p class="text-[0.625rem] text-emerald-600">Seguimiento de salud, control de vacunas y protocolos médicos.
+            </p>
+        </div>
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+            <h4 class="font-bold text-blue-700 text-xs uppercase mb-2">Nutricionista</h4>
+            <p class="text-[0.625rem] text-blue-600">Gestión total de planes de alimentación y dietas recomendadas.</p>
+        </div>
+        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+            <h4 class="font-bold text-indigo-700 text-xs uppercase mb-2">Supervisor</h4>
+            <p class="text-[0.625rem] text-indigo-600">Verificación de tareas, monitoreo de registros y reportes.</p>
+        </div>
+        <div class="bg-teal-50 p-4 rounded-xl border border-teal-100">
+            <h4 class="font-bold text-teal-700 text-xs uppercase mb-2">Inventario</h4>
+            <p class="text-[0.625rem] text-teal-600">Control de stock de insumos, medicamentos y herramientas.</p>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+            <h4 class="font-bold text-purple-700 text-xs uppercase mb-2">Auditor</h4>
+            <p class="text-[0.625rem] text-purple-600">Lectura de registros críticos, logs, reportes y acceso de
+                consultoría externa.</p>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <h4 class="font-bold text-slate-700 text-xs uppercase mb-2">Operador</h4>
+            <p class="text-[0.625rem] text-slate-600">Registro de actividades diarias, pesajes y movimientos.</p>
+        </div>
+    </div>
+</section>

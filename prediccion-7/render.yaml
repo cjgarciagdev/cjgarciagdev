@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: prediccion-7
+    runtime: docker
+    plan: free # Puedes cambiarlo si necesitas más potencia
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: prediccion-db
+          property: connectionString
+      - key: RUN_SCHEDULER
+        value: "true" # Inicia el scraper automáticamente
+      - key: SCRAPER_INTERVAL
+        value: "60" # Cada 60 minutos
+    region: ohio
+
+databases:
+  - name: prediccion-db
+    plan: free
+    region: ohio

@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block title %}Configuración de Scraper{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">🕷️ Configuración del Scraper</h1>
+        <p style="color: var(--text-secondary);">Configura las páginas web de las que quieres extraer números
+            automáticamente</p>
+    </div>
+
+    <!-- Formulario para agregar nueva configuración -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h2 class="card-title">➕ Agregar Nueva Configuración</h2>
+        </div>
+
+        <form id="formAgregarScraper" onsubmit="agregarScraper(event)">
+            <div class="input-group">
+                <label class="input-label" for="url">URL de la Página Web*</label>
+                <input type="url" id="url" class="input" required placeholder="https://ejemplo.com/numeros">
+                <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                    📝 Ejemplo: https://www.random.org/integers/?num=10&min=1&max=100&col=1&base=10&format=html&rnd=new
+                </small>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="selector_css">Selector CSS (opcional)</label>
+                <input type="text" id="selector_css" class="input" placeholder=".numero, #resultado, .lottery-ball">
+                <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                    💡 Selector CSS para encontrar los números específicos. Déjalo vacío para extraer todos los números
+                    de la página.
+                </small>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="selector_xpath">Selector XPath (opcional)</label>
+                <input type="text" id="selector_xpath" class="input" placeholder="//div[@class='number']/span">
+                <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                    ⚙️ Alternativa a CSS. Usa esto para sitios con JavaScript (requiere Selenium).
+                </small>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="intervalo">Intervalo de Scraping (minutos)</label>
+                <input type="number" id="intervalo" class="input" value="60" min="1" max="1440">
+                <small style="color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                    ⏱️ Frecuencia con la que se ejecutará el scraping automático.
+                </small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                ➕ Agregar Configuración
+            </button>
+        </form>
+    </div>
+
+    <!-- Lista de configuraciones existentes -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">⚙️ Configuraciones Activas</h2>
+        </div>
+
+        {% if configuraciones %}
+        <div style="display: grid; gap: 1rem;">
+            {% for config in configuraciones %}
+            <div
+                style="padding: 1.5rem; background: var(--bg-tertiary); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <div style="flex: 1;">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; word-break: break-all;">
+                            {{ config.url_objetivo }}
+                        </h3>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            {% if config.activo %}
+                            <span class="badge badge-success">✅ Activo</span>
+                            {% else %}
+                            <span class="badge badge-danger">❌ Inactivo</span>
+                            {% endif %}
+
+                            {% if config.selector_css %}
+                            <span class="badge badge-primary">CSS</span>
+                            {% endif %}
+
+                            {% if config.selector_xpath %}
+                            <span class="badge badge-warning">XPath</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button class="btn btn-success" onclick="ejecutarScraper({{ config.id }})">
+                        ▶️ Ejecutar Ahora
+                    </button>
+                </div>
+
+                <div class="grid grid-3">
+                    {% if config.selector_css %}
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                            Selector CSS:
+                        </div>
+                        <code
+                            style="font-size: 0.85rem; color: var(--primary); background: var(--bg-secondary); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                                        {{ config.selector_css }}
+                                    </code>
+                    </div>
+                    {% endif %}
+
+                    {% if config.selector_xpath %}
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                            Selector XPath:
+                        </div>
+                        <code
+                            style="font-size: 0.85rem; color: var(--accent); background: var(--bg-secondary); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                                        {{ config.selector_xpath }}
+                                    </code>
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                            Intervalo:
+                        </div>
+                        <div style="font-weight: 600;">
+                            {{ config.intervalo_minutos }} minutos
+                        </div>
+                    </div>
+
+                    {% if config.ultima_ejecucion %}
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem;">
+                            Última Ejecución:
+                        </div>
+                        <div style="font-weight: 600;">
+                            {{ config.ultima_ejecucion.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">No hay configuraciones aún</h3>
+            <p>Agrega tu primera configuración usando el formulario de arriba</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Guía rápida -->
+    <div class="card"
+        style="margin-top: 2rem; background: linear-gradient(135deg, hsla(250, 84%, 54%, 0.1) 0%, hsla(340, 82%, 52%, 0.1) 100%);">
+        <div class="card-header">
+            <h2 class="card-title">💡 Guía Rápida</h2>
+        </div>
+
+        <div class="grid grid-2">
+            <div>
+                <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--primary);">
+                    📝 ¿Cómo encontrar selectores CSS?
+                </h4>
+                <ol style="color: var(--text-secondary); font-size: 0.9rem; padding-left: 1.5rem;">
+                    <li>Abre la página web en Chrome/Firefox</li>
+                    <li>Click derecho en el número → "Inspeccionar"</li>
+                    <li>Click derecho en el elemento HTML → "Copy" → "Copy selector"</li>
+                    <li>Pega el selector en el campo CSS</li>
+                </ol>
+            </div>
+
+            <div>
+                <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent);">
+                    ⚙️ ¿Cuándo usar XPath?
+                </h4>
+                <ul style="color: var(--text-secondary); font-size: 0.9rem; padding-left: 1.5rem;">
+                    <li>Cuando el sitio carga contenido con JavaScript</li>
+                    <li>Cuando los selectores CSS no funcionan</li>
+                    <li>Para selecciones más complejas</li>
+                    <li>Nota: Requiere más recursos (usa Selenium)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notificaciones -->
+<div id="notification"
+    style="position: fixed; top: 20px; right: 20px; padding: 1rem 1.5rem; background: var(--bg-card); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); display: none; z-index: 1000; border-left: 4px solid var(--primary); max-width: 400px;">
+</div>
+
+<script>
+    function mostrarNotificacion(mensaje, tipo = 'info') {
+        const notification = document.getElementById('notification');
+        notification.textContent = mensaje;
+        notification.style.borderLeftColor = tipo === 'success' ? 'var(--success)' :
+            tipo === 'error' ? 'var(--danger)' :
+                'var(--primary)';
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 4000);
+    }
+
+    async function agregarScraper(event) {
+        event.preventDefault();
+
+        const data = {
+            url: document.getElementById('url').value,
+            selector_css: document.getElementById('selector_css').value,
+            selector_xpath: document.getElementById('selector_xpath').value,
+            intervalo: document.getElementById('intervalo').value
+        };
+
+        mostrarNotificacion('Agregando configuración...', 'info');
+
+        try {
+            const response = await fetch('/api/scraper/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                mostrarNotificacion('✅ Configuración agregada exitosamente', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                mostrarNotificacion('❌ ' + (result.error || 'Error al agregar configuración'), 'error');
+            }
+        } catch (error) {
+            mostrarNotificacion('❌ Error de conexión', 'error');
+            console.error(error);
+        }
+    }
+
+    async function ejecutarScraper(configId) {
+        mostrarNotificacion('⏳ Ejecutando scraper...', 'info');
+
+        try {
+            const response = await fetch(`/api/scraper/ejecutar/${configId}`, {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                mostrarNotificacion(`✅ Scraping completado! ${result.numeros_encontrados} números encontrados`, 'success');
+                console.log('Números:', result.numeros);
+            } else {
+                mostrarNotificacion('❌ ' + (result.error || 'Error al ejecutar scraper'), 'error');
+            }
+        } catch (error) {
+            mostrarNotificacion('❌ Error de conexión', 'error');
+            console.error(error);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+<!-- Modal para Editor de Genealogía -->
+<div id="modalGenealogia"
+    class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+    <div
+        class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-4 border-purple-500">
+        <div class="p-8">
+            <div class="flex justify-between items-center mb-8 border-b pb-4">
+                <div>
+                    <h3 class="text-3xl font-black text-purple-900 flex items-center gap-3">
+                        <i class="fas fa-sitemap"></i> Editor de Genealogía
+                    </h3>
+                    <p class="text-purple-600 mt-1">Configura las relaciones familiares para el análisis de grafos
+                    </p>
+                </div>
+                <button onclick="closeModalGenealogia()"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full p-2 transition">
+                    <i class="fas fa-times text-xl w-6 h-6 flex items-center justify-center"></i>
+                </button>
+            </div>
+
+            <div class="mb-8 p-4 bg-yellow-50 rounded-xl border-l-4 border-yellow-500 text-sm opacity-80">
+                <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
+                <strong>Nota:</strong> Solo se muestran animales de la misma especie y con edad lógica (Padres >
+                Hijos).
+            </div>
+
+            <!-- Árbol Genealógico Interactivo -->
+            <div class="space-y-12 relative">
+                <!-- Nivel 0: Animal Central -->
+                <div class="text-center relative z-10">
+                    <div class="inline-block p-4 bg-purple-600 text-white rounded-2xl shadow-lg transform scale-110">
+                        <p class="text-xs uppercase font-bold opacity-75">Animal Central</p>
+                        <h4 id="gen-central-label" class="text-2xl font-black mt-1">#--</h4>
+                    </div>
+                </div>
+
+                <!-- Líneas conectoras (SVG o CSS borders) -->
+                <div
+                    class="absolute top-16 left-0 right-0 h-12 border-l-2 border-r-2 border-t-2 border-gray-300 rounded-t-3xl w-2/3 mx-auto -z-0">
+                </div>
+
+                <!-- Nivel 1: Padres -->
+                <div class="grid grid-cols-2 gap-8 relative z-10 px-8">
+                    <!-- Padre -->
+                    <div class="text-center">
+                        <div class="bg-blue-50 p-4 rounded-xl border-2 border-blue-200 hover:border-blue-400 transition cursor-pointer group"
+                            onclick="openSelector('padre')">
+                            <p class="text-xs text-blue-600 font-bold uppercase mb-2">Padre</p>
+                            <div id="gen-padre-display" class="font-bold text-gray-700 group-hover:text-blue-700">No
+                                asignado</div>
+                            <button
+                                class="mt-2 text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200">
+                                <i class="fas fa-edit mr-1"></i> Seleccionar
+                            </button>
+                        </div>
+
+                        <!-- Conector a Abuelos -->
+                        <div class="h-8 w-px bg-gray-300 mx-auto my-2"></div>
+                        <div class="h-4 border-l-2 border-r-2 border-t-2 border-gray-300 rounded-t-xl w-4/5 mx-auto">
+                        </div>
+
+                        <!-- Nivel 2: Abuelos Paternos -->
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <div class="bg-gray-50 p-2 rounded border border-dashed border-gray-300 hover:border-blue-300 cursor-pointer"
+                                onclick="openSelector('abuelo_paterno')">
+                                <p class="text-[0.625rem] text-gray-500 uppercase">Abuelo Pat.</p>
+                                <p id="gen-abuelo-pat-display" class="font-bold text-xs truncate">--</p>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded border border-dashed border-gray-300 hover:border-pink-300 cursor-pointer"
+                                onclick="openSelector('abuela_paterna')">
+                                <p class="text-[0.625rem] text-gray-500 uppercase">Abuela Pat.</p>
+                                <p id="gen-abuela-pat-display" class="font-bold text-xs truncate">--</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Madre -->
+                    <div class="text-center">
+                        <div class="bg-pink-50 p-4 rounded-xl border-2 border-pink-200 hover:border-pink-400 transition cursor-pointer group"
+                            onclick="openSelector('madre')">
+                            <p class="text-xs text-pink-600 font-bold uppercase mb-2">Madre</p>
+                            <div id="gen-madre-display" class="font-bold text-gray-700 group-hover:text-pink-700">No
+                                asignado</div>
+                            <button
+                                class="mt-2 text-xs bg-pink-100 text-pink-700 px-3 py-1 rounded-full hover:bg-pink-200">
+                                <i class="fas fa-edit mr-1"></i> Seleccionar
+                            </button>
+                        </div>
+
+                        <!-- Conector a Abuelos -->
+                        <div class="h-8 w-px bg-gray-300 mx-auto my-2"></div>
+                        <div class="h-4 border-l-2 border-r-2 border-t-2 border-gray-300 rounded-t-xl w-4/5 mx-auto">
+                        </div>
+
+                        <!-- Nivel 2: Abuelos Maternos -->
+                        <div class="grid grid-cols-2 gap-2 mt-2">
+                            <div class="bg-gray-50 p-2 rounded border border-dashed border-gray-300 hover:border-blue-300 cursor-pointer"
+                                onclick="openSelector('abuelo_materno')">
+                                <p class="text-[0.625rem] text-gray-500 uppercase">Abuelo Mat.</p>
+                                <p id="gen-abuelo-mat-display" class="font-bold text-xs truncate">--</p>
+                            </div>
+                            <div class="bg-gray-50 p-2 rounded border border-dashed border-gray-300 hover:border-pink-300 cursor-pointer"
+                                onclick="openSelector('abuela_materna')">
+                                <p class="text-[0.625rem] text-gray-500 uppercase">Abuela Mat.</p>
+                                <p id="gen-abuela-mat-display" class="font-bold text-xs truncate">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zona de Descendencia (Hijos) -->
+                <div class="mt-8 pt-8 border-t-4 border-dashed border-green-200 bg-green-50 rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-green-800 flex items-center gap-2">
+                            <i class="fas fa-users"></i> Zona de Descendencia (Hijos)
+                        </h4>
+                        <button onclick="openSelector('hijo')"
+                            class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 shadow flex items-center gap-2 text-sm">
+                            <i class="fas fa-plus"></i> Añadir Hijo
+                        </button>
+                    </div>
+                    <p class="text-xs text-green-600 mb-4">Al añadir un hijo, el animal actual (#<span
+                            id="gen-central-id-display">--</span>) se asignará automáticamente como Padre/Madre.</p>
+
+                    <div id="gen-hijos-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        <p class="text-gray-400 italic col-span-full text-center py-4">No hay hijos registrados.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

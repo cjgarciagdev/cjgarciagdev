@@ -1,0 +1,305 @@
+.BLANCO {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .BLANCO .overlap-wrapper {
+    background-color: #ffffff;
+    overflow: hidden;
+    width: 1920px;
+    height: 2528px;
+  }
+  
+  .BLANCO .overlap {
+    position: relative;
+    width: 1925px;
+    height: 2528px;
+  }
+  
+  .BLANCO .images {
+    position: absolute;
+    width: 1920px;
+    height: 1665px;
+    top: 863px;
+    left: 0;
+  }
+  
+  .BLANCO .img {
+    position: absolute;
+    width: 1920px;
+    height: 1455px;
+    top: 0;
+    left: 0;
+  }
+  
+  .BLANCO .header {
+    position: absolute;
+    width: 1542px;
+    height: 698px;
+    top: 70px;
+    left: 247px;
+    background-color: transparent;
+  }
+  
+  .BLANCO .overlap-group {
+    position: absolute;
+    width: 74px;
+    height: 84px;
+    top: 604px;
+    left: 1249px;
+    background-image: url(./img/x.svg);
+    background-size: 100% 100%;
+  }
+  
+  .BLANCO .arrow-right {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    top: 18px;
+    left: 13px;
+  }
+  
+  .BLANCO .text-wrapper {
+    position: absolute;
+    width: 555px;
+    top: 278px;
+    left: 926px;
+    font-family: "Lora-Medium", Helvetica;
+    font-weight: 500;
+    color: #000000;
+    font-size: 40px;
+    letter-spacing: 1.00px;
+    line-height: 51.2px;
+  }
+  
+  .BLANCO .div {
+    position: absolute;
+    width: 612px;
+    top: 439px;
+    left: 924px;
+    text-shadow: 0px 4px 4px #00000040;
+    font-family: "Akshar-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .BLANCO .book-open {
+    position: absolute;
+    width: 54px;
+    height: 50px;
+    top: 15px;
+    left: 0;
+  }
+  
+  .BLANCO .frame {
+    display: inline-flex;
+    height: 98px;
+    align-items: flex-end;
+    gap: 20px;
+    position: absolute;
+    top: 0;
+    left: 930px;
+  }
+  
+  .BLANCO .MENU {
+    display: flex;
+    flex-direction: column;
+    width: 64px;
+    align-items: flex-start;
+    gap: 11px;
+    position: relative;
+  }
+  
+  .BLANCO .grid {
+    position: relative;
+    width: 61px;
+    height: 55px;
+  }
+  
+  .BLANCO .text-wrapper-2 {
+    position: relative;
+    align-self: stretch;
+    font-family: "Lora-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 20px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .BLANCO .MAPA {
+    position: relative;
+    width: 113px;
+    height: 98px;
+  }
+  
+  .BLANCO .text-wrapper-3 {
+    position: absolute;
+    width: 113px;
+    top: 71px;
+    left: 5px;
+    font-family: "Lora-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 20px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .BLANCO .map-pin {
+    position: absolute;
+    width: 52px;
+    height: 54px;
+    top: 5px;
+    left: 31px;
+  }
+  
+  .BLANCO .FOTO {
+    position: relative;
+    width: 111px;
+    height: 98px;
+  }
+  
+  .BLANCO .smartphone {
+    position: absolute;
+    width: 59px;
+    height: 53px;
+    top: 0;
+    left: 26px;
+  }
+  
+  .BLANCO .text-wrapper-4 {
+    position: absolute;
+    top: 71px;
+    left: 0;
+    font-family: "Lora-Regular", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 20px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .BLANCO .text-wrapper-5 {
+    position: absolute;
+    width: 171px;
+    top: 33px;
+    left: 54px;
+    font-family: "Lora-Bold", Helvetica;
+    font-weight: 700;
+    color: #000000;
+    font-size: 20px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .BLANCO .BOTON {
+    position: absolute;
+    width: 303px;
+    height: 99px;
+    top: 599px;
+    left: 926px;
+    background-color: #000000;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  
+  .BLANCO .text-wrapper-6 {
+    position: absolute;
+    width: 133px;
+    top: 24px;
+    left: 85px;
+    text-shadow: 0px 4px 4px #00000040;
+    font-family: "Akshar-Regular", Helvetica;
+    font-weight: 400;
+    color: #ffffff;
+    font-size: 40px;
+    letter-spacing: 0;
+    line-height: normal;
+  }
+  
+  .BLANCO .TEXT-HISTORIA {
+    position: absolute;
+    width: 1919px;
+    height: 1173px;
+    top: 1264px;
+    left: 6px;
+  }
+  
+  .BLANCO .arrow-right-wrapper {
+    position: absolute;
+    width: 74px;
+    height: 84px;
+    top: 1034px;
+    left: 1640px;
+    background-image: url(./img/x-2.svg);
+    background-size: 100% 100%;
+  }
+  
+  .BLANCO .arrow-right-2 {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    top: 18px;
+    left: 12px;
+  }
+  
+  .BLANCO .frame-2 {
+    display: flex;
+    flex-direction: column;
+    width: 1715px;
+    height: 329px;
+    align-items: flex-start;
+    gap: 35px;
+    position: absolute;
+    top: 326px;
+    left: 58px;
+    overflow-y: scroll;
+  }
+  
+  .BLANCO .frame-2::-webkit-scrollbar {
+    width: 0;
+    display: none;
+  }
+  
+  .BLANCO .p {
+    position: relative;
+    width: fit-content;
+    text-shadow: 0px 4px 4px #00000040;
+    font-family: "Lora-Bold", Helvetica;
+    font-weight: 700;
+    color: #000000;
+    font-size: 48px;
+    text-align: right;
+    letter-spacing: 0;
+    line-height: 61.5px;
+    white-space: nowrap;
+  }
+  
+  .BLANCO .en-el-coraz-n-de-una {
+    position: relative;
+    align-self: stretch;
+    height: 233px;
+    text-shadow: 0px 4px 4px #00000040;
+    font-family: "Akshar-Light", Helvetica;
+    font-weight: 300;
+    color: #000000;
+    font-size: 32px;
+    letter-spacing: 0;
+    line-height: 44.2px;
+  }
+  
+  .BLANCO .frame-3 {
+    position: absolute;
+    width: 475px;
+    height: 327px;
+    top: 375px;
+    left: 330px;
+    border-radius: 20px;
+  }

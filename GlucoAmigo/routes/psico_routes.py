@@ -8,22 +8,98 @@ psico_bp = Blueprint('psico', __name__, url_prefix='/api')
 # ── Módulo 3: Interfaz de Emojis CDI (moo.md) ────────────────────────────────
 # 7 preguntas adaptadas con escala visual 0-3 (Feliz=0, Neutro=1, Triste=2, MuyTriste=3)
 CDI_PREGUNTAS = [
-    "¿Cómo te sientes la mayoría del tiempo?",
-    "¿Qué tan divertido es para ti jugar y hacer actividades?",
-    "¿Cómo te sientes pensando en tu futuro?",
-    "¿Sientes que haces las cosas bien?",
-    "¿Cómo te llevas con tus amigos y familia?",
-    "¿Cómo te sientes cuando piensas en ir al hospital?",
-    "¿Sientes que puedes hacer las cosas que hacen los otros niños?",
+    {
+        "texto": "¿Cómo te sientes la mayoría del tiempo?",
+        "opciones": ["Muy feliz", "Bien/Normal", "Triste", "Muy mal/Triste"]
+    },
+    {
+        "texto": "¿Qué tan divertido es para ti jugar y hacer actividades?",
+        "opciones": ["Muy divertido", "Un poco", "Aburrido", "Nada divertido"]
+    },
+    {
+        "texto": "¿Cómo te sientes pensando en tu futuro?",
+        "opciones": ["Con esperanza", "Normal", "Preocupado", "Sin ganas"]
+    },
+    {
+        "texto": "¿Sientes que haces las cosas bien?",
+        "opciones": ["Siempre bien", "A veces", "Casi nunca", "Todo me sale mal"]
+    },
+    {
+        "texto": "¿Cómo te llevas con tus amigos y familia?",
+        "opciones": ["Muy bien", "Normal", "Peleamos", "Me siento solo"]
+    },
+    {
+        "texto": "¿Cómo te sientes cuando piensas en ir al hospital?",
+        "opciones": ["Tranquilo", "Un poco nervioso", "Con miedo", "Muy asustado"]
+    },
+    {
+        "texto": "¿Sientes que puedes hacer las cosas que hacen los otros niños?",
+        "opciones": ["¡Claro que sí!", "A veces", "Me cuesta", "No puedo"]
+    },
 ]
 
 # Cuestionario de Adherencia SCI-R simplificado para el cuidador (moo.md)
 SCIR_PREGUNTAS = [
-    "¿Con qué frecuencia miden la glucosa cada día?",
-    "¿Siguen bien el horario de las inyecciones?",
-    "¿Llevan un registro de lo que come el niño?",
-    "¿Siguen la dieta recomendada por el médico?",
-    "¿Cumplen con todas las visitas médicas?",
+    {
+        "texto": "¿Con qué frecuencia mide la glucosa con el glucómetro?",
+        "opciones": ["No mide", "1-2 veces al día", "3-5 veces al día", "6 o más veces"]
+    },
+    {
+        "texto": "¿Registra los resultados de glucosa en el diario o app?",
+        "opciones": ["Nunca", "Solo eventos", "Casi todas", "Cada medición"]
+    },
+    {
+        "texto": "¿Revisa cuerpos cetónicos cuando la glucosa es alta (>250)?",
+        "opciones": ["No lo hace", "Rara vez", "Si está >250", "Siempre que sube"]
+    },
+    {
+        "texto": "¿Administra la dosis exacta de insulina o medicación?",
+        "opciones": ["Dosis al ojo", "Aproximado", "Conteo exacto", "Verificado doble"]
+    },
+    {
+        "texto": "¿Aplica la insulina en los horarios correctos del plan?",
+        "opciones": ["Cualquier hora", "Poco retraso", "Casi puntual", "Hora exacta"]
+    },
+    {
+        "texto": "¿Sirve las porciones de comida correctas (conteo carbos)?",
+        "opciones": ["No mido", "Estimación", "Cálculo manual", "Pesado/Medido"]
+    },
+    {
+        "texto": "¿Cumple con el horario habitual de comidas y meriendas?",
+        "opciones": ["Desordenado", "Variable", "Consistente", "Puntualidad total"]
+    },
+    {
+        "texto": "¿Lleva un registro de los alimentos que come el niño?",
+        "opciones": ["Nada", "Solo carbos", "Casi todo", "Diario completo"]
+    },
+    {
+        "texto": "¿Lee las etiquetas nutricionales de los productos?",
+        "opciones": ["Nunca", "A veces", "Casi siempre", "Siempre"]
+    },
+    {
+        "texto": "¿Trata las hipoglucemias con el azúcar justo recomendado?",
+        "opciones": ["Come de más", "Sin control", "Regla de los 15g", "Protocolo exacto"]
+    },
+    {
+        "texto": "¿Lleva siempre azúcar rápida para emergencias de glucosa?",
+        "opciones": ["No lleva", "Ocasionalmente", "Casi siempre", "Siempre encima"]
+    },
+    {
+        "texto": "¿Asiste a todas las citas médicas programadas?",
+        "opciones": ["Falta mucho", "A veces", "Casi siempre", "Sin faltas"]
+    },
+    {
+        "texto": "¿Usa identificación médica (pulsera/medalla) de diabetes?",
+        "opciones": ["No posee", "Ocasional", "Casi siempre", "Cualquier salida"]
+    },
+    {
+        "texto": "¿Realiza el niño ejercicio físico regularmente?",
+        "opciones": ["Sedentario", "Poco", "Regular", "Deportista/Activo"]
+    },
+    {
+        "texto": "¿Ajusta la dosis de insulina según comida o ejercicio?",
+        "opciones": ["Dosis fija", "Solo comida", "Casi siempre", "Algoritmo exacto"]
+    }
 ]
 
 @psico_bp.route('/psico/preguntas/<string:tipo>', methods=['GET'])

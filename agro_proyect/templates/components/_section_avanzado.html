@@ -1,0 +1,25 @@
+<!-- 
+    MODULO: ANÁLISIS AVANZADO
+    Este archivo actúa como contenedor principal para la sección de análisis.
+    Orquesta los subcomponentes de Header, Genealogía y Métricas.
+-->
+<section id="sec-avanzado" class="content-section hidden fade-in">
+
+    <!-- Header y controles de navegación internos (Tabs) -->
+    {% include 'components/avanzado/_header.html' %}
+
+    <!-- 
+        Contenedor Dinámico:
+        Aquí se inyectan las vistas de los tabs seleccionados.
+    -->
+    <div id="analisis-dynamic-container">
+        <!-- Tab 1: Visualizador de Grafos (Vis.js) -->
+        {% include 'components/avanzado/_tab_genealogia.html' %}
+
+        <!-- Tab 2: Tablas de datos y scores genéticos -->
+        {% include 'components/avanzado/_tab_metricas.html' %}
+
+        <!-- Tab 4: Buscador de Rutas Genealógicas -->
+        {% include 'components/avanzado/_tab_rutas.html' %}
+    </div>
+</section>

@@ -13,7 +13,14 @@ if not exist .venv (
 call .venv\Scripts\activate.bat
 
 echo.
-echo Iniciando servidor en local (http://127.0.0.1:5000)
+echo ============================================
+echo Iniciando servidor en modo local...
 echo.
+echo Abre en tu navegador: http://127.0.0.1:5000
+echo Presiona Ctrl+C para detener el servidor
+echo ============================================
+echo.
+
 python server.py
+
 pause

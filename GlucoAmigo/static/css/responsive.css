@@ -1,0 +1,1053 @@
+/* ═══════════════════════════════════════════════════════════════
+   GlucoAmigo Responsive System v1.1
+   Modo compacto, móvil y PC - Como agro_proyect
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ============================================================
+   AGRO-MASTER MOBILE CARD TABLE PATTERN
+   Transforma tablas en tarjetas premium en móvil
+   ============================================================ */
+@media (max-width: 48rem) {
+
+    /* Tablas como tarjetas */
+    .mobile-card-table thead {
+        display: none;
+    }
+
+    .mobile-card-table,
+    .mobile-card-table tbody,
+    .mobile-card-table tr,
+    .mobile-card-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .mobile-card-table tr {
+        background: white;
+        margin-bottom: 1.5rem;
+        border-radius: 1.25rem;
+        padding: 1.25rem;
+        box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .mobile-card-table tr:active {
+        transform: scale(0.98);
+    }
+
+    .mobile-card-table tr:hover {
+        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12);
+    }
+
+    .mobile-card-table td {
+        text-align: right;
+        padding: 0.6rem 0;
+        position: relative;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+
+    .mobile-card-table td:last-child {
+        border-bottom: none;
+        margin-top: 1rem;
+        justify-content: center;
+        background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%);
+        border-radius: 0.75rem;
+        padding: 1rem;
+    }
+
+    .mobile-card-table td::before {
+        content: attr(data-label);
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+    }
+}
+
+/* ============================================================
+   PANTALLAS CORTAS (Laptops pequeñas / ventanas reducidas)
+   Optimización para pantallas con poca altura vertical
+   ============================================================ */
+@media screen and (max-height: 820px) {
+    :root {
+        font-size: 14px;
+    }
+
+    /* Reducir logo del sidebar */
+    #sidebar img,
+    .sidebar-logo-box {
+        height: 80px !important;
+        width: 80px !important;
+        margin-bottom: 0 !important;
+    }
+
+    #sidebar .p-8,
+    #sidebar .p-5 {
+        padding: 0.75rem !important;
+    }
+
+    #sidebar p.-mt-12,
+    #sidebar .sidebar-brand-sub {
+        margin-top: 0 !important;
+        padding-top: 0.25rem;
+        font-size: 0.65rem !important;
+    }
+
+    /* Dashboard más compacto */
+    main,
+    .main-content {
+        padding-top: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    .mb-10,
+    .mb-8 {
+        margin-bottom: 1rem !important;
+    }
+
+    .grid.gap-6,
+    .grid.gap-4 {
+        gap: 0.75rem !important;
+    }
+
+    /* Paneles de actividad y gráficas */
+    #recentActivityPanel,
+    .activity-panel {
+        height: 350px !important;
+        max-height: 350px !important;
+    }
+
+    .h-72,
+    .h-\[25rem\],
+    .chart-container {
+        height: 250px !important;
+        max-height: 250px !important;
+    }
+
+    /* Espaciado de navegación */
+    .nav-link,
+    .nav-item {
+        padding-top: 0.4rem !important;
+        padding-bottom: 0.4rem !important;
+    }
+
+    /* Modales más compactos */
+    .modal-content-wrapper .p-8,
+    .modal-content-wrapper .p-10,
+    .modal-body {
+        padding: 1rem !important;
+    }
+
+    /* KPI cards */
+    .kpi-card {
+        padding: 1rem !important;
+    }
+
+    .kpi-value {
+        font-size: 1.75rem !important;
+    }
+}
+
+/* ============================================================
+   PANTALLAS MUY CORTAS (Laptops pequeñas o ventanas reducidas)
+   Optimización EXTREMA
+   ============================================================ */
+@media screen and (max-height: 680px) {
+    :root {
+        font-size: 13px !important;
+    }
+
+    #sidebar img,
+    .sidebar-logo-box {
+        height: 50px !important;
+        width: 50px !important;
+    }
+
+    #sidebar .p-8,
+    #sidebar .p-5 {
+        padding: 0.5rem !important;
+    }
+
+    #sidebar p.-mt-12,
+    #sidebar .sidebar-brand-sub,
+    #sidebar .text-\[0\.625rem\] {
+        display: block !important;
+        margin-top: -0.25rem !important;
+        font-size: 0.5rem !important;
+        opacity: 0.7;
+    }
+
+    nav.mt-6,
+    .nav-container {
+        margin-top: 0.5rem !important;
+    }
+
+    .nav-link,
+    .nav-item {
+        padding-top: 0.3rem !important;
+        padding-bottom: 0.3rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    main,
+    .main-content {
+        padding: 1rem 1.5rem !important;
+    }
+
+    h1,
+    .text-3xl {
+        font-size: 1.5rem !important;
+    }
+
+    h2,
+    .text-2xl {
+        font-size: 1.25rem !important;
+    }
+
+    .mb-10,
+    .mb-8 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    #recentActivityPanel,
+    .activity-panel {
+        height: 280px !important;
+        max-height: 280px !important;
+    }
+
+    .h-72,
+    .h-\[25rem\],
+    .chart-container {
+        height: 200px !important;
+        max-height: 200px !important;
+    }
+
+    .grid.gap-6,
+    .grid.gap-4 {
+        gap: 0.5rem !important;
+    }
+
+    .p-6,
+    .p-4 {
+        padding: 0.75rem !important;
+    }
+
+    /* KPI aún más pequeño */
+    .kpi-card {
+        padding: 0.75rem !important;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE INPUTS
+   ============================================================ */
+input,
+select,
+textarea,
+.med-input {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.med-input:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -4px rgba(13, 148, 136, 0.2);
+    border-color: var(--primary) !important;
+    outline: none;
+}
+
+/* ============================================================
+   RESPONSIVE TABLE ROWS
+   ============================================================ */
+tr {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+tr:hover {
+    background-color: rgba(13, 148, 136, 0.04) !important;
+}
+
+/* ============================================================
+   RESPONSIVE BOTTOM NAV - ESTILO AGRO
+   ============================================================ */
+.bottom-nav {
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-nav-item {
+    color: #94a3b8;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bottom-nav-item.active {
+    color: #0d9488;
+}
+
+.bottom-nav-item.active .indicator {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.bottom-nav-item i {
+    transition: transform 0.3s ease;
+}
+
+.bottom-nav-item:hover i {
+    transform: scale(1.15);
+}
+
+/* ============================================================
+   RESPONSIVE MODALS
+   ============================================================ */
+@media (max-width: 640px) {
+    .modal-content {
+        margin: 0.5rem !important;
+        border-radius: 1.25rem !important;
+    }
+
+    .modal-header {
+        padding: 1rem !important;
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+    }
+
+    .modal-body {
+        padding: 1rem !important;
+    }
+
+    .modal-footer {
+        padding: 0.75rem 1rem !important;
+        border-radius: 0 0 1.25rem 1.25rem !important;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE HERO / HEADER SECTIONS
+   ============================================================ */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 1rem !important;
+    }
+
+    .hero-title {
+        font-size: 1.75rem !important;
+        text-align: center;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+        text-align: center;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE UTILITY: HIDE ON SPECIFIC SIZES
+   ============================================================ */
+@media (max-width: 640px) {
+    .hide-xs {
+        display: none !important;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+    .hide-sm {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE GRID: AUTO-FIT PATTERN
+   ============================================================ */
+.grid-auto-fit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 640px) {
+    .grid-auto-fit {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE TEXT TRUNCATION
+   ============================================================ */
+.truncate-responsive {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .truncate-responsive {
+        white-space: normal;
+    }
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+
+    .sidebar,
+    .bottom-nav,
+    .mobile-header,
+    .sidebar-overlay,
+    .fab-main {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+/* ============================================================
+   BREAKPOINTS CONFIGURATION
+   ============================================================ */
+:root {
+    /* Breakpoints */
+    --breakpoint-compact: 480px;
+    /* Phones very small */
+    --breakpoint-mobile: 640px;
+    /* Phones landscape / small tablets */
+    --breakpoint-tablet: 768px;
+    /* Tablets portrait */
+    --breakpoint-desktop: 1024px;
+    /* Desktop */
+    --breakpoint-wide: 1280px;
+    /* Wide screens */
+
+    /* Responsive Sidebar */
+    --sidebar-width: 270px;
+    --sidebar-width-collapsed: 0px;
+
+    /* Transitions */
+    --transition-sidebar: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-overlay: opacity 0.3s ease;
+}
+
+/* ============================================================
+   RESPONSIVE BASE - Override Tailwind defaults
+   ============================================================ */
+
+/* Mobile First - Hide sidebar by default on small screens */
+@media (max-width: 1023px) {
+    .sidebar {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        width: var(--sidebar-width) !important;
+        z-index: 9999 !important;
+        transform: translateX(-100%) !important;
+        transition: var(--transition-sidebar) !important;
+    }
+
+    .sidebar.open {
+        transform: translateX(0) !important;
+    }
+
+    /* Main content takes full width on mobile */
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}
+
+/* Desktop - Sidebar always visible */
+@media (min-width: 1024px) {
+    .sidebar {
+        transform: translateX(0) !important;
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-width) !important;
+    }
+}
+
+/* ============================================================
+   MOBILE HEADER / TOPBAR
+   ============================================================ */
+.mobile-header {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .mobile-header {
+        display: flex !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+        z-index: 1000;
+        padding: 0 16px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Adjust main content for mobile header */
+    body.has-mobile-header .main-content {
+        margin-top: 64px !important;
+    }
+
+    body.has-mobile-header .main-header {
+        top: 64px !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-header {
+        display: none !important;
+    }
+}
+
+/* Mobile header logo */
+.mobile-header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mobile-header-logo .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(13, 148, 136, 0.3), rgba(14, 165, 233, 0.2));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.mobile-header-logo .logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-header-logo .brand-name {
+    font-weight: 900;
+    font-size: 1rem;
+    color: #0f172a;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.mobile-header-logo .brand-sub {
+    font-size: 0.55rem;
+    color: #0d9488;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.mobile-header .menu-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #475569;
+    transition: all 0.2s ease;
+}
+
+.mobile-header .menu-btn:hover {
+    background: rgba(13, 148, 136, 0.1);
+    color: #0d9488;
+}
+
+.mobile-header .menu-btn:active {
+    transform: scale(0.95);
+}
+
+/* ============================================================
+   SIDEBAR OVERLAY (Mobile)
+   ============================================================ */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9998;
+    opacity: 0;
+    transition: var(--transition-overlay);
+}
+
+.sidebar-overlay.visible {
+    opacity: 1;
+}
+
+@media (max-width: 1023px) {
+    .sidebar-overlay {
+        display: block;
+    }
+
+    .sidebar-overlay.hidden {
+        display: none;
+    }
+}
+
+/* ============================================================
+   BOTTOM NAVIGATION - Mobile Only
+   ============================================================ */
+.bottom-nav {
+    display: none !important;
+}
+
+@media (max-width: 767px) {
+    .bottom-nav {
+        display: flex !important;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+        z-index: 1000;
+        padding: 8px 0;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Adjust for bottom nav */
+    body.has-bottom-nav .main-content {
+        padding-bottom: 80px !important;
+    }
+}
+
+/* Bottom nav button styling */
+.bottom-nav button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+}
+
+.bottom-nav button i {
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+}
+
+.bottom-nav button:hover {
+    color: #64748b;
+}
+
+.bottom-nav button:hover i {
+    transform: scale(1.1);
+}
+
+.bottom-nav button.active {
+    color: #0d9488;
+}
+
+/* ============================================================
+   COMPACT MODE (Small phones < 480px)
+   ============================================================ */
+@media (max-width: 479px) {
+
+    /* Smaller padding */
+    .main-content {
+        padding: 12px !important;
+    }
+
+    /* Compact cards */
+    .glass-card {
+        padding: 16px !important;
+        border-radius: 16px !important;
+    }
+
+    /* Smaller fonts */
+    h1,
+    .text-3xl {
+        font-size: 1.5rem !important;
+    }
+
+    h2,
+    .text-2xl {
+        font-size: 1.25rem !important;
+    }
+
+    h3,
+    .text-xl {
+        font-size: 1.1rem !important;
+    }
+
+    /* Compact buttons */
+    .btn-premium {
+        padding: 10px 16px !important;
+        font-size: 0.875rem !important;
+    }
+
+    /* Compact inputs */
+    .med-input {
+        padding: 10px 12px !important;
+        font-size: 0.875rem !important;
+    }
+
+    /* KPI compact */
+    .kpi-value {
+        font-size: 1.75rem !important;
+    }
+
+    /* Hide less important elements on very small screens */
+    .hide-compact {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   MOBILE MODE (Phones 480px - 767px)
+   ============================================================ */
+@media (min-width: 480px) and (max-width: 767px) {
+    .main-content {
+        padding: 16px !important;
+    }
+}
+
+/* ============================================================
+   TABLET MODE (Tablets 768px - 1023px)
+   ============================================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+    /* Sidebar can be toggled but tablet can show more content */
+    .sidebar {
+        width: 280px !important;
+    }
+
+    .main-content {
+        padding: 20px !important;
+    }
+
+    /* 2 column grid on tablet */
+    .grid-cols-1 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+/* ============================================================
+   DESKTOP MODE (PC >= 1024px)
+   ============================================================ */
+@media (min-width: 1024px) {
+
+    /* Full layout */
+    .sidebar {
+        width: var(--sidebar-width);
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 24px;
+    }
+
+    /* 3-4 column grids on desktop */
+    .grid-cols-1 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .lg\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .lg\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+}
+
+/* ============================================================
+   WIDE SCREEN MODE (>= 1280px)
+   ============================================================ */
+@media (min-width: 1280px) {
+    .main-content {
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 32px;
+    }
+
+    /* Even wider grids */
+    .xl\:grid-cols-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+
+    .xl\:grid-cols-5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE UTILITY CLASSES
+   ============================================================ */
+
+/* Show/hide based on breakpoint */
+.hide-mobile {
+    display: block;
+}
+
+.hide-tablet {
+    display: block;
+}
+
+.hide-desktop {
+    display: none;
+}
+
+@media (max-width: 767px) {
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .hide-desktop {
+        display: block !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hide-tablet {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .hide-desktop {
+        display: none !important;
+    }
+}
+
+/* Spacing utilities */
+.p-mobile {
+    padding: 16px;
+}
+
+.p-tablet {
+    padding: 20px;
+}
+
+.p-desktop {
+    padding: 24px;
+}
+
+@media (max-width: 767px) {
+    .p-mobile {
+        padding: 12px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .p-desktop {
+        padding: 32px;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE GRID HELPERS
+   ============================================================ */
+.grid-responsive {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+    .grid-responsive {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-responsive {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1280px) {
+    .grid-responsive {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ============================================================
+   RESPONSIVE TEXT
+   ============================================================ */
+.text-responsive {
+    font-size: 1rem;
+}
+
+@media (max-width: 479px) {
+    .text-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .text-responsive {
+        font-size: 1.125rem;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE CARDS
+   ============================================================ */
+.card-responsive {
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+}
+
+@media (min-width: 768px) {
+    .card-responsive {
+        padding: 20px;
+        border-radius: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .card-responsive {
+        padding: 24px;
+        border-radius: 24px;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE SIDEBAR TOGGLE BUTTON
+   ============================================================ */
+.sidebar-toggle-mobile {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .sidebar-toggle-mobile {
+        display: flex !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .sidebar-toggle-mobile {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   FAB POSITIONING (Responsive)
+   ============================================================ */
+.fab-main {
+    bottom: 90px;
+    right: 16px;
+}
+
+@media (min-width: 640px) {
+    .fab-main {
+        bottom: 24px;
+        right: 24px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .fab-main {
+        bottom: 32px;
+        right: 32px;
+    }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+.sidebar.animate-in {
+    animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.sidebar.animate-out {
+    animation: slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ============================================================
+   SAFE AREA INSETS (Notched phones)
+   ============================================================ */
+@supports (padding: max(0px)) {
+    .bottom-nav {
+        padding-left: max(8px, env(safe-area-inset-left));
+        padding-right: max(8px, env(safe-area-inset-right));
+    }
+}
+
+/* ============================================================
+   PRINT STYLES
+   ============================================================ */
+@media print {
+
+    .sidebar,
+    .bottom-nav,
+    .mobile-header,
+    .sidebar-overlay,
+    .fab-main {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+}

@@ -1,0 +1,98 @@
+<!-- Modal para salud -->
+<div id="modalSalud"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div
+        class="bg-white rounded-[2rem] max-w-xl w-full p-8 shadow-2xl border-4 border-blue-500 relative modal-content-wrapper scale-in">
+        <button onclick="closeModalSalud()" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 transition">
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+
+        <div class="flex items-center gap-4 mb-8">
+            <div class="bg-blue-100 p-3 rounded-xl">
+                <i class="fas fa-syringe text-blue-600 text-xl"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black text-gray-800">Registrar Protocolo</h3>
+                <p class="text-gray-500 text-sm">Programar o registrar eventos de salud</p>
+            </div>
+        </div>
+
+        <input type="hidden" id="saludAnimalId">
+        <input type="hidden" id="saludRegistroId">
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Tipo de
+                    Intervención</label>
+                <div class="relative">
+                    <select id="saludTipo"
+                        class="w-full p-4 pl-12 bg-gray-50 border-2 border-gray-100 rounded-xl focus:border-blue-500 focus:bg-white outline-none transition font-bold text-gray-700 appearance-none">
+                        <option value="Vacunación">Vacunación</option>
+                        <option value="Desparasitación">Desparasitación</option>
+                        <option value="Tratamiento">Tratamiento Clínico</option>
+                        <option value="Chequeo">Chequeo / Revisión</option>
+                        <option value="Cirugía">Cirugía / Procedimiento</option>
+                        <option value="Otro">Otro / Consulta</option>
+                    </select>
+                    <i
+                        class="fas fa-notes-medical absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Detalles del
+                    Evento</label>
+                <textarea id="saludDescripcion"
+                    class="w-full p-4 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none transition resize-none h-24"
+                    placeholder="Describe el protocolo, observaciones o diagnóstico..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Producto /
+                        Fármaco</label>
+                    <input type="text" id="saludMedicamento"
+                        class="w-full p-4 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none transition"
+                        placeholder="Nombre del producto">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Dosis
+                        Aplicada</label>
+                    <input type="text" id="saludDosis"
+                        class="w-full p-4 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none transition"
+                        placeholder="Ej: 5ml">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Fecha del
+                        Evento</label>
+                    <input type="date" id="saludFecha"
+                        class="w-full p-4 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none transition text-gray-700 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Veterinario
+                        Responsable</label>
+                    <div class="relative">
+                        <input type="text" id="saludVeterinario"
+                            class="w-full p-4 pl-12 border-2 border-gray-100 rounded-xl focus:border-blue-500 outline-none transition"
+                            placeholder="Nombre del especialista">
+                        <i class="fas fa-user-md absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-4 mt-8 pt-4 border-t border-gray-50">
+            <button onclick="saveSaludRegistro()"
+                class="flex-1 bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                GUARDAR REGISTRO
+            </button>
+            <button onclick="closeModalSalud()"
+                class="flex-1 bg-gray-50 text-gray-600 py-4 rounded-xl font-bold hover:bg-gray-100 transition">
+                CANCELAR
+            </button>
+        </div>
+    </div>
+</div>

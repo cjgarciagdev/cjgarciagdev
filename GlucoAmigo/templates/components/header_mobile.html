@@ -1,0 +1,20 @@
+{# ═══════════════════════════════════════════════════════════════
+COMPONENTE: Mobile Header
+Visible solo en mobile (< 1024px) ═══════════════════════════════════════════════════════════════ #} <header
+    class="mobile-header">
+    <div class="mobile-header-logo">
+        <div class="logo-icon">
+            <span>🩺</span>
+        </div>
+        <div class="logo-text">
+            <span class="brand-name">GlucoAmigo</span>
+            <span class="brand-sub">Hospital J. García C.</span>
+        </div>
+    </div>
+    <button class="menu-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    </header>
+
+    <!-- Sidebar Overlay para mobile -->
+    <div id="sidebarOverlay" class="sidebar-overlay hidden" onclick="toggleSidebar()"></div>

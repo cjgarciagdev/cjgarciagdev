@@ -1,0 +1,33 @@
+{# ════════════════════════════════════════════
+COMPONENTE: Bottom Navigation Bar - Representante
+Mobile Only - Solo opciones del representante (sin "ánimo")
+════════════════════════════════════════════ #}
+{# FAB para medir glucosa #}
+<button class="fab-main group" onclick="showSection('glucosa')" title="Medir Glucosa Ahora">
+    <i class="fas fa-plus"></i>
+    <span
+        class="absolute right-20 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Medir
+        Glucosa</span>
+</button>
+
+<nav
+    class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
+    <div class="grid grid-cols-4 py-3">
+        <button onclick="showSection('home-parent')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-house-user text-lg"></i>Inicio
+        </button>
+        <button onclick="showSection('miHeroe')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-users-cog text-lg"></i>Héroe
+        </button>
+        <button onclick="showSection('glucosa')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-tint text-lg"></i>Glucosa
+        </button>
+        <button onclick="showSection('comidas')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-utensils text-lg"></i>Comida
+        </button>
+    </div>
+</nav>

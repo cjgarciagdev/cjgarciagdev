@@ -1,0 +1,188 @@
+.balance-cards {
+  display: flex;
+  gap: 2rem;
+  padding: 0.6rem 0.8rem;
+  /* 15px 10px */
+  position: fixed;
+  top: 21vh;
+  /* Distancia desde arriba */
+  left: 13.7vw;
+  /* Distancia desde la izquierda */
+  z-index: 1000;
+
+}
+
+.balance-card {
+  background: #181818;
+  border-radius: 1rem;
+  box-shadow: 0 0.65vh 3.5vh 0 #000a;
+  /* 0 2px 12px 0 ≈ 0 0.18vh 1.1vw 0 */
+  padding: 0.7rem 1rem 1rem 1rem;
+  right: 1rem;
+  min-width: 18.5vw;
+  max-width: 19vw;
+  /* 20rem ≈ 18vw */
+  min-height: 19vh;
+  /* 12rem ≈ 18vh */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  position: relative;
+  transition: box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.balance-card:hover {
+  box-shadow: 0 0.25rem 1.125rem 0 #000c;
+  /* 0 4px 18px 0 */
+  background: #ffd600;
+  color: #181818;
+  /* Transición de relleno del icono */
+  transition: box-shadow 0.2s, background 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s, filter 0.4s;
+}
+
+.balance-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+  /* 6px */
+}
+
+.balance-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.125rem;
+  /* 2px */
+}
+
+.balance-card-symbol {
+  font-size: 0.85rem;
+  color: #bdbdbd;
+  margin-left: 0.125rem;
+  /* 2px */
+}
+
+.balance-card-icon {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2vw;
+  margin-right: 0.7vw;
+  box-shadow: 0 0.3vh 1vw #0004;
+  overflow: hidden;
+  background: none;
+}
+
+.balance-cart-balance {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 60%;
+}
+
+.balance-card-arrow {
+  width: 2vw;
+  /* 1.75rem ≈ 2vw */
+  height: 2vw;
+  /* 1.75rem ≈ 2vw */
+  border-radius: 50%;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00e676;
+  font-size: 1vw;
+  margin-left: 0.7vw;
+  /* 0.5rem ≈ 0.7vw */
+}
+
+.balance-card-balance {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin: 0.375rem 0 0 0;
+  /* 6px 0 0 0 */
+  color: #fff;
+}
+
+.balance-card-chart {
+  width: 100%;
+  height: 3vh;
+  /* 2.125rem ≈ 3vh */
+  margin: 0.5vh 0 0 0;
+  /* 0.375rem ≈ 0.5vh */
+  display: flex;
+  align-items: flex-end;
+}
+
+.balance-card-growth {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 0.25rem;
+  /* 4px */
+  color: #00e676;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  /* 4px */
+}
+
+/* Colores personalizados para el fondo del ícono */
+.balance-card-header .balance-card-icon img[alt="Bitcoin"] {
+  background: #b8a64e;
+  border-radius: 50%;
+  padding: 0.06rem;
+  /* 3px */
+}
+
+.balance-card-header .balance-card-icon img[alt="Mochocoin"] {
+  background: none;
+  border-radius: 0;
+  padding: 0.03rem;
+}
+
+.balance-card-header .balance-card-icon img[alt="Ethereum"] {
+  background: #627eea;
+  border-radius: 50%;
+  padding: 0.06rem;
+  /* 3px */
+}
+
+.balance-card-header .balance-card-icon img[alt="Solana"] {
+  background: #ff6d00;
+  border-radius: 50%;
+  padding: 0.06rem;
+  /* 3px */
+}
+
+/* Efecto hover: fondo amarillo y textos oscuros */
+.balance-card:hover {
+  background: #ffd600;
+  color: #181818;
+}
+
+/* Textos principales oscuros al hacer hover */
+.balance-card:hover .balance-card-title,
+.balance-card:hover .balance-card-balance,
+.balance-card:hover .balance-card-symbol,
+.balance-card:hover .balance-card-growth {
+  color: #181818;
+}
+
+/* Flecha mantiene su color según tendencia */
+.balance-card:hover .balance-card-arrow {
+  background: #fff176;
+  color: inherit;
+}
+
+/* El fondo de los íconos NO cambia en hover */
+.balance-card-header .balance-card-icon img[alt="Bitcoin"],
+.balance-card-header .balance-card-icon img[alt="Mochocoin"],
+.balance-card-header .balance-card-icon img[alt="Ethereum"],
+.balance-card-header .balance-card-icon img[alt="Solana"] {
+  /* Mantienen su fondo de color */
+  filter: none;
+}

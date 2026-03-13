@@ -1,56 +1,94 @@
 <div class="text-center">
     <h2 class="text-2xl font-bold mb-4 text-slate-800">Burbujas de Ánimo 🫧</h2>
-    <p class="mb-4 text-slate-600">¡Haz estallar las burbujas de pensamientos positivos!</p>
+    <p class="mb-4 text-slate-600">¡Haz estallar las burbujas positivas! Tienes 20 segundos.</p>
     <div id="bubble-area"
-        class="relative h-64 bg-sky-50 rounded-2xl border-2 border-sky-100 overflow-hidden cursor-crosshair">
+        class="relative h-64 bg-gradient-to-b from-sky-50 to-sky-100 rounded-2xl border-2 border-sky-200 overflow-hidden cursor-crosshair">
         <!-- Burbujas dinámicas -->
     </div>
-    <div id="bubble-score" class="mt-4 text-sky-700 font-bold">Burbujas: 0</div>
-    <button class="w-full mt-6 bg-sky-600 text-white font-bold py-3 rounded-xl"
-        onclick="finalizarJuego(4)">¡Listo!</button>
+    <div class="flex justify-between items-center mt-4 px-2">
+        <span id="bubble-score" class="text-sky-700 font-bold">🫧 Burbujas: 0</span>
+        <span id="bubble-timer" class="text-rose-500 font-black">⏱️ 20s</span>
+    </div>
+    <button id="bubble-finish" class="w-full mt-4 bg-sky-600 text-white font-bold py-3 rounded-xl hidden"
+        onclick="finalizarJuego(4)">¡Ganar Puntos!</button>
 </div>
 <script>
-    let bubbleCount = 0;
-    const area = document.getElementById('bubble-area');
+    (function () {
+        let bubbleCount = 0;
+        let timeLeft = 20;
+        const area = document.getElementById('bubble-area');
+        const positiveEmojis = ['✨', '🌟', '💖', '🌈', '💪', '🧠', '⭐', '🎯', '🦸', '💫'];
 
-    function createBubble() {
-        const b = document.createElement('div');
-        const size = 40 + Math.random() * 40;
-        b.className = 'absolute bg-white/60 backdrop-blur-sm border border-white rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg cursor-pointer';
-        b.style.width = size + 'px';
-        b.style.height = size + 'px';
-        b.style.left = Math.random() * (area.clientWidth - size) + 'px';
-        b.style.top = area.clientHeight + 'px';
-        b.innerHTML = ['✨', '🌟', '💖', '🌈', '💪', '🧠'][Math.floor(Math.random() * 6)];
+        function createBubble() {
+            if (timeLeft <= 0) return;
+            const b = document.createElement('div');
+            const size = 36 + Math.random() * 36;
+            b.className = 'absolute flex items-center justify-center transition-all cursor-pointer select-none';
+            b.style.cssText = 'border-radius:50%;background:rgba(255,255,255,0.7);backdrop-filter:blur(4px);border:2px solid rgba(255,255,255,0.9);box-shadow:0 4px 15px rgba(0,0,0,0.1);';
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            b.style.left = Math.random() * (area.clientWidth - size) + 'px';
+            b.style.top = area.clientHeight + 'px';
+            b.style.fontSize = (size * 0.45) + 'px';
+            b.textContent = positiveEmojis[Math.floor(Math.random() * positiveEmojis.length)];
 
-        area.appendChild(b);
+            area.appendChild(b);
 
-        let pos = area.clientHeight;
-        const interval = setInterval(() => {
-            pos -= 1 + Math.random() * 2;
-            b.style.top = pos + 'px';
-            if (pos < -size) {
+            let pos = area.clientHeight;
+            const speed = 1 + Math.random() * 2;
+            const interval = setInterval(() => {
+                pos -= speed;
+                b.style.top = pos + 'px';
+                if (pos < -size) {
+                    clearInterval(interval);
+                    b.remove();
+                }
+            }, 30);
+
+            b.onclick = (e) => {
+                e.stopPropagation();
+                bubbleCount++;
+                document.getElementById('bubble-score').textContent = '🫧 Burbujas: ' + bubbleCount;
                 clearInterval(interval);
-                b.remove();
+                b.style.transform = 'scale(1.8)';
+                b.style.opacity = '0';
+                b.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => b.remove(), 300);
+            };
+        }
+
+        const spawner = setInterval(() => {
+            createBubble();
+            // Spawn extra bubbles as time goes on
+            if (Math.random() > 0.5) createBubble();
+        }, 700);
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('bubble-timer').textContent = '⏱️ ' + timeLeft + 's';
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                clearInterval(spawner);
+                document.getElementById('bubble-finish').classList.remove('hidden');
+                document.getElementById('bubble-timer').textContent = '⏱️ ¡Tiempo!';
+                // Remove remaining bubbles
+                area.querySelectorAll('div').forEach(b => {
+                    b.style.opacity = '0.3';
+                    b.style.pointerEvents = 'none';
+                });
             }
-        }, 30);
+        }, 1000);
 
-        b.onclick = () => {
-            bubbleCount++;
-            document.getElementById('bubble-score').textContent = `Burbujas: ${bubbleCount}`;
-            clearInterval(interval);
-            b.style.transform = 'scale(2)';
-            b.style.opacity = '0';
-            setTimeout(() => b.remove(), 200);
+        window.finalizarJuego = function (id) {
+            clearInterval(spawner);
+            clearInterval(timer);
+            const puntos = Math.min(10, Math.floor(bubbleCount / 2));
+            registrarPuntuacion(id, puntos);
+            document.getElementById('modal-juego-overlay').remove();
         };
-    }
 
-    const spawner = setInterval(createBubble, 1000);
-
-    function finalizarJuego(id) {
-        clearInterval(spawner);
-        const puntos = Math.min(10, bubbleCount);
-        registrarPuntuacion(id, puntos);
-        document.getElementById('modal-juego-overlay').remove();
-    }
+        // Start spawning immediately
+        createBubble();
+        createBubble();
+    })();
 </script>

@@ -1,0 +1,360 @@
+.nouts-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: transparent;
+  padding: 1rem 1.3rem;
+  color: #fff;
+  margin-top: -3.2vh;
+  /* -24px = -3.2vh */
+}
+
+.crypto-cards-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1.20vw;
+  /* 18px = 1.25vw */
+  flex: 3;
+}
+
+.crypto-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: #232323;
+  border-radius: 1rem;
+  /* 16px = 1rem */
+  padding: 1.1rem 1.3rem;
+  /* 18px 24px */
+  color: #fff;
+  min-width: 8.75rem;
+  /* 140px = 8.75rem */
+  min-height: 5.625rem;
+  /* 90px = 5.625rem */
+}
+
+.dashboard-main-row {
+  display: flex;
+  flex-direction: row;
+  gap: 3.2vh;
+  /* 24px = 3.2vh */
+  margin-top: 0.7rem;
+  /* 12px = 0.75rem */
+}
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  /* 16px = 1rem */
+  background: #232323;
+  border-radius: 1rem;
+  /* 16px = 1rem */
+  padding: 1.5rem 1.125rem;
+  /* 24px 18px */
+  flex: 1;
+  color: #fff;
+}
+
+.nouts-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.nouts-header {
+  font-size: 0.75rem;
+  color: #bdbdbd;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+  /* 8px = 0.5rem */
+  text-align: left;
+  align-self: flex-start;
+}
+
+.nouts-header span {
+  font-weight: 500;
+  color: #9feb25;
+}
+
+.nouts-balance-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.625rem;
+  /* 10px = 0.625rem */
+}
+
+.nouts-balance {
+  font-size: 1.4rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+
+.nouts-balance sup {
+  font-size: 0.9rem;
+  color: #bdbdbd;
+  margin-left: 0.125rem;
+  /* 2px = 0.125rem */
+}
+
+.nouts-stats-row {
+  display: flex;
+  gap: 0;
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+  margin-right: -37px;
+}
+
+.nouts-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 60px;
+  padding: 0 8px;
+  position: relative;
+}
+
+.nouts-stat:not(:first-child) {
+  border-left: 1px solid #333;
+}
+
+.nouts-stat-label {
+  font-size: 0.85rem;
+  color: #bdbdbd;
+  margin-bottom: 2px;
+}
+
+.nouts-stat-value {
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.nouts-up {
+  color: #6ee7b7;
+}
+
+.nouts-down {
+  color: #f59e42;
+}
+
+.nouts-stat-value span {
+  font-size: 1rem;
+  margin-left: 2px;
+}
+
+/* Si quieres que los hijos ocupen todo el alto disponible: */
+.main-content>* {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.balance-cards {
+  min-width: 6rem;
+  min-height: 6rem;
+}
+
+/* PC Pantalla Normal (≥1201px) */
+@media (min-width: 1201px) {
+  .dashboard-main-row {
+    flex-direction: row;
+    gap: 3.2vh;
+    margin-top: 0.7rem;
+  }
+
+  .crypto-cards-row {
+    flex-direction: row;
+    gap: 1.2vw;
+  }
+
+  .crypto-card {
+    min-width: 8.75rem;
+    min-height: 5.625rem;
+    padding: 1.1rem 1.3rem;
+    font-size: 1rem;
+  }
+
+  .nouts-card {
+    flex-direction: row;
+    padding: 1rem 1.3rem;
+    margin-top: -3.2vh;
+    gap: 0;
+  }
+
+  .chart-card {
+    padding: 1.5rem 1.125rem;
+    border-radius: 1rem;
+    gap: 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* PC Pantalla Media (1000px - 1200px) */
+@media (max-width: 1200px) and (min-width: 1001px) {
+  .dashboard-main-row {
+    gap: 2vh;
+  }
+
+  .crypto-cards-row {
+    gap: 0.8vw;
+  }
+
+  .crypto-card {
+    min-width: 7rem;
+    min-height: 4.5rem;
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .nouts-card {
+    padding: 0.9rem 1rem;
+    margin-top: -2vh;
+  }
+
+  .chart-card {
+    padding: 1rem 0.7rem;
+    border-radius: 0.9rem;
+    gap: 0.7rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* PC Pantalla Baja (800px - 1000px) */
+@media (max-width: 1000px) and (min-width: 801px) {
+  .dashboard-main-row {
+    gap: 1.2vh;
+  }
+
+  .crypto-cards-row {
+    gap: 0.5vw;
+  }
+
+  .crypto-card {
+    min-width: 6rem;
+    min-height: 3.5rem;
+    padding: 0.7rem 0.7rem;
+    font-size: 0.92rem;
+  }
+
+  .nouts-card {
+    padding: 0.7rem 0.7rem;
+    margin-top: -1vh;
+  }
+
+  .chart-card {
+    padding: 0.7rem 0.7rem;
+    border-radius: 0.8rem;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+  }
+}
+
+/* PC Pantalla Muy Baja (601px - 800px) */
+@media (max-width: 800px) and (min-width: 601px) {
+  .dashboard-main-row {
+    flex-direction: column;
+    gap: 0.7rem;
+    margin-top: 0.3rem;
+  }
+
+  .crypto-cards-row {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .crypto-card {
+    min-width: 90vw;
+    min-height: 3.2rem;
+    padding: 0.5rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .nouts-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 0.5rem;
+    margin-top: 0;
+    gap: 0.3rem;
+  }
+
+  .chart-card {
+    padding: 0.5rem 0.5rem;
+    border-radius: 0.7rem;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Móvil (≤600px) */
+@media (max-width: 600px) {
+  .dashboard-main-row {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+  }
+
+  .crypto-cards-row {
+    flex-direction: column;
+    gap: 0.3rem;
+    width: 100%;
+  }
+
+  .crypto-card {
+    min-width: 95vw;
+    min-height: 2.5rem;
+    padding: 0.3rem 0.3rem;
+    font-size: 0.85rem;
+  }
+
+  .nouts-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.3rem 0.3rem;
+    margin-top: 0;
+    gap: 0.2rem;
+  }
+
+  .nouts-header {
+    font-size: 0.8rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .nouts-balance {
+    font-size: 1rem;
+  }
+
+  .nouts-balance-row {
+    margin-bottom: 0.2rem;
+  }
+
+  .nouts-stats-row {
+    flex-direction: row;
+    margin-right: 0;
+    gap: 0.2rem;
+  }
+
+  .nouts-stat {
+    min-width: 30px;
+    padding: 0 2px;
+  }
+
+  .chart-card {
+    padding: 0.3rem 0.3rem;
+    border-radius: 0.5rem;
+    gap: 0.2rem;
+    font-size: 0.85rem;
+  }
+
+  .balance-cards {
+    min-width: 3rem;
+    min-height: 3rem;
+  }
+}

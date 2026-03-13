@@ -300,22 +300,17 @@
                             <input type="password" name="password" placeholder="••••••••" class="input-field" required>
                         </div>
 
-                        <div style="text-align:right; margin-bottom:24px;">
-                            <a href="{{ url_for('auth.api_identificar_usuario') }}"
-                                style="color:#0d9488; font-size:0.75rem; font-weight:800; text-decoration:none;">¿Olvidaste
-                                tu contraseña?</a>
+                        <!-- Recordarme como Facebook -->
+                        <div style="display:flex;align-items:center;margin-bottom:16px;">
+                            <input type="checkbox" id="remember_me" name="remember_me"
+                                style="width:18px;height:18px;accent-color:#0d9488;cursor:pointer;">
+                            <label for="remember_me"
+                                style="margin-left:8px;color:#475569;font-size:0.85rem;font-weight:600;cursor:pointer;">Recordarme
+                                en este dispositivo</label>
                         </div>
 
                         <button type="submit" class="btn-submit">ACCEDER AL SISTEMA</button>
                     </form>
-
-                    <div style="margin-top:24px;padding-top:20px;border-top:1px solid #f1f5f9;text-align:center;">
-                        <p style="color:#94a3b8;font-size:0.68rem;font-weight:800;margin-bottom:12px;">CUENTAS DEMO</p>
-                        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-                            <div class="demo-chip" onclick="fillDemo('admin','1234')">admin / 1234</div>
-                            <div class="demo-chip" onclick="fillDemo('papa_demo','1234')">papa_demo / 1234</div>
-                        </div>
-                    </div>
                 </div>
 
 
@@ -324,11 +319,6 @@
     </div>
 
     <script>
-
-        function fillDemo(u, p) {
-            document.querySelector('[name="username"]').value = u;
-            document.querySelector('[name="password"]').value = p;
-        }
     </script>
 </body>
 

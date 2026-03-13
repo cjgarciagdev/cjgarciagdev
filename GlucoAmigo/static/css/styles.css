@@ -786,6 +786,7 @@ table tbody tr:hover {
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -939,6 +940,11 @@ table tbody tr:hover {
     .bottom-nav {
         display: flex !important;
     }
+
+    /* Mobile header visible */
+    .main-header {
+        display: none !important;
+    }
 }
 
 /* ═══════════════════════════════════════
@@ -1065,4 +1071,23 @@ table tbody tr:hover {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(148, 163, 184, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADER - Like Agro-Proyect (Solo visible en móvil)
+   ═══════════════════════════════════════════════════════════════ */
+
+.main-header {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Ajuste del contenido principal para PC - Like Agro-Proyect */
+@media (min-width: 1024px) {
+    .main-content {
+        padding-top: 1.5rem !important;
+    }
 }

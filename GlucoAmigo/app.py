@@ -1,6 +1,20 @@
+"""
+GlucoAmigo - Aplicación Principal
+================================
+Sistema de Monitoreo Glucémico Pediátrico
+
+DESARROLLADOR: Cristian J Garcia
+CI: 32.170.910
+Email: cjgarciag.dev@gmail.com
+
+Este módulo contiene la configuración principal de la aplicación Flask,
+incluyendo la inicialización de la base de datos, autenticación,
+WebSockets y rutas principales.
+"""
 import os
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, session, jsonify, request
 from flask_login import LoginManager, current_user
+from datetime import timedelta
 from models import db, Usuario, init_db
 from services.app_setup import register_blueprints, configure_app
 
@@ -9,8 +23,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 login_manager = LoginManager()
+socketio = None  # Se inicializará con SocketIO
 
 def create_app():
+    global socketio
     app = Flask(__name__)
     basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -34,6 +50,19 @@ def create_app():
 
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+    
+    # Configuración de sesión persistente (tipo Facebook)
+    # Session lifetime: 30 días para sesiones permanentes
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+    
+    # Configurar cookies según el entorno
+    is_production = os.getenv('FLASK_ENV') == 'production' or os.getenv('RENDER') == 'true'
+    app.config['SESSION_COOKIE_SECURE'] = is_production  # Solo HTTPS en producción
+    app.config['SESSION_COOKIE_HTTPONLY'] = True  # Protegido contra XSS
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+    
+    # Configurar Flask-Login para usar sesiones permanentes
+    login_manager.remember_cookie_duration = timedelta(days=30)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -43,10 +72,24 @@ def create_app():
     init_db(app)
     configure_app(app)
     register_blueprints(app)
+    
+    # === SocketIO para alertas en tiempo real ===
+    from services.alerta_tiempo_real import configurar_alertas_en_app
+    socketio = configurar_alertas_en_app(app)
 
     @app.context_processor
     def inject_user():
-        return dict(current_user=current_user)
+        from models_extended import ConfiguracionSistema
+        return dict(
+            current_user=current_user,
+            config_sistema={
+                'telefono_emergencia': ConfiguracionSistema.obtener('telefono_emergencia', '0414-1234567'),
+                'especialista_default': ConfiguracionSistema.obtener('especialista_default', 'Dr. Jesús García Coello'),
+                'especialista_telefono': ConfiguracionSistema.obtener('especialista_default_telefono', '0414-1234567'),
+                'especialista_default_especialidad': ConfiguracionSistema.obtener('especialista_default_especialidad', 'Endocrinólogo Pediátrico'),
+                'hospital_nombre': ConfiguracionSistema.obtener('hospital_nombre', 'Hospital Dr. Jesús García Coello')
+            }
+        )
 
     from flask_login import login_required
 
@@ -72,8 +115,31 @@ def create_app():
     @app.route('/nino')
     @login_required
     def portal_nino():
-        if current_user.rol != 'padre':
-            return redirect(url_for('index'))
+        # El perfil de niño es para usuarios padre que quieren acceder a la zona de juegos
+        # Cualquier usuario padre puede acceder
         return render_template('portal_nino.html')
 
-    return app
+    # API para guardar configuración del sistema
+    @app.route('/api/configuracionSistema', methods=['POST'])
+    @login_required
+    def guardar_configuracion_sistema():
+        if current_user.rol not in ['especialista', 'admin', 'gerente']:
+            return jsonify({'status': 'error', 'message': 'No tienes permiso para modificar la configuración'}), 403
+        
+        from models_extended import ConfiguracionSistema
+        data = request.get_json()
+        
+        if data.get('telefono_emergencia'):
+            ConfiguracionSistema.establecer('telefono_emergencia', data['telefono_emergencia'])
+        if data.get('hospital_nombre'):
+            ConfiguracionSistema.establecer('hospital_nombre', data['hospital_nombre'])
+        if data.get('especialista_default'):
+            ConfiguracionSistema.establecer('especialista_default', data['especialista_default'])
+        if data.get('especialista_telefono'):
+            ConfiguracionSistema.establecer('especialista_default_telefono', data['especialista_telefono'])
+        if data.get('especialista_default_especialidad'):
+            ConfiguracionSistema.establecer('especialista_default_especialidad', data['especialista_default_especialidad'])
+        
+        return jsonify({'status': 'success', 'message': 'Configuración guardada correctamente'})
+
+    return app, socketio

@@ -1,0 +1,25 @@
+{# ════════════════════════════════════════════
+COMPONENTE: Bottom Navigation Bar - Especialista
+Mobile Only
+════════════════════════════════════════════ #}
+<nav
+    class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
+    <div class="grid grid-cols-4 py-3">
+        <button onclick="showSection('dashboard')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-th-large text-lg"></i>Panel
+        </button>
+        <button onclick="showSection('pacientes')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-child text-lg"></i>Pacientes
+        </button>
+        <button onclick="showSection('alertas')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-bell text-lg"></i>Alertas
+        </button>
+        <button onclick="showSection('exportar')"
+            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
+            <i class="fas fa-file-export text-lg"></i>Reportes
+        </button>
+    </div>
+</nav>

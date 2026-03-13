@@ -1,0 +1,12 @@
+<section id="sec-dashboard" class="content-section fade-in">
+    {% include 'components/dashboard/_header.html' %}
+    {% include 'components/dashboard/_stats_cards.html' %}
+
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+        {% if has_perm('ver_dashboard_completo') %}
+        {% include 'components/dashboard/_chart_panel.html' %}
+        {% endif %}
+
+        {% include 'components/dashboard/_activity_panel.html' %}
+    </div>
+</section>

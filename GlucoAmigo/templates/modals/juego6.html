@@ -1,47 +1,121 @@
 <div class="text-center">
         <h2 class="text-2xl font-bold mb-4 text-slate-800">El Laberinto del Dragón 🐉</h2>
-        <p class="mb-4 text-slate-600">¡Guía al pequeño dragón hacia la fruta saludable!</p>
+        <p class="mb-4 text-slate-600">¡Guía al dragón hacia la fruta! Usa las flechas o los botones.</p>
         <div id="maze-container"
-                class="relative w-64 h-64 bg-slate-800 rounded-3xl mx-auto border-4 border-slate-700 flex items-center justify-center mb-6">
-                <div id="dragon" class="absolute text-3xl transition-all" style="top: 10px; left: 10px;">🐉</div>
-                <div id="target" class="absolute text-3xl" style="bottom: 10px; right: 10px;">🍎</div>
+                class="relative w-64 h-64 bg-slate-800 rounded-3xl mx-auto border-4 border-slate-700 overflow-hidden mb-4">
+                <div id="dragon" class="absolute text-3xl transition-all duration-150 z-10"
+                        style="top: 10px; left: 10px;">🐉</div>
+                <div id="target" class="absolute text-3xl animate-pulse" style="bottom: 10px; right: 10px;">🍎</div>
                 <!-- Obstáculos -->
-                <div class="absolute bg-slate-600 rounded-full"
-                        style="width: 40px; height: 40px; top: 100px; left: 50px;">
-                </div>
-                <div class="absolute bg-slate-600 rounded-full"
-                        style="width: 40px; height: 40px; top: 40px; left: 150px;">
-                </div>
-                <div class="absolute bg-slate-600 rounded-full"
-                        style="width: 40px; height: 40px; bottom: 60px; right: 80px;">
-                </div>
+                <div class="maze-wall absolute bg-slate-600 rounded"
+                        style="width: 80px; height: 12px; top: 60px; left: 30px;"></div>
+                <div class="maze-wall absolute bg-slate-600 rounded"
+                        style="width: 12px; height: 70px; top: 60px; left: 30px;"></div>
+                <div class="maze-wall absolute bg-slate-600 rounded"
+                        style="width: 80px; height: 12px; top: 120px; left: 130px;"></div>
+                <div class="maze-wall absolute bg-slate-600 rounded"
+                        style="width: 12px; height: 60px; top: 120px; left: 130px;"></div>
+                <div class="maze-wall absolute bg-slate-600 rounded"
+                        style="width: 60px; height: 12px; top: 180px; left: 50px;"></div>
+                <div class="maze-wall absolute bg-slate-600 rounded"
+                        style="width: 12px; height: 50px; top: 40px; left: 180px;"></div>
         </div>
-        <div class="grid grid-cols-3 gap-2 w-32 mx-auto mb-4">
-                <div></div><button onclick="moveDragon(0,-20)" class="bg-slate-200 p-3 rounded-xl">⬆️</button>
+        <div id="maze-status" class="mb-3 text-slate-400 font-bold text-sm">Movimientos: 0</div>
+        <div id="maze-win" class="hidden mb-3 text-emerald-400 font-bold animate-bounce">🎉 ¡Llegaste!</div>
+        <div class="grid grid-cols-3 gap-2 w-36 mx-auto mb-4">
                 <div></div>
-                <button onclick="moveDragon(-20,0)" class="bg-slate-200 p-3 rounded-xl">⬅️</button>
-                <button onclick="moveDragon(0,20)" class="bg-slate-200 p-3 rounded-xl">⬇️</button>
-                <button onclick="moveDragon(20,0)" class="bg-slate-200 p-3 rounded-xl">➡️</button>
+                <button onclick="moveDragon(0,-15)"
+                        class="bg-slate-200 hover:bg-slate-300 p-3 rounded-xl transition-all active:scale-90 font-bold">⬆️</button>
+                <div></div>
+                <button onclick="moveDragon(-15,0)"
+                        class="bg-slate-200 hover:bg-slate-300 p-3 rounded-xl transition-all active:scale-90 font-bold">⬅️</button>
+                <button onclick="moveDragon(0,15)"
+                        class="bg-slate-200 hover:bg-slate-300 p-3 rounded-xl transition-all active:scale-90 font-bold">⬇️</button>
+                <button onclick="moveDragon(15,0)"
+                        class="bg-slate-200 hover:bg-slate-300 p-3 rounded-xl transition-all active:scale-90 font-bold">➡️</button>
         </div>
-        <button class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl"
-                onclick="finalizarJuego(6)">Terminar</button>
+        <button id="maze-btn" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl hidden"
+                onclick="finalizarJuego(6)">¡Ganar Puntos!</button>
 </div>
 <script>
-        const drag = document.getElementById('dragon');
-        let dPos = { x: 10, y: 10 };
+        (function () {
+                const drag = document.getElementById('dragon');
+                const container = document.getElementById('maze-container');
+                let dPos = { x: 10, y: 10 };
+                let moves = 0;
+                let won = false;
+                const STEP = 15;
+                const DRAGON_SIZE = 30;
+                const TARGET = { x: 220, y: 220, size: 30 };
 
-        function moveDragon(dx, dy) {
-                dPos.x = Math.max(0, Math.min(220, dPos.x + dx));
-                dPos.y = Math.max(0, Math.min(220, dPos.y + dy));
-                drag.style.left = dPos.x + 'px';
-                drag.style.top = dPos.y + 'px';
-        }
+                // Get wall rects
+                function getWalls() {
+                        const walls = container.querySelectorAll('.maze-wall');
+                        const rects = [];
+                        walls.forEach(w => {
+                                rects.push({
+                                        x: parseInt(w.style.left),
+                                        y: parseInt(w.style.top),
+                                        w: parseInt(w.style.width),
+                                        h: parseInt(w.style.height)
+                                });
+                        });
+                        return rects;
+                }
 
-        function finalizarJuego(id) {
-                // Puntos basados en cercanía al target
-                const dist = Math.sqrt((dPos.x - 220) ** 2 + (dPos.y - 220) ** 2);
-                const puntos = Math.max(0, 10 - Math.floor(dist / 30));
-                registrarPuntuacion(id, puntos);
-                document.getElementById('modal-juego-overlay').remove();
-        }
+                function collides(px, py) {
+                        const walls = getWalls();
+                        for (const wall of walls) {
+                                if (px < wall.x + wall.w && px + DRAGON_SIZE > wall.x &&
+                                        py < wall.y + wall.h && py + DRAGON_SIZE > wall.y) {
+                                        return true;
+                                }
+                        }
+                        return false;
+                }
+
+                function checkWin() {
+                        const dist = Math.sqrt((dPos.x - TARGET.x) ** 2 + (dPos.y - TARGET.y) ** 2);
+                        if (dist < 30) {
+                                won = true;
+                                document.getElementById('maze-win').classList.remove('hidden');
+                                document.getElementById('maze-btn').classList.remove('hidden');
+                                drag.textContent = '🐉✨';
+                        }
+                }
+
+                window.moveDragon = function (dx, dy) {
+                        if (won) return;
+                        const newX = Math.max(0, Math.min(230, dPos.x + dx));
+                        const newY = Math.max(0, Math.min(230, dPos.y + dy));
+                        if (!collides(newX, newY)) {
+                                dPos.x = newX;
+                                dPos.y = newY;
+                                drag.style.left = dPos.x + 'px';
+                                drag.style.top = dPos.y + 'px';
+                                moves++;
+                                document.getElementById('maze-status').textContent = 'Movimientos: ' + moves;
+                                checkWin();
+                        }
+                };
+
+                // Keyboard support
+                function handleKey(e) {
+                        if (won) return;
+                        switch (e.key) {
+                                case 'ArrowUp': moveDragon(0, -STEP); e.preventDefault(); break;
+                                case 'ArrowDown': moveDragon(0, STEP); e.preventDefault(); break;
+                                case 'ArrowLeft': moveDragon(-STEP, 0); e.preventDefault(); break;
+                                case 'ArrowRight': moveDragon(STEP, 0); e.preventDefault(); break;
+                        }
+                }
+                document.addEventListener('keydown', handleKey);
+
+                window.finalizarJuego = function (id) {
+                        document.removeEventListener('keydown', handleKey);
+                        const puntos = won ? Math.max(5, 10 - Math.floor(moves / 15)) : 2;
+                        registrarPuntuacion(id, puntos);
+                        document.getElementById('modal-juego-overlay').remove();
+                };
+        })();
 </script>

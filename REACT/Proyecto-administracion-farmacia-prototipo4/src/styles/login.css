@@ -1,0 +1,51 @@
+/* Estilos para el formulario de login */
+.login-form {
+    max-width: 21.25rem;
+    margin: 6.25rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(37, 99, 235, 0.08);
+}
+
+/* Estilos para el título del login */
+.login-title {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: #000000;
+}
+
+/* Estilos para los inputs */
+.login-input {
+    width: 100%;
+    padding: 0.625rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Estilos para el mensaje de error */
+.login-error {
+    color: red;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Estilos para el botón */
+.login-button {
+    width: 100%;
+    padding: 0.625rem;
+    margin-top: 0.75rem;
+    background-color: #102552;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.login-button:hover {
+    background-color: #174ea6;
+}

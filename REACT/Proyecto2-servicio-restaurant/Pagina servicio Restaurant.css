@@ -1,0 +1,377 @@
+body {
+    color: white;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-image: url('/Proyecto2-servicio-restaurant/Imagens/Fond.jpg'); 
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat; 
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.contenido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+    height: 60vw;
+    flex-direction: row-reverse;
+    margin: 0;
+}
+
+nav {
+    display: flex; 
+    justify-content: space-between; /* Separa las dos partes */
+    align-items: center;
+    gap: 2vw;
+    background-color: rgba(81, 74, 150, 0.199);
+    padding: 0 2vw; /* Ajusta el espacio interno */
+    margin-left: 1vw;
+    margin-right: 1vw;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.Menu-izquierdo {
+    display: flex;
+    align-items: center;
+    gap: 1.3vw; /* Espaciado entre elementos */
+}
+
+.Menu-derecho {
+    display: flex;
+    align-items: center;
+    gap: 1.3vw; /* Espaciado entre elementos */
+}
+
+.Menu-izquierdo img,
+.Menu-derecho img {
+    max-width: 100%;
+    width: 3.4vw;
+    height: auto;
+    vertical-align: middle;
+}
+
+.Menu-izquierdo a,
+.Menu-derecho a {
+    text-decoration: none;
+    color: white;
+    font-size: 1.2vw;
+    text-align: center;
+}
+
+.texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 40%;
+    height: 29vw; 
+}
+
+.texto h1 {
+    font-size: 2.4vw;
+    margin-bottom: 2vw;
+}
+
+.texto p {
+    font-size: 1.5vw;
+    margin-bottom: 2.2vw;
+}
+
+.texto button {
+    background-color: white;
+    color: black;
+    padding: 1vw 2vw;
+    font-size: 1.3vw;
+    border: none;
+    cursor: pointer;
+    border-radius: 3vw;
+}
+
+.texto button:hover {
+    background-color: orange;
+}
+
+footer {
+    text-align: center;
+    padding: 1vw;
+    padding-left: 9vw;
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    bottom: 1vw;
+    width: 100%;
+    font-size: 0.7vw;
+}
+
+footer a {
+    color: orange;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+nav .Imag {
+    display: inline-block;
+    padding: 0.1vw;
+    border-radius: 0.1vw;
+    transition: all 0.3s ease; 
+}
+
+nav .Imag img {
+    width: 3.5vw; 
+    height: auto;
+    transition: all 0.3s ease; 
+}
+
+nav .Imag:hover {
+    background-color: rgba(255, 165, 0, 0.5); 
+    box-shadow: 0px 0px 6px orange; 
+    transform: scale(1.1); 
+    border-radius: 1vw;
+}
+
+menu-opciones, .menu-libro, .menu-opciones-1 {
+    position: relative;
+    display: inline-block;
+}
+
+.submenu, .submenu-libro, .submenu-1 {
+    display: none;
+    position: absolute;
+    background-color: rgba(81, 74, 150, 0.9);
+    padding: 1vw;
+    border-radius: 1vw;
+    text-align: center;
+    width: 15vw;
+        list-style: none;
+}
+
+.submenu a, .submenu-1 a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 0.1vw 0.2vw;
+}
+
+.submenu-libro p {
+    color: white;
+    padding: 1vw;
+    font-size: 0.9vw;
+}
+
+.menu-opciones:hover .submenu,
+.menu-libro:hover .submenu-libro,
+.menu-opciones-1:hover .submenu-1 {
+    display: block;
+}
+
+@media (max-width: 760px) {
+    body {
+        background-image: url('/Proyecto2-servicio-restaurant/Imagens/Fond-movil.jpg'); 
+        background-size: cover; 
+        background-position: center; 
+        background-repeat: no-repeat; 
+        overflow: hidden;
+    }
+
+    nav {
+        background-color: rgba(82, 74, 150, 0.356);
+        padding: 5vw 6vw;
+        flex-direction: column; /* Cambia a diseño vertical */
+        align-items: center;
+    }
+
+    .Menu-izquierdo {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between; /* Separa los íconos a ambos lados */
+        align-items: center;
+        width: 100%; /* Ocupa todo el ancho */
+        padding: 0 5vw;
+    }
+
+    .Menu-izquierdo img {
+        width: 100%;
+        height: auto;
+        vertical-align: middle;
+        transition: all 0.3s ease; /* Agrega transición */
+    }
+
+    .Menu-izquierdo img:hover {
+        background-color: rgba(255, 165, 0, 0.5); 
+        box-shadow: 0px 0px 6px orange; 
+        transform: scale(1.1); 
+        border-radius: 1vw;
+    }
+
+    .menu-opciones {
+        position: relative;
+        display: inline-block;
+    }
+
+    .menu-opciones .submenu {
+        display: none;
+        position: absolute;
+        background-color: rgba(81, 74, 150, 0.9);
+        padding: 1vw;
+        border-radius: 1vw;
+        text-align: center;
+        width: 15vw;
+        list-style: none;
+        transition: all 0.3s ease; /* Agrega transición */
+    }
+
+    .menu-opciones .submenu a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        padding: 0.1vw 0.2vw;
+    }
+
+    .menu-opciones:hover .submenu {
+        display: block;
+    }
+
+    .Menu-derecho {
+        display: none; /* Oculta el menú derecho */
+    }
+
+    .contenido {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centra el contenido horizontalmente */
+        justify-content: center; /* Centra el contenido verticalmente */
+        width: 100%; /* Ajusta el ancho al 100% */
+        height: auto; /* Ajusta la altura automáticamente */
+        margin: 10vw auto; /* Centra el contenido con márgenes */
+        padding: 5vw; /* Agrega espacio interno */
+        top: -5vw; /* Ajusta el valor para mover el texto más arriba */
+    }
+
+    .texto {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        position: relative;
+        top: 20vw;
+        left: -3vw;
+        margin: 10%;
+        padding: 3vw;
+        font-size: 10vw;
+        line-height: 5vw;
+        word-spacing: 1vw;
+        width: 100%;
+    }
+        
+        .texto h1 { 
+          font-size: 4vw;
+          margin-bottom: 1vw;
+    }
+
+    .texto p {
+        font-size: 3vw;
+        margin-bottom: 1.5vw;
+        top: 10vw; /* Ajusta el valor para mover el texto más arriba */
+    }
+
+    .texto button {
+        background-color: white;
+        color: black;
+        padding: 2vw 6vw;
+        font-size: 2vw;
+        border: none;
+        cursor: pointer;
+        border-radius: 5vw; /* Redondea más los bordes */
+    }
+
+    .texto button:hover {
+        background-color: orange;
+    }
+
+    footer {
+        text-align: center;
+        padding: 1vw;
+        padding-left: 9vw;
+        background-color: rgba(0, 0, 0, 0.6);
+        position: absolute;
+        bottom: 1vw;
+        width: 100%;
+        font-size: 3vw;
+    }
+
+    footer a {
+        color: orange;
+        text-decoration: none;
+        transition: all 0.3s ease; /* Agrega transición */
+    }
+
+    footer a:hover {
+        text-decoration: underline;
+    }
+
+    nav .Imag {
+        display: inline-block;
+        padding: 0.1vw;
+        border-radius: 0.1vw;
+        transition: all 0.3s ease; /* Agrega transición */
+    }
+
+    nav .Imag img {
+        width: 3.5vw; 
+        height: auto;
+        transition: all 0.3s ease; /* Agrega transición */
+    }
+
+    nav .Imag:hover {
+        background-color: rgba(255, 165, 0, 0.5); 
+        box-shadow: 0px 0px 6px orange; 
+        transform: scale(1.1); 
+        border-radius: 1vw;
+    }
+
+    .menu-libro, .menu-opciones-1 {
+        position: relative;
+        display: inline-block;
+    }
+
+    .submenu-libro, .submenu-1 {
+        display: none;
+        position: absolute;
+        background-color: rgba(81, 74, 150, 0.9);
+        padding: 1vw;
+        border-radius: 1vw;
+        text-align: center;
+        width: 15vw;
+        list-style: none;
+        transition: all 0.3s ease; /* Agrega transición */
+    }
+
+    .submenu-1 a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        padding: 0.1vw 0.2vw;
+    }
+
+    .submenu-libro p {
+        color: white;
+        padding: 1vw;
+        font-size: 0.9vw;
+    }
+
+    .menu-libro:hover .submenu-libro,
+    .menu-opciones-1:hover .submenu-1 {
+        display: block;
+    }
+}

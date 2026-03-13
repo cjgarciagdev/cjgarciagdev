@@ -1,0 +1,3 @@
+Debido a que no hay una ubicación en especifico se asigno esa opción con una ubicacion aleatoria (estimada para el ejemplo)
+los enlaces y conexiones fueron enlazados con whatsapp e instagram solamente porque solo se trabajo con HTML y CSS
+

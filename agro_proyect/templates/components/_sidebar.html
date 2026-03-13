@@ -1,0 +1,200 @@
+<!-- Sidebar -->
+<aside id="sidebar"
+    class="fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-[#1b4332] to-[#0f281d] text-white shadow-2xl z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out flex flex-col pt-4 lg:pt-0 sidebar-transition">
+
+    <!-- Sidebar Header (Logo) -->
+    <div class="p-8 pb-4 text-center border-b border-white/10 relative">
+        <button onclick="toggleSidebar()" class="lg:hidden absolute top-4 right-4 text-white/50 hover:text-white">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="flex flex-col items-center">
+            <div class="inline-block">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo"
+                    class="h-60 w-60 object-contain drop-shadow-2xl transform hover:scale-105 transition">
+            </div>
+            <p class="text-[0.625rem] text-green-200 uppercase tracking-widest font-medium -mt-12 opacity-60">
+                Gestión Ganadera Pro
+            </p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="mt-6 flex-grow space-y-2 px-4 overflow-y-auto custom-scrollbar">
+
+        <!-- ZONA: CORE OPERATIVO -->
+        <div class="sidebar-category">
+            <button onclick="toggleSidebarGroup('group-core')"
+                class="w-full flex items-center justify-between px-4 py-2 text-[0.625rem] font-black text-green-300/40 uppercase tracking-[0.2em] hover:text-green-300/60 transition-colors">
+                <span>Gestión Central</span>
+                <i id="arrow-group-core" class="fas fa-chevron-down transition-transform duration-300"></i>
+            </button>
+            <div id="group-core" class="space-y-1 mt-1 overflow-hidden transition-all duration-300">
+                <a href="#" onclick="showSection('dashboard'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 active-link stagger-item"
+                    style="animation-delay: 0.5s;" id="link-dashboard">
+                    <i class="fas fa-th-large w-8 text-lg text-yellow-400 group-hover:text-white transition"></i>
+                    <span>Panel de Control</span>
+                </a>
+
+                {% if has_perm('ver_dashboard_completo') %}
+                <a href="#" onclick="showSection('ganado'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.55s;" id="link-ganado">
+                    <i class="fas fa-clipboard-list w-8 text-lg text-yellow-300 group-hover:text-white transition"></i>
+                    <span>Rebaño e inventario</span>
+                </a>
+                {% endif %}
+
+
+
+                {% if has_perm('ver_dashboard_completo') or has_perm('gestionar_inventario') %}
+                <a href="#" onclick="showSection('produccion'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.58s;" id="link-produccion">
+                    <i class="fas fa-chart-line w-8 text-lg text-amber-400 group-hover:text-white transition"></i>
+                    <span>Producción</span>
+                </a>
+                {% endif %}
+
+                {% if has_perm('ver_dashboard_completo') or has_perm('gestionar_salud') %}
+                <a href="#" onclick="showSection('calendario'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.59s;" id="link-calendario">
+                    <i class="fas fa-calendar-alt w-8 text-lg text-indigo-300 group-hover:text-white transition"></i>
+                    <span>Calendario / Agenda</span>
+                </a>
+                {% endif %}
+
+                {% if has_perm('gestionar_salud') %}
+                <a href="#" onclick="showSection('salud'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.6s;" id="link-salud">
+                    <i class="fas fa-heartbeat w-8 text-lg text-red-400 group-hover:text-white transition"></i>
+                    <span>Salud Veterinaria</span>
+                </a>
+                {% endif %}
+
+                {% if has_perm('gestionar_nutricion') %}
+                <a href="#" onclick="showSection('nutricion'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.65s;" id="link-nutricion">
+                    <i class="fas fa-utensils w-8 text-lg text-orange-400 group-hover:text-white transition"></i>
+                    <span>Nutrición</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ZONA: INTELIGENCIA Y ASISTENCIA -->
+        <div class="sidebar-category">
+            <button onclick="toggleSidebarGroup('group-data')"
+                class="w-full flex items-center justify-between px-4 py-2 mt-2 text-[0.625rem] font-black text-green-300/40 uppercase tracking-[0.2em] hover:text-green-300/60 transition-colors">
+                <span>Análisis y Datos</span>
+                <i id="arrow-group-data" class="fas fa-chevron-down transition-transform duration-300"></i>
+            </button>
+            <div id="group-data" class="space-y-1 mt-1 overflow-hidden transition-all duration-300">
+                {% if has_perm('ver_analisis') %}
+                <a href="#" onclick="showSection('avanzado'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.7s;" id="link-avanzado">
+                    <i class="fas fa-brain w-8 text-lg text-blue-400 group-hover:text-white transition"></i>
+                    <span>Smart Data & Grafos</span>
+                </a>
+                {% endif %}
+
+                <a href="#" onclick="showSection('caracteristicas'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.75s;" id="link-caracteristicas">
+                    <i class="fas fa-book-open w-8 text-lg text-purple-400 group-hover:text-white transition"></i>
+                    <span>Guía de Razas</span>
+                </a>
+
+                {% if has_perm('exportar') %}
+                <a href="#" onclick="showSection('export'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10 stagger-item"
+                    style="animation-delay: 0.8s;" id="link-export">
+                    <i class="fas fa-file-export w-8 text-lg text-indigo-400 group-hover:text-white transition"></i>
+                    <span>Centro de Reportes</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ZONA: ADMINISTRACIÓN -->
+        <div class="sidebar-category">
+            <button onclick="toggleSidebarGroup('group-admin')"
+                class="w-full flex items-center justify-between px-4 py-2 mt-2 text-[0.625rem] font-black text-green-300/40 uppercase tracking-[0.2em] hover:text-green-300/60 transition-colors">
+                <span>Control Interno</span>
+                <i id="arrow-group-admin" class="fas fa-chevron-down transition-transform duration-300"></i>
+            </button>
+            <div id="group-admin" class="space-y-1 mt-1 overflow-hidden transition-all duration-300">
+                {% if has_perm('gestionar_inventario') %}
+                <a href="#" onclick="showSection('inventario'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10"
+                    id="link-inventario">
+                    <i class="fas fa-boxes w-8 text-lg text-teal-400 group-hover:text-white transition"></i>
+                    <span>Insumos y Logística</span>
+                </a>
+                {% endif %}
+
+                {% if has_perm('ver_dashboard_completo') %}
+                <a href="#" onclick="showSection('finanzas'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10"
+                    id="link-finanzas">
+                    <i class="fas fa-dollar-sign w-8 text-lg text-emerald-400 group-hover:text-white transition"></i>
+                    <span>Finanzas y Caja</span>
+                </a>
+                {% endif %}
+
+                {% if has_perm('ver_logs') %}
+                <a href="#" onclick="showSection('auditoria'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10"
+                    id="link-auditoria">
+                    <i class="fas fa-shield-alt w-8 text-lg text-blue-400 group-hover:text-white transition"></i>
+                    <span>Auditoría de Cambios</span>
+                </a>
+                {% endif %}
+
+                {% if has_perm('gestionar_usuarios') %}
+                <a href="#" onclick="showSection('usuarios'); toggleSidebarIfMobile()"
+                    class="nav-link group flex items-center px-4 py-3 text-sm font-bold rounded-xl transition-all hover:bg-white/10"
+                    id="link-usuarios">
+                    <i class="fas fa-users-cog w-8 text-lg text-indigo-400 group-hover:text-white transition"></i>
+                    <span>Gestión de Personal</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar User & Logout (Collapsible) -->
+    <div class="p-4 border-t border-white/5 bg-[#0b1e16]/50">
+        <button onclick="toggleSidebarGroup('group-user')"
+            class="w-full flex items-center gap-3 px-2 py-2 rounded-2xl hover:bg-white/5 transition-all group">
+            <div
+                class="w-10 h-10 bg-green-700/50 rounded-full flex items-center justify-center border border-green-500/30 group-hover:border-green-400/50 transition-all">
+                <i class="fas fa-user-circle text-xl text-green-300"></i>
+            </div>
+            <div class="flex-1 text-left min-w-0">
+                <p class="text-sm font-bold text-white truncate">{{ session['username'] }}</p>
+                <p class="text-[0.625rem] text-green-400/60 uppercase font-black tracking-widest">{{ session['rol'] }}
+                </p>
+            </div>
+            <i id="arrow-group-user"
+                class="fas fa-chevron-down text-[0.625rem] text-white/30 group-hover:text-white/60 transition-all duration-300"></i>
+        </button>
+
+        <div id="group-user" class="space-y-1 mt-2 overflow-hidden transition-all duration-300">
+            <a href="javascript:void(0)" onclick="confirmLogout()"
+                class="flex items-center gap-3 px-4 py-3 text-xs font-bold text-red-400 hover:text-white hover:bg-red-500/20 rounded-xl transition-all group">
+                <i
+                    class="fas fa-sign-out-alt w-5 text-sm group-hover:transform group-hover:translate-x-1 transition"></i>
+                <span>Finalizar Sesión</span>
+            </a>
+        </div>
+
+        <div class="mt-4 text-[0.625rem] text-green-400/30 text-center uppercase tracking-tighter">
+            <p>&copy; 2026 Agro-Master v2.0</p>
+        </div>
+    </div>
+</aside>

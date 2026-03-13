@@ -1,46 +1,103 @@
 <div class="text-center">
     <h2 class="text-2xl font-bold mb-4 text-slate-800">Rompecabezas Rápido 🧩</h2>
-    <p class="mb-4 text-slate-600">Haz clic en las piezas para moverlas al espacio vacío y ordenarlas (1 al 7).</p>
+    <p class="mb-4 text-slate-600">Ordena los números del 1 al 8. Toca una pieza junto al espacio vacío para moverla.
+    </p>
     <div id="puzzle" class="grid grid-cols-3 gap-2 w-64 mx-auto mb-6">
-        <!-- 7 piezas + 2 vacías -->
-        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="1">1</div>
-        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="2">2</div>
-        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="3">3</div>
-        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="4">4</div>
-        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="5">5</div>
-        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="6">6</div>
-        <div class="pieza bg-teal-100 p-4 rounded cursor-pointer text-xl font-bold text-teal-800" data-id="7">7</div>
-        <div class="pieza empty w-full h-16 border-2 border-dashed border-slate-300 rounded"></div>
-        <div class="pieza empty w-full h-16 border-2 border-dashed border-slate-300 rounded"></div>
+        <!-- Generado por JS -->
     </div>
-    <button
-        class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg"
-        onclick="finalizarJuego(1)">¡Completar y Ganar Puntos!</button>
+    <div id="p-moves" class="mb-2 text-slate-400 font-bold text-sm">Movimientos: 0</div>
+    <div id="p-status" class="mb-4 text-teal-600 font-bold hidden">¡Lo lograste! 🎉</div>
+    <button id="p-btn"
+        class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg hidden"
+        onclick="finalizarJuego(1)">¡Ganar Puntos!</button>
 </div>
 <script>
-    let p1_movimientos = 0;
-    // Lógica básica de intercambio (para el demo, cualquier click intercambia con una vacía al azar)
-    document.querySelectorAll('#puzzle .pieza:not(.empty)').forEach(p => {
-        p.addEventListener('click', () => {
-            const emptyNodes = document.querySelectorAll('#puzzle .empty');
-            if (emptyNodes.length > 0) {
-                const empty = emptyNodes[0];
-                empty.classList.remove('empty', 'border-2', 'border-dashed', 'border-slate-300');
-                empty.classList.add('bg-teal-100', 'p-4', 'cursor-pointer', 'text-xl', 'font-bold', 'text-teal-800');
-                empty.textContent = p.textContent;
+    (function () {
+        const puzzle = document.getElementById('puzzle');
+        const COLS = 3;
+        let items = [];
+        let p1_movimientos = 0;
+        let gameWon = false;
 
-                p.classList.remove('bg-teal-100', 'p-4', 'cursor-pointer', 'text-xl', 'font-bold', 'text-teal-800');
-                p.classList.add('empty', 'border-2', 'border-dashed', 'border-slate-300');
-                p.textContent = '';
-
-                p1_movimientos++;
+        // Generate a solvable puzzle
+        function initPuzzle() {
+            items = ['1', '2', '3', '4', '5', '6', '7', '8', ''];
+            // Shuffle with Fisher-Yates
+            for (let i = items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [items[i], items[j]] = [items[j], items[i]];
             }
-        });
-    });
+            // Ensure solvable (even number of inversions for 3x3 with blank in last row)
+            if (!isSolvable()) {
+                // Swap first two non-empty tiles
+                const a = items.indexOf('1');
+                const b = items.indexOf('2');
+                [items[a], items[b]] = [items[b], items[a]];
+            }
+        }
 
-    function finalizarJuego(id) {
-        const puntos = Math.max(0, 10 - Math.floor(p1_movimientos / 2)); // Menos mov = más puntos
-        registrarPuntuacion(id, puntos);
-        document.getElementById('modal-juego-overlay').remove();
-    }
+        function isSolvable() {
+            let inversions = 0;
+            const flat = items.filter(v => v !== '');
+            for (let i = 0; i < flat.length; i++) {
+                for (let j = i + 1; j < flat.length; j++) {
+                    if (parseInt(flat[i]) > parseInt(flat[j])) inversions++;
+                }
+            }
+            return inversions % 2 === 0;
+        }
+
+        function isAdjacent(idx1, idx2) {
+            const r1 = Math.floor(idx1 / COLS), c1 = idx1 % COLS;
+            const r2 = Math.floor(idx2 / COLS), c2 = idx2 % COLS;
+            return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
+        }
+
+        function renderPuzzle() {
+            puzzle.innerHTML = '';
+            items.forEach((val, i) => {
+                const d = document.createElement('div');
+                if (val === '') {
+                    d.className = 'w-full h-16 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center bg-slate-50';
+                } else {
+                    d.className = 'bg-gradient-to-br from-teal-100 to-teal-200 p-4 rounded-xl cursor-pointer text-xl font-black text-teal-800 h-16 flex items-center justify-center transition-all hover:scale-105 hover:shadow-md active:scale-95 select-none';
+                    d.textContent = val;
+                    d.onclick = () => movePiece(i);
+                }
+                puzzle.appendChild(d);
+            });
+            document.getElementById('p-moves').textContent = 'Movimientos: ' + p1_movimientos;
+            checkWin();
+        }
+
+        function movePiece(idx) {
+            if (gameWon) return;
+            const emptyIdx = items.indexOf('');
+            if (isAdjacent(idx, emptyIdx)) {
+                items[emptyIdx] = items[idx];
+                items[idx] = '';
+                p1_movimientos++;
+                renderPuzzle();
+            }
+        }
+
+        function checkWin() {
+            const target = ['1', '2', '3', '4', '5', '6', '7', '8', ''];
+            const isWin = items.every((v, i) => v === target[i]);
+            if (isWin && p1_movimientos > 0) {
+                gameWon = true;
+                document.getElementById('p-status').classList.remove('hidden');
+                document.getElementById('p-btn').classList.remove('hidden');
+            }
+        }
+
+        window.finalizarJuego = function (id) {
+            const puntos = Math.max(5, 10 - Math.floor(p1_movimientos / 10));
+            registrarPuntuacion(id, puntos);
+            document.getElementById('modal-juego-overlay').remove();
+        };
+
+        initPuzzle();
+        renderPuzzle();
+    })();
 </script>

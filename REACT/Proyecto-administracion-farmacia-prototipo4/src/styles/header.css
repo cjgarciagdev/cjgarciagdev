@@ -1,0 +1,52 @@
+header {
+    display: flex;
+    /* Usar flexbox para organizar los elementos */
+    justify-content: space-between;
+    /* Separar los elementos horizontalmente */
+    align-items: center;
+    /* Centrar los elementos verticalmente */
+    padding: 1rem;
+    /* 20px */
+    background-color: #102552;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    /* 4px 8px */
+    position: fixed;
+    top: 0;
+    left: 40px;
+}
+
+header h2 {
+    font-size: 1.5rem;
+    /* 24px */
+    font-weight: bold;
+    /* Negrita */
+    margin: 0;
+    /* Sin margen */
+    color: #ffffff;
+    /* Color azul */
+    text-align: center;
+    flex-grow: 1;
+    /* Permite que el título ocupe el espacio disponible */
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    /* 10px */
+}
+
+.user-avatar {
+    width: 3.125rem;
+    /* 50px */
+    height: 3.125rem;
+    /* 50px */
+    border-radius: 50%;
+    border: 0.125rem solid #fff;
+    /* 2px */
+}
+
+h2 {
+    color: #0c0d0e;
+    margin-bottom: 1rem;
+}

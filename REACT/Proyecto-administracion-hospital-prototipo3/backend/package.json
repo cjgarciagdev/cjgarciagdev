@@ -1,0 +1,14 @@
+{
+    "name": "pharmacore-backend",
+    "version": "1.0.0",
+    "main": "server.js",
+    "dependencies": {
+        "cors": "^2.8.6",
+        "express": "^4.22.1",
+        "sqlite3": "^5.1.7"
+    },
+    "scripts": {
+        "start": "node server.js",
+        "init-db": "node init-db.js"
+    }
+}

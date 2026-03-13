@@ -1,0 +1,45 @@
+/* Estilos para el contenedor de la barra lateral */
+.sidebar {
+  position: fixed;
+  width: 12.5rem;
+  /* 200px */
+  background: #102552;
+  color: #fff;
+  padding: 1.25rem;
+  /* 20px */
+  height: 100vh;
+  /* Ocupa toda la altura de la ventana */
+  
+}
+
+/* Estilos para el título de la barra lateral */
+.sidebar-title {
+  margin-bottom: 1rem;
+  /* 16px */
+  font-size: 1.25rem;
+  /* 20px */
+  font-weight: bold;
+  height: 2.5rem;
+}
+
+/* Estilos para los botones de la barra lateral */
+.sidebar-button {
+  display: block;
+  width: 100%;
+  margin: 0.625rem 0;
+  /* 10px */
+  padding: 0.625rem;
+  /* 10px */
+  background: #132d63;
+  color: #fff;
+  border: none;
+  border-radius: 0.3125rem;
+  /* 5px */
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-button:hover {
+  background: #ffffff;
+  color: black;
+}

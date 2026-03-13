@@ -11,14 +11,16 @@ if not exist .venv (
 
 call .venv\Scripts\activate.bat
 
+echo.
 echo Actualizando pip, setuptools y wheel...
 python -m pip install --upgrade pip setuptools wheel
 
+echo.
 echo Instalando dependencias criticas (binarios)...
-:: Se fuerza el uso de binarios para evitar errores de compilacion de pg_config
-python -m pip install --only-binary :all: psycopg2-binary flask-sqlalchemy flask-login flask-migrate python-dotenv
+python -m pip install --only-binary :all: psycopg2-binary
 
-echo Instalando resto de dependencias...
+echo.
+echo Instalando dependencias de requirements.txt...
 python -m pip install -r requirements.txt
 
 if %ERRORLEVEL% neq 0 (
@@ -28,5 +30,11 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo.
+echo ============================================
 echo Instalacion completada con exito.
+echo.
+echo Ahora puede ejecutar:
+echo   - 2_ejecutar_local.bat (servidor local)
+echo   - 3_ejecutar_tailscale.bat (red local + Tailscale)
+echo ============================================
 pause

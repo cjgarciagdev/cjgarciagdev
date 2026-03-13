@@ -5,7 +5,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json, random
 
 db = SQLAlchemy()
-
+"""
+DESARROLLADOR: Cristian J Garcia
+CI: 32.170.910
+Email: cjgarciag.dev@gmail.com
+"""
 # ─── MÓDULO 1: GESTIÓN DE IDENTIDAD Y DÍADA ───────────────────────────────────
 
 class Usuario(UserMixin, db.Model):
@@ -109,7 +113,7 @@ class Heroe(db.Model):
     # Datos Médicos Extendidos (Triangulación)
     tipo_diabetes  = db.Column(db.String(20), default='DM1')
     tipo_insulina  = db.Column(db.String(50))
-    institucion    = db.Column(db.String(100), default='Hospital Dr. Jesús García Coello')
+    institucion    = db.Column(db.String(100))  # Sin valor por defecto - debe venir de DB
     hba1c_ultimo   = db.Column(db.Float) # Hemoglobina glicosilada
     imc_ultimo     = db.Column(db.Float) # IMC calculado
     
@@ -122,6 +126,20 @@ class Heroe(db.Model):
     evaluaciones      = db.relationship('EvaluacionPsicometrica', backref='heroe', lazy=True)
 
     def to_dict(self):
+        # Obtener valores del especialista desde la base de datos
+        esp_nombre = self.especialista.nombre_completo if self.especialista and self.especialista.nombre_completo else None
+        esp_telefono = self.especialista.telefono if self.especialista and self.especialista.telefono else None
+        esp_especialidad = self.especialista.perfil.especialidad if self.especialista and getattr(self.especialista, 'perfil', None) and self.especialista.perfil.especialidad else None
+        esp_consultorio = self.especialista.perfil.consultorio if self.especialista and getattr(self.especialista, 'perfil', None) and self.especialista.perfil.consultorio else None
+        
+        # Si no hay especialista asignado, obtener configuración del sistema
+        if not esp_nombre:
+            from models_extended import ConfiguracionSistema
+            esp_nombre = ConfiguracionSistema.obtener('especialista_default')
+            esp_telefono = ConfiguracionSistema.obtener('especialista_default_telefono')
+            esp_especialidad = ConfiguracionSistema.obtener('especialista_default_especialidad')
+            esp_consultorio = ConfiguracionSistema.obtener('hospital_nombre')
+        
         return {
             'id': self.id, 'nombre': self.nombre, 'codigo': self.codigo, 
             'edad': self.edad, 'peso': self.peso, 'estatura': self.estatura, 
@@ -137,10 +155,10 @@ class Heroe(db.Model):
             'puntos_juego': self.puntos_juego,
             'xp': self.xp_puntos,
             'nivel': self.nivel,
-            'especialista_nombre': self.especialista.nombre_completo if self.especialista and self.especialista.nombre_completo else 'Dr. Jesús García Coello',
-            'especialista_telefono': self.especialista.telefono if self.especialista and self.especialista.telefono else '0414-1234567',
-            'especialista_especialidad': self.especialista.perfil.especialidad if self.especialista and getattr(self.especialista, 'perfil', None) and self.especialista.perfil.especialidad else 'Endocrinólogo Pediátrico',
-            'especialista_consultorio': self.especialista.perfil.consultorio if self.especialista and getattr(self.especialista, 'perfil', None) and self.especialista.perfil.consultorio else 'Hospital Dr. Jesús García Coello',
+            'especialista_nombre': esp_nombre,
+            'especialista_telefono': esp_telefono,
+            'especialista_especialidad': esp_especialidad,
+            'especialista_consultorio': esp_consultorio,
             'parametros': {
                 'ratio': self.ratio_carbohidratos,
                 'sensibilidad': self.factor_sensibilidad,
@@ -324,187 +342,63 @@ class Recordatorio(db.Model):
 
 def init_db(app):
     with app.app_context():
+        # Importar models_extended aquí para que SQLAlchemy lo registre antes de create_all
+        try:
+            import models_extended
+        except ImportError:
+            print("[WARN] No se pudo cargar models_extended")
+            
         db.create_all()
         _seed_default_data()
+        
+        # Inicializar configuración del sistema si no existe
+        try:
+            from models_extended import inicializar_configuracion_default
+            inicializar_configuracion_default()
+        except Exception as e:
+            print(f"[WARN] Error inicializando configuración: {e}")
 
 
 def _seed_default_data():
-    if Usuario.query.filter_by(username='admin').first():
-        return  # Already seeded
-
-    # Especialistas Diversificados (Roles Agro-Master)
+    # Verificar si ya existe el usuario admin para evitar errores al reiniciar
+    # Usamos verificación directa en la tabla para evitar problemas con la relación
+    admin_existe = Usuario.query.filter_by(username='drgarcia').first()
+    if admin_existe:
+        # Verificar también si ya existe el perfil profesional (consulta directa)
+        perfil_existe = PerfilProfesional.query.filter_by(usuario_id=admin_existe.id).first()
+        if perfil_existe:
+            print("[OK] Base de datos ya inicializada (usuario admin y perfil existentes)")
+            return
+        # Si existe el usuario pero no el perfil, crearlo
+        p_admin = PerfilProfesional(
+            usuario_id=admin_existe.id, 
+            especialidad='Endocrinólogo Pediátrico', 
+            consultorio='Hospital Dr. Jesús García Coello'
+        )
+        db.session.add(p_admin)
+        db.session.commit()
+        print("[OK] Perfil profesional creado para usuario existente")
+        return
+    
+    # Usuario Único del Hospital - Dr. Jesús García Coello
     admin = Usuario(
-        username='admin', rol='especialista',
+        username='drgarcia', rol='especialista',
         nombre_completo='Dr. Jesús García Coello',
-        cedula='V-00000001', email='especialista@hospital.com',
-        telefono='0414-1234567'
+        cedula='V-00000001', email='dr.garcia@hospital.gob.ve',
+        telefono='0212-5551234', activo=True
     )
-    admin.set_password('1234')
+    # Contraseña: credentials del hospital (8 caracteres, letra + número)
+    admin.set_password('JGC2024@')
     db.session.add(admin)
     db.session.flush()
 
-    p_admin = PerfilProfesional(usuario_id=admin.id, especialidad='Endocrinólogo Pediátrico', consultorio='Hospital Dr. Jesús García Coello')
+    # Perfil Profesional
+    p_admin = PerfilProfesional(
+        usuario_id=admin.id, 
+        especialidad='Endocrinólogo Pediátrico', 
+        consultorio='Hospital Dr. Jesús García Coello'
+    )
     db.session.add(p_admin)
-
-    # Preguntas de Seguridad para Admin
-    p1 = PreguntaSeguridad(usuario_id=admin.id, pregunta='¿Cuál es el nombre de tu primera mascota?')
-    p1.set_respuesta('firu')
-    p2 = PreguntaSeguridad(usuario_id=admin.id, pregunta='¿En qué ciudad naciste?')
-    p2.set_respuesta('caracas')
-    db.session.add_all([p1, p2])
-
-    # Nuevos Roles Especializados
-    roles = [
-        ('nutri_asist', 'nutricionista', 'Lic. Marta Rivas'),
-        ('audit_clinico', 'auditor', 'Dr. Roberto Méndez'),
-        ('gerente_ops', 'gerente', 'Ing. Carlos Ruiz')
-    ]
-    for usr, rol, nom in roles:
-        nu = Usuario(
-            username=usr, rol=rol, nombre_completo=nom, email=f'{usr}@glucoamigo.local'
-        )
-        nu.set_password('1234')
-        nu.cambio_password_requerido = True # Forzar cambio según política Agro-Master
-        db.session.add(nu)
-        db.session.flush()
-        db.session.add(PerfilProfesional(usuario_id=nu.id, especialidad=rol.capitalize(), consultorio='Centro Clínico GlucoAmigo'))
-
-    esp2 = Usuario(
-        username='dra_perez', rol='especialista',
-        nombre_completo='Dra. María Pérez',
-        cedula='V-00000002', email='dra.perez@hospital.com'
-    )
-    esp2.set_password('1234')
-    db.session.add(esp2)
-    db.session.flush()
-    db.session.add(PerfilProfesional(usuario_id=esp2.id, especialidad='Nutricionista Pediátrica', consultorio='Clínica Pediátrica San Luis'))
-
-    # Demo parent
-    padre_demo = Usuario(
-        username='papa_demo', rol='padre',
-        nombre_completo='Sr. Alberto Blanco',
-        cedula='V-12345678', email='alberto@correo.local',
-        consentimiento_aceptado=True
-    )
-    padre_demo.set_password('1234')
-    db.session.add(padre_demo)
-    db.session.flush()
-
-    # Create dummy heroes
-    nombres = ['Carlitos','Anita','Mateo','Lucía']
-    now = datetime.utcnow()
-    for i, nombre in enumerate(nombres):
-        peso = random.randint(15, 30)
-        estatura = random.randint(100, 140)
-        h = Heroe(
-            nombre=nombre,
-            codigo=f'P-{i+1:03d}',
-            edad=random.randint(6, 12),
-            peso=peso,
-            estatura=estatura,
-            padre_id=padre_demo.id,
-            especialista_id=admin.id,
-            fecha_diagnostico=(now - timedelta(days=365)).date()
-        )
-        db.session.add(h)
-        db.session.flush()
-
-        # Glucose records
-        momentos = ['ayunas', 'pos-desayuno', 'pos-almuerzo', 'pos-cena']
-        for d in range(15):
-            for m_idx in range(4):
-                glucemia = random.randint(60, 280)
-                carbos = random.randint(15, 60)
-                dosis = round((glucemia - 100) / 40 + (carbos / 15), 1)
-                if dosis < 0: dosis = 0
-                
-                reg = RegistroGlucosa(
-                    heroe_id=h.id,
-                    fecha=now - timedelta(days=d, hours=3*m_idx),
-                    glucemia_actual=glucemia,
-                    carbohidratos=carbos,
-                    dosis_sugerida=dosis,
-                    momento_dia=momentos[m_idx % len(momentos)],
-                    alerta_disparada=(glucemia < 70 or glucemia > 250),
-                )
-                db.session.add(reg)
-
-                if glucemia < 70:
-                    db.session.add(AlertaClinica(
-                        heroe_id=h.id, tipo='hipo', severidad='roja',
-                        fecha=reg.fecha,
-                        mensaje=f'⚠️ Hipoglucemia detectada: {glucemia} mg/dL en {nombre}'
-                    ))
-                elif glucemia > 250:
-                    db.session.add(AlertaClinica(
-                        heroe_id=h.id, tipo='hiper', severidad='amarilla',
-                        fecha=reg.fecha,
-                        mensaje=f'⚠️ Hiperglucemia detectada: {glucemia} mg/dL en {nombre}'
-                    ))
-
-        # CDI evaluations
-        for d in range(3):
-            cdi_score = random.randint(3, 25)
-            db.session.add(EvaluacionPsicometrica(
-                heroe_id=h.id, tipo='CDI',
-                fecha=now - timedelta(days=d*7),
-                puntaje_total=cdi_score,
-                estado='Riesgo' if cdi_score >= 19 else 'Estable',
-                respuestas=json.dumps([random.randint(0,3) for _ in range(7)]),
-                alerta_enviada=(cdi_score >= 19),
-            ))
-
-        # SCIR evaluations
-        for d in range(3):
-            scir_pct = random.randint(40, 100)
-            db.session.add(EvaluacionPsicometrica(
-                heroe_id=h.id, tipo='SCIR',
-                fecha=now - timedelta(days=d*7),
-                puntaje_total=scir_pct,
-                estado='Baja' if scir_pct < 70 else 'Alta',
-            ))
-
-        # Comidas
-        comidas_tipo = ['desayuno','almuerzo','cena','merienda']
-        desc_comidas = {
-            'desayuno': ['Cereal con leche', 'Arepa con queso', 'Panqueques', 'Avena con frutas'],
-            'almuerzo': ['Arroz con pollo', 'Pasta con carne', 'Sopa de verduras', 'Pescado con ensalada'],
-            'cena': ['Sándwich integral', 'Ensalada César', 'Tortilla de huevo', 'Pollo a la plancha'],
-            'merienda': ['Manzana', 'Yogur natural', 'Galletas integrales', 'Frutos secos'],
-        }
-        emoji_comida = {'desayuno': '🥞', 'almuerzo': '🍗', 'cena': '🥗', 'merienda': '🍎'}
-        for d in range(5):
-            for tc in comidas_tipo:
-                db.session.add(RegistroComida(
-                    heroe_id=h.id,
-                    fecha=now - timedelta(days=d, hours=random.randint(0,4)),
-                    tipo_comida=tc,
-                    descripcion=random.choice(desc_comidas[tc]),
-                    carbohidratos=round(random.uniform(15, 65), 1),
-                    proteinas=round(random.uniform(5, 25), 1),
-                    grasas=round(random.uniform(3, 15), 1),
-                    calorias=round(random.uniform(150, 450))
-                ))
-
-        # Growth
-        for d in range(6):
-            m_ago = d * 30
-            db.session.add(CrecimientoRegistro(
-                heroe_id=h.id,
-                fecha=now - timedelta(days=m_ago),
-                peso=round(peso - d * random.uniform(0.2, 0.8), 1),
-                estatura=round(estatura - d * random.uniform(0.3, 0.6), 1),
-                imc=round(peso / ((estatura/100)**2), 1),
-            ))
-
-    # Sample audit logs
-    db.session.add(AuditLog(
-        usuario_id=admin.id, entidad_tipo='Heroe', entidad_id=1,
-        accion='UPDATE', campo='ratio_carbohidratos', valor_ant='15.0', valor_nue='12.5'
-    ))
-    db.session.add(AuditLog(
-        usuario_id=admin.id, entidad_tipo='Heroe', entidad_id=2,
-        accion='UPDATE', campo='glucemia_objetivo', valor_ant='100', valor_nue='110'
-    ))
-
+    
     db.session.commit()
+    print("[OK] Base de datos inicializada correctamente")

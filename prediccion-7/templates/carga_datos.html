@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+
+{% block title %}Carga de Datos{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tab-header {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--bg-tertiary);
+    padding: 0.4rem;
+    border-radius: var(--radius-lg);
+    width: fit-content;
+  }
+  .tab-btn {
+    padding: 0.6rem 1.4rem;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    background: transparent;
+    color: var(--text-secondary);
+  }
+  .tab-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(99,102,241,0.4);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .numero-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-weight: 800;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .registro-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .registro-row:hover {
+    border-color: var(--primary);
+    transform: translateX(4px);
+  }
+  .registro-info { flex: 1; }
+  .registro-info .sorteo-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+  .registro-info .fecha-hora {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .btn-delete {
+    background: rgba(239,68,68,0.12);
+    border: none;
+    color: #ef4444;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .btn-delete:hover { background: #ef4444; color: #fff; }
+
+  .preview-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    min-height: 2rem;
+  }
+  .chip {
+    padding: 0.25rem 0.65rem;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 99px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  .progress-bar-wrap {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-top: 0.75rem;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    transition: width 0.4s ease;
+  }
+  .counter-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+  }
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+  <!-- Header -->
+  <section style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2.2rem; font-weight: 800;" class="gradient-text">📋 Carga de Datos</h1>
+    <p style="color: var(--text-secondary); margin-top: 0.4rem;">
+      Ingresa los resultados de sorteos manualmente para entrenar el sistema de predicción.
+    </p>
+  </section>
+
+  <!-- Stats rápidas -->
+  <div class="grid grid-4" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+      <div class="stat-value" id="totalRegistros">{{ total }}</div>
+      <div class="stat-label">Registros Totales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="minRequerido">50</div>
+      <div class="stat-label">Mínimo para Predecir</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="porcentaje">
+        {{ [[((total / 50) * 100)|round(0)|int, 100]|min, 0]|max }}%
+      </div>
+      <div class="stat-label">Progreso Dataset</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="faltante">
+        {% if total >= 50 %}✅{% else %}{{ 50 - total }}{% endif %}
+      </div>
+      <div class="stat-label">{% if total >= 50 %}Listo{% else %}Faltan{% endif %}</div>
+    </div>
+  </div>
+
+  <!-- Barra de progreso -->
+  <div class="card" style="margin-bottom: 2rem; padding: 1.2rem 1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+      <span style="font-weight:600;">Progreso del Dataset</span>
+      <span style="font-size:0.85rem; color:var(--text-secondary);">{{ total }}/50 mínimos</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill"
+        style="width: {{ [[((total / 50) * 100)|round(0)|int, 100]|min, 0]|max }}%;">
+      </div>
+    </div>
+    <div class="counter-label">
+      <span>0</span>
+      <span>{% if total >= 50 %}✅ ¡Datos suficientes para predecir!{% else %}Necesitas {{ 50 - total }} más{% endif %}</span>
+      <span>50+</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-header">
+    <button class="tab-btn active" onclick="switchTab('individual', this)">➕ Ingreso Individual</button>
+    <button class="tab-btn" onclick="switchTab('lote', this)">📄 Carga en Lote</button>
+    <button class="tab-btn" onclick="switchTab('historial', this)">📋 Últimos Registros</button>
+  </div>
+
+  <!-- Tab: Individual -->
+  <div id="tab-individual" class="tab-panel active">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">➕ Ingresar Número de Sorteo</h2>
+      </div>
+      <form id="formIndividual" style="display:grid; grid-template-columns: 1fr 1fr; gap:1.2rem;">
+        <div>
+          <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;">
+            Número del Sorteo <span style="color:var(--danger)">*</span>
+          </label>
+          <input type="number" id="inputNumero" placeholder="Ej: 42" min="0"
+            style="width:100%; padding:0.75rem 1rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:1.1rem; font-weight:700; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div>
+          <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;">
+            Nombre del Sorteo
+          </label>
+          <input type="text" id="inputSorteo" placeholder="Ej: Lotería Nacional, Kino, etc."
+            style="width:100%; padding:0.75rem 1rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:0.95rem; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div>
+          <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;">
+            Fecha del Sorteo
+          </label>
+          <input type="date" id="inputFecha"
+            style="width:100%; padding:0.75rem 1rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:0.9rem; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div>
+          <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;">
+            Hora del Sorteo
+          </label>
+          <input type="time" id="inputHora"
+            style="width:100%; padding:0.75rem 1rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:0.9rem; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div style="grid-column: 1 / -1; display:flex; gap:1rem; justify-content:flex-end; padding-top:0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">
+            🗑️ Limpiar
+          </button>
+          <button type="button" class="btn btn-primary" onclick="agregarNumeroIndividual()">
+            ✅ Guardar Número
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tab: Lote -->
+  <div id="tab-lote" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📄 Carga en Lote</h2>
+      </div>
+      <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.9rem;">
+        Pega el texto con los resultados (números separados por comas, espacios o saltos de línea).
+        El sistema extraerá automáticamente todos los números.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+        <div>
+          <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;">
+            Nombre del Sorteo
+          </label>
+          <input type="text" id="loteNombreSorteo" placeholder="Ej: Resultados Semana 7"
+            style="width:100%; padding:0.75rem 1rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:0.9rem; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div>
+          <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;">
+            Fecha de Referencia
+          </label>
+          <input type="date" id="loteFecha"
+            style="width:100%; padding:0.75rem 1rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:0.9rem; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+      </div>
+
+      <div style="margin-top:1.2rem;">
+        <label style="display:block; margin-bottom:0.4rem; font-weight:600; font-size:0.9rem;">
+          Texto con Resultados <span style="color:var(--danger)">*</span>
+        </label>
+        <textarea id="loteTexto" rows="6" placeholder="Ejemplos:&#10;42, 17, 8, 33, 25, 11&#10;&#10;o desde una captura/texto:&#10;Resultado: 42&#10;Lotería 17&#10;Premio: 8"
+          oninput="previewLote(this.value)"
+          style="width:100%; padding:0.9rem 1rem; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-primary); font-size:0.9rem; outline:none; resize:vertical; transition:border-color 0.2s; font-family:inherit;"
+          onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      </div>
+
+      <!-- Preview automática -->
+      <div style="margin-top:1rem;">
+        <div style="font-size:0.85rem; color:var(--text-secondary); font-weight:600;">
+          Vista previa de números detectados:
+        </div>
+        <div class="preview-chips" id="previewChips">
+          <span style="font-size:0.82rem;color:var(--text-muted);">Los números aparecerán aquí...</span>
+        </div>
+        <div id="previewCount" style="font-size:0.82rem; color:var(--text-muted); margin-top:0.3rem;"></div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1.5rem;">
+        <button class="btn btn-secondary" onclick="document.getElementById('loteTexto').value=''; previewLote('')">
+          🗑️ Limpiar
+        </button>
+        <button class="btn btn-primary" onclick="cargarEnLote()">
+          ✅ Guardar Todos los Números
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Historial reciente -->
+  <div id="tab-historial" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📋 Últimos 20 Registros</h2>
+        <div style="display:flex; gap:0.75rem; align-items:center;">
+          <a href="{{ url_for('historial_resultados') }}" class="btn btn-secondary" style="font-size:0.85rem;">
+            Ver Todo
+          </a>
+          <button class="btn" style="background:rgba(239,68,68,0.12); color:#ef4444; font-size:0.85rem;" onclick="confirmarEliminarTodo()">
+            🗑️ Limpiar Todo
+          </button>
+        </div>
+      </div>
+
+      <div id="listaRegistros" style="display:flex; flex-direction:column; gap:0.6rem;">
+        {% if ultimos %}
+          {% for num in ultimos %}
+          <div class="registro-row" id="row-{{ num.id }}">
+            <div class="numero-badge">{{ num.numero }}</div>
+            <div class="registro-info">
+              <div class="sorteo-name">{{ num.nombre_sorteo or 'Sin nombre' }}</div>
+              <div class="fecha-hora">
+                📅 {{ num.fecha_extraccion.strftime('%d/%m/%Y') }}
+                {% if num.hora_sorteo %} &nbsp;⏰ {{ num.hora_sorteo }}{% endif %}
+                &nbsp;·&nbsp; {{ num.fuente or 'Manual' }}
+              </div>
+            </div>
+            <button class="btn-delete" onclick="eliminarNumero({{ num.id }})" title="Eliminar">✕</button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <p>No hay registros aún.</p>
+            <p style="font-size:0.85rem; margin-top:0.3rem;">Empieza cargando datos en las pestañas de arriba.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Notificación -->
+<div id="notification"
+  style="position:fixed; top:20px; right:20px; padding:1rem 1.5rem; background:var(--bg-card); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); display:none; z-index:1000; border-left:4px solid var(--primary); max-width:320px;">
+</div>
+
+<script>
+  // Poner fecha de hoy por defecto
+  const hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('inputFecha').value = hoy;
+  document.getElementById('loteFecha').value = hoy;
+
+  function switchTab(tabName, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function mostrarNotificacion(mensaje, tipo = 'info') {
+    const n = document.getElementById('notification');
+    n.textContent = mensaje;
+    n.style.borderLeftColor = tipo === 'success' ? 'var(--success)' :
+      tipo === 'error' ? 'var(--danger)' : 'var(--primary)';
+    n.style.display = 'block';
+    clearTimeout(window._notifTimer);
+    window._notifTimer = setTimeout(() => { n.style.display = 'none'; }, 3500);
+  }
+
+  function limpiarFormulario() {
+    document.getElementById('inputNumero').value = '';
+    document.getElementById('inputSorteo').value = '';
+    document.getElementById('inputFecha').value = hoy;
+    document.getElementById('inputHora').value = '';
+  }
+
+  async function agregarNumeroIndividual() {
+    const numero = document.getElementById('inputNumero').value.trim();
+    const sorteo = document.getElementById('inputSorteo').value.trim() || 'Manual';
+    const fecha = document.getElementById('inputFecha').value;
+    const hora = document.getElementById('inputHora').value;
+
+    if (!numero) {
+      mostrarNotificacion('⚠️ Debes ingresar un número', 'error');
+      document.getElementById('inputNumero').focus();
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/numeros/agregar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ numero, sorteo, fecha, hora })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        mostrarNotificacion('✅ Número guardado correctamente', 'success');
+        limpiarFormulario();
+        actualizarContador(1);
+        // Agregar al historial si está visible
+        agregarFilaHistorial(data.id, numero, sorteo, fecha, hora);
+      } else {
+        mostrarNotificacion('❌ ' + (data.error || 'Error al guardar'), 'error');
+      }
+    } catch (e) {
+      mostrarNotificacion('❌ Error de conexión', 'error');
+    }
+  }
+
+  function previewLote(texto) {
+    const nums = [...texto.matchAll(/\b\d+\b/g)].map(m => m[0]);
+    const chips = document.getElementById('previewChips');
+    const count = document.getElementById('previewCount');
+
+    if (nums.length === 0) {
+      chips.innerHTML = '<span style="font-size:0.82rem;color:var(--text-muted);">Los números aparecerán aquí...</span>';
+      count.textContent = '';
+      return;
+    }
+
+    chips.innerHTML = nums.slice(0, 30).map(n =>
+      `<span class="chip">${n}</span>`
+    ).join('');
+
+    if (nums.length > 30) {
+      chips.innerHTML += `<span class="chip" style="background:rgba(99,102,241,0.05);">+${nums.length - 30} más</span>`;
+    }
+
+    count.textContent = `${nums.length} número(s) detectado(s)`;
+  }
+
+  async function cargarEnLote() {
+    const texto = document.getElementById('loteTexto').value.trim();
+    const sorteo = document.getElementById('loteNombreSorteo').value.trim() || 'Carga en Lote';
+    const fecha = document.getElementById('loteFecha').value;
+
+    if (!texto) {
+      mostrarNotificacion('⚠️ Ingresa el texto con los números', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/numeros/agregar-lote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ numeros: texto, sorteo, fecha })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        mostrarNotificacion(`✅ ${data.mensaje}`, 'success');
+        document.getElementById('loteTexto').value = '';
+        previewLote('');
+        actualizarContador(data.numeros.length);
+      } else {
+        mostrarNotificacion('❌ ' + (data.error || 'Error al cargar'), 'error');
+      }
+    } catch (e) {
+      mostrarNotificacion('❌ Error de conexión', 'error');
+    }
+  }
+
+  async function eliminarNumero(id) {
+    try {
+      const res = await fetch(`/api/numeros/eliminar/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        const row = document.getElementById('row-' + id);
+        if (row) {
+          row.style.transition = 'all 0.3s';
+          row.style.opacity = '0';
+          row.style.transform = 'translateX(20px)';
+          setTimeout(() => row.remove(), 300);
+        }
+        actualizarContador(-1);
+        mostrarNotificacion('🗑️ Número eliminado', 'info');
+      }
+    } catch (e) {
+      mostrarNotificacion('❌ Error al eliminar', 'error');
+    }
+  }
+
+  function confirmarEliminarTodo() {
+    if (confirm('⚠️ ¿Estás seguro? Esto eliminará TODOS los registros de la base de datos.')) {
+      eliminarTodos();
+    }
+  }
+
+  async function eliminarTodos() {
+    try {
+      const res = await fetch('/api/numeros/eliminar-todos', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('listaRegistros').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <p>No hay registros.</p>
+          </div>`;
+        actualizarContadorAbsoluto(0);
+        mostrarNotificacion('🗑️ Todos los registros eliminados', 'info');
+      }
+    } catch (e) {
+      mostrarNotificacion('❌ Error al eliminar', 'error');
+    }
+  }
+
+  function actualizarContador(delta) {
+    const el = document.getElementById('totalRegistros');
+    let actual = parseInt(el.textContent) || 0;
+    actual += delta;
+    actualizarContadorAbsoluto(actual);
+  }
+
+  function actualizarContadorAbsoluto(valor) {
+    document.getElementById('totalRegistros').textContent = valor;
+    const pct = Math.min(Math.round((valor / 50) * 100), 100);
+    document.getElementById('porcentaje').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    const faltanteEl = document.getElementById('faltante');
+    if (valor >= 50) {
+      faltanteEl.textContent = '✅';
+      faltanteEl.closest('.stat-card').querySelector('.stat-label').textContent = 'Listo';
+    } else {
+      faltanteEl.textContent = 50 - valor;
+      faltanteEl.closest('.stat-card').querySelector('.stat-label').textContent = 'Faltan';
+    }
+  }
+
+  function agregarFilaHistorial(id, numero, sorteo, fecha, hora) {
+    const lista = document.getElementById('listaRegistros');
+    const empty = lista.querySelector('.empty-state');
+    if (empty) empty.remove();
+
+    const fechaFormateada = fecha ? fecha.split('-').reverse().join('/') : '';
+    const fila = document.createElement('div');
+    fila.className = 'registro-row';
+    fila.id = 'row-' + id;
+    fila.style.animation = 'fadeIn 0.3s ease';
+    fila.innerHTML = `
+      <div class="numero-badge">${numero}</div>
+      <div class="registro-info">
+        <div class="sorteo-name">${sorteo}</div>
+        <div class="fecha-hora">📅 ${fechaFormateada}${hora ? ' &nbsp;⏰ ' + hora : ''} &nbsp;·&nbsp; Carga Manual</div>
+      </div>
+      <button class="btn-delete" onclick="eliminarNumero(${id})" title="Eliminar">✕</button>`;
+    lista.insertBefore(fila, lista.firstChild);
+  }
+</script>
+{% endblock %}

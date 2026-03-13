@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Resultados{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">📊 Historial de Resultados</h1>
+            <p style="color: var(--text-secondary);">Todos los números extraídos de las fuentes configuradas</p>
+        </div>
+        <div style="text-align: right;">
+            <span class="badge badge-primary">{{ total_numeros }} números registrados</span>
+        </div>
+    </div>
+
+    {% if numeros %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🔢 Números Extraídos</h2>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary btn-sm" onclick="location.reload()">
+                    <span>🔄</span> Actualizar
+                </button>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th
+                            style="padding: 1rem; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            ID</th>
+                        <th
+                            style="padding: 1rem; text-align: center; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Número</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Fecha de Extracción</th>
+                        <th
+                            style="padding: 1rem; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Fuente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in numeros %}
+                    <tr style="border-bottom: 1px solid var(--border); transition: all var(--transition-base);"
+                        onmouseover="this.style.background='var(--bg-tertiary)'"
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1rem; color: var(--text-muted);">#{{ n.id }}</td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <div
+                                style="display: inline-block; width: 45px; height: 45px; line-height: 45px; text-align: center; background: var(--bg-secondary); border: 2px solid var(--primary); border-radius: 50%; font-weight: 700; color: var(--primary); font-size: 1.2rem;">
+                                {{ n.numero }}
+                            </div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            {{ n.fecha_extraccion.strftime('%d/%m/%Y %H:%M:%S') }}
+                        </td>
+                        <td style="padding: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                            <a href="{{ n.fuente }}" target="_blank"
+                                style="color: var(--primary); text-decoration: none;">
+                                {{ n.fuente[:50] }}{% if n.fuente|length > 50 %}...{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if total_paginas > 1 %}
+        <div
+            style="padding: 1.5rem; display: flex; justify-content: center; gap: 0.5rem; border-top: 1px solid var(--border);">
+            {% if pagina > 1 %}
+            <a href="{{ url_for('historial_resultados', pagina=pagina-1) }}"
+                class="btn btn-secondary btn-sm">Anterior</a>
+            {% endif %}
+
+            <span style="display: flex; align-items: center; padding: 0 1rem; color: var(--text-secondary);">
+                Página {{ pagina }} de {{ total_paginas }}
+            </span>
+
+            {% if pagina < total_paginas %} <a href="{{ url_for('historial_resultados', pagina=pagina+1) }}"
+                class="btn btn-secondary btn-sm">Siguiente</a>
+                {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 4rem;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">📡</div>
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">No hay datos extraídos</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Ejecuta el scraper para comenzar a recolectar datos históricos.
+        </p>
+        <a href="{{ url_for('scraper_config') }}" class="btn btn-primary">
+            🕷️ Configurar Scraper
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

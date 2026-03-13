@@ -1,0 +1,40 @@
+<!-- Columna Izquierda: Selección y Lista -->
+<div class="lg:col-span-4 space-y-6">
+    <!-- Selector -->
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        <label class="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+            <i class="fas fa-search mr-2 text-green-500"></i>Buscar Animal
+        </label>
+        <select id="selectAnimalNutricion" onchange="loadNutricionAvanzado()"
+            class="w-full p-4 bg-gray-50 border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all font-medium text-gray-700 outline-none appearance-none cursor-pointer">
+            <option value="">Seleccionar del rebaño...</option>
+        </select>
+    </div>
+
+    <!-- Lista de Planes (Cards Pequeñas) -->
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col max-h-[37.5rem]">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 rounded-t-3xl">
+            <h3 class="font-bold text-gray-800">Planes Activos</h3>
+            <button onclick="loadPlanesNutricionalesList()"
+                class="text-gray-400 hover:text-green-600 transition p-2 rounded-full hover:bg-green-50">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+        <div id="planesNutricionalesList" class="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1">
+            <!-- Injected via JS -->
+            <div class="flex flex-col items-center justify-center py-10 text-gray-400">
+                <i class="fas fa-circle-notch fa-spin text-2xl mb-2"></i>
+                <p class="text-xs">Cargando...</p>
+            </div>
+        </div>
+        <div class="p-4 border-t border-gray-100 bg-gray-50/30">
+            <button onclick="exportarTodosPlanesNutricionales(event)"
+                class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black hover:from-blue-700 hover:to-indigo-700 transition transform hover:-translate-y-1 shadow-lg shadow-blue-200 flex items-center justify-center gap-3 group">
+                <div class="bg-white/20 p-2 rounded-lg group-hover:scale-110 transition">
+                    <i class="fas fa-file-pdf text-sm"></i>
+                </div>
+                <span class="text-sm tracking-wide">REPORTE GENERAL PDF</span>
+            </button>
+        </div>
+    </div>
+</div>

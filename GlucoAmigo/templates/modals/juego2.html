@@ -1,53 +1,73 @@
 <div class="text-center">
     <h2 class="text-2xl font-bold mb-4 text-slate-800">Memoria de Alimentos 🍎</h2>
-    <p class="mb-4 text-slate-600">Encuentra las parejas saludables antes de que se acabe el tiempo.</p>
+    <p id="memo-desc" class="mb-4 text-slate-600">Encuentra las parejas saludables para ganar puntos.</p>
     <div id="memo-grid" class="grid grid-cols-4 gap-3 w-full mx-auto mb-6">
         <!-- Generado por JS -->
     </div>
-    <button
-        class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg"
-        onclick="finalizarJuego(2)">¡Listo!</button>
+    <div id="memo-moves" class="mb-2 text-slate-400 font-bold text-sm">Intentos: 0</div>
+    <div id="memo-win" class="hidden animate-bounce text-emerald-600 font-bold mb-4">¡Excelente memoria! 🏆</div>
+    <button id="memo-btn"
+        class="hidden w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg"
+        onclick="finalizarJuego(2)">¡Reclamar Puntos!</button>
 </div>
 <script>
-    const emojis = ['🥦', '🥕', '🍎', '🍓', '🥑', '🍗', '🥗', '🥚'];
-    const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
-    const grid = document.getElementById('memo-grid');
-    let selections = [];
-    let pairsFound = 0;
+    (function () {
+        const emojis = ['🥦', '🥕', '🍎', '🍓', '🥑', '🍗', '🥗', '🥚'];
+        const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+        const grid = document.getElementById('memo-grid');
+        let selections = [];
+        let pairsFound = 0;
+        let attempts = 0;
+        let locked = false;
 
-    cards.forEach((val, i) => {
-        const d = document.createElement('div');
-        d.className = 'memo-card bg-slate-100 rounded-xl h-20 flex items-center justify-center cursor-pointer text-3xl transition-all hover:bg-white border-2 border-transparent';
-        d.dataset.val = val;
-        d.dataset.idx = i;
-        d.onclick = () => {
-            if (selections.length < 2 && !d.classList.contains('found') && !selections.includes(d)) {
+        cards.forEach((val, i) => {
+            const d = document.createElement('div');
+            d.className = 'memo-card bg-slate-100 rounded-xl h-20 flex items-center justify-center cursor-pointer text-3xl transition-all hover:bg-slate-200 border-2 border-transparent select-none';
+            d.dataset.val = val;
+            d.dataset.idx = i;
+            d.textContent = '❓';
+            d.onclick = () => {
+                if (locked || selections.length >= 2 || d.classList.contains('found') || selections.includes(d)) return;
                 d.textContent = val;
                 d.classList.add('bg-white', 'border-teal-400');
+                d.classList.remove('bg-slate-100');
                 selections.push(d);
                 if (selections.length === 2) {
+                    attempts++;
+                    document.getElementById('memo-moves').textContent = 'Intentos: ' + attempts;
                     if (selections[0].dataset.val === selections[1].dataset.val) {
-                        selections.forEach(s => s.classList.add('found', 'bg-emerald-50'));
+                        selections.forEach(s => {
+                            s.classList.add('found', 'bg-emerald-50', 'border-emerald-300');
+                            s.classList.remove('border-teal-400');
+                        });
                         selections = [];
                         pairsFound++;
+                        if (pairsFound === emojis.length) {
+                            document.getElementById('memo-win').classList.remove('hidden');
+                            document.getElementById('memo-btn').classList.remove('hidden');
+                            document.getElementById('memo-desc').classList.add('hidden');
+                        }
                     } else {
+                        locked = true;
                         setTimeout(() => {
                             selections.forEach(s => {
-                                s.textContent = '';
+                                s.textContent = '❓';
                                 s.classList.remove('bg-white', 'border-teal-400');
+                                s.classList.add('bg-slate-100');
                             });
                             selections = [];
-                        }, 1000);
+                            locked = false;
+                        }, 900);
                     }
                 }
-            }
-        };
-        grid.appendChild(d);
-    });
+            };
+            grid.appendChild(d);
+        });
 
-    function finalizarJuego(id) {
-        const puntos = Math.min(10, pairsFound);
-        registrarPuntuacion(id, puntos);
-        document.getElementById('modal-juego-overlay').remove();
-    }
+        window.finalizarJuego = function (id) {
+            const puntos = Math.max(5, 10 - Math.floor(attempts / 4));
+            registrarPuntuacion(id, puntos);
+            document.getElementById('modal-juego-overlay').remove();
+        };
+    })();
 </script>

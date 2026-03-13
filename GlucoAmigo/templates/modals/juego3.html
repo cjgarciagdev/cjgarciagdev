@@ -1,49 +1,102 @@
 <div class="text-center">
     <h2 class="text-2xl font-bold mb-4 text-slate-800">Semáforo de Glucosa 🚦</h2>
-    <p class="mb-4 text-slate-600">Clasifica los alimentos en Verde, Amarillo o Rojo según su impacto en el azúcar.</p>
+    <p class="mb-4 text-slate-600">Clasifica los alimentos según su impacto en el azúcar.</p>
     <div id="game-area"
-        class="relative h-64 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-4">
-        <div id="item-to-sort" class="text-6xl mb-4 p-4 bg-white rounded-3xl shadow-lg animate-bounce">🍎</div>
-        <p id="item-name" class="font-bold text-slate-800 mb-6">Manzana</p>
-        <div class="flex gap-4 w-full justify-center">
+        class="relative bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center p-6">
+        <div id="item-to-sort" class="text-6xl mb-3 p-4 bg-white rounded-3xl shadow-lg">🍎</div>
+        <p id="item-name" class="font-bold text-slate-800 mb-2 text-lg">Manzana</p>
+        <p id="item-hint" class="text-xs text-slate-400 mb-6">Fibra natural, bajo índice glucémico</p>
+        <div class="flex gap-3 w-full justify-center">
             <button onclick="sortItem('verde')"
-                class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl py-3 font-bold transition-all shadow-md">Verde</button>
+                class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl py-3 font-bold transition-all shadow-md active:scale-95">🟢
+                Verde</button>
             <button onclick="sortItem('amarillo')"
-                class="flex-1 bg-amber-500 hover:bg-amber-400 text-white rounded-xl py-3 font-bold transition-all shadow-md">Amarillo</button>
+                class="flex-1 bg-amber-500 hover:bg-amber-400 text-white rounded-xl py-3 font-bold transition-all shadow-md active:scale-95">🟡
+                Amarillo</button>
             <button onclick="sortItem('rojo')"
-                class="flex-1 bg-rose-500 hover:bg-rose-400 text-white rounded-xl py-3 font-bold transition-all shadow-md">Rojo</button>
+                class="flex-1 bg-rose-500 hover:bg-rose-400 text-white rounded-xl py-3 font-bold transition-all shadow-md active:scale-95">🔴
+                Rojo</button>
         </div>
     </div>
-    <div id="score" class="mt-4 text-slate-500 font-bold">Aciertos: 0</div>
-    <button class="w-full mt-6 bg-slate-800 text-white font-bold py-3 rounded-xl"
-        onclick="finalizarJuego(3)">Terminar</button>
+    <div id="sem-feedback" class="mt-3 p-3 rounded-xl font-bold text-sm hidden"></div>
+    <div class="flex justify-between items-center mt-4 px-2">
+        <span id="sem-progress" class="text-slate-400 font-bold text-sm">Ronda 1 / 10</span>
+        <span id="score" class="text-amber-500 font-black text-sm">✅ Aciertos: 0</span>
+    </div>
+    <button id="sem-finish" class="w-full mt-4 bg-slate-800 text-white font-bold py-3 rounded-xl hidden"
+        onclick="finalizarJuego(3)">¡Ganar Puntos!</button>
 </div>
 <script>
-    const items = [
-        { e: '🍎', n: 'Manzana', c: 'verde' },
-        { e: '🥦', n: 'Brócoli', c: 'verde' },
-        { e: '🍦', n: 'Helado', c: 'rojo' },
-        { e: '🍕', n: 'Pizza', c: 'amarillo' },
-        { e: '🍫', n: 'Chocolate', c: 'rojo' },
-        { e: '🥚', n: 'Huevo', c: 'verde' },
-        { e: '🥯', n: 'Pan Blanco', c: 'amarillo' }
-    ];
-    let currentIdx = 0;
-    let aciertos = 0;
+    (function () {
+        const items = [
+            { e: '🍎', n: 'Manzana', h: 'Fibra natural, bajo índice glucémico', c: 'verde' },
+            { e: '🥦', n: 'Brócoli', h: 'Muy bajo en carbohidratos', c: 'verde' },
+            { e: '🍦', n: 'Helado', h: 'Alto en azúcar y grasas', c: 'rojo' },
+            { e: '🍕', n: 'Pizza', h: 'Carbohidratos refinados + grasa', c: 'amarillo' },
+            { e: '🍫', n: 'Chocolate', h: 'Muy alto en azúcar', c: 'rojo' },
+            { e: '🥚', n: 'Huevo', h: 'Sin carbohidratos, proteína pura', c: 'verde' },
+            { e: '🥯', n: 'Pan Blanco', h: 'Carbohidratos refinados', c: 'amarillo' },
+            { e: '🥕', n: 'Zanahoria', h: 'Bajo en carbos, rica en vitaminas', c: 'verde' },
+            { e: '🥤', n: 'Refresco', h: '¡Hasta 40g de azúcar!', c: 'rojo' },
+            { e: '🍌', n: 'Banana', h: 'Azúcar natural moderada', c: 'amarillo' }
+        ].sort(() => Math.random() - 0.5);
 
-    function sortItem(color) {
-        if (items[currentIdx].c === color) {
-            aciertos++;
-            document.getElementById('score').textContent = `Aciertos: ${aciertos}`;
+        let currentIdx = 0;
+        let aciertos = 0;
+        let respondido = false;
+
+        function showItem() {
+            if (currentIdx >= items.length) {
+                // Game over
+                document.getElementById('sem-finish').classList.remove('hidden');
+                document.getElementById('game-area').innerHTML = `
+                    <div class="py-6">
+                        <div class="text-6xl mb-4">${aciertos >= 7 ? '🏆' : aciertos >= 4 ? '👍' : '💪'}</div>
+                        <h3 class="text-2xl font-black text-slate-800 mb-2">${aciertos >= 7 ? '¡Experto en Nutrición!' : '¡Buen intento!'}</h3>
+                        <p class="text-slate-600">Acertaste <strong>${aciertos} de ${items.length}</strong></p>
+                    </div>
+                `;
+                return;
+            }
+            const item = items[currentIdx];
+            document.getElementById('item-to-sort').textContent = item.e;
+            document.getElementById('item-name').textContent = item.n;
+            document.getElementById('item-hint').textContent = item.h;
+            document.getElementById('sem-progress').textContent = 'Ronda ' + (currentIdx + 1) + ' / ' + items.length;
+            document.getElementById('sem-feedback').classList.add('hidden');
+            respondido = false;
         }
-        currentIdx = (currentIdx + 1) % items.length;
-        document.getElementById('item-to-sort').textContent = items[currentIdx].e;
-        document.getElementById('item-name').textContent = items[currentIdx].n;
-    }
 
-    function finalizarJuego(id) {
-        const puntos = Math.min(10, aciertos);
-        registrarPuntuacion(id, puntos);
-        document.getElementById('modal-juego-overlay').remove();
-    }
+        window.sortItem = function (color) {
+            if (respondido) return;
+            respondido = true;
+            const item = items[currentIdx];
+            const correcto = item.c === color;
+            const fb = document.getElementById('sem-feedback');
+            fb.classList.remove('hidden');
+
+            if (correcto) {
+                aciertos++;
+                document.getElementById('score').textContent = '✅ Aciertos: ' + aciertos;
+                fb.className = 'mt-3 p-3 rounded-xl font-bold text-sm bg-emerald-50 text-emerald-700 border border-emerald-200';
+                fb.textContent = '✅ ¡Correcto! ' + item.n + ' es ' + color;
+            } else {
+                fb.className = 'mt-3 p-3 rounded-xl font-bold text-sm bg-rose-50 text-rose-700 border border-rose-200';
+                fb.textContent = '❌ Era ' + item.c.toUpperCase() + '. ' + item.h;
+            }
+
+            setTimeout(() => {
+                currentIdx++;
+                showItem();
+            }, 1200);
+        };
+
+        window.finalizarJuego = function (id) {
+            const puntos = Math.min(10, aciertos);
+            registrarPuntuacion(id, puntos);
+            document.getElementById('modal-juego-overlay').remove();
+        };
+
+        showItem();
+    })();
 </script>

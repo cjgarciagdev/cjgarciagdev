@@ -1,0 +1,95 @@
+/* Estilos para el formulario */
+.cliente-form {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    max-width: 600px;
+    margin: 2rem auto;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+}
+
+.form-title {
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: center;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.form-section {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.form-section h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+}
+
+textarea {
+    width: 100%;
+    margin-top: 0.5rem;
+    /* 8px */
+}
+
+.form-error {
+    background-color: #fef2f2;
+    color: #ef4444;
+    padding: 0.75rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    text-align: center;
+    border: 1px solid #fee2e2;
+}
+
+.form-button {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.form-grid input[name="telefono"],
+.form-grid input[name="identificacion"] {
+    width: 100%;
+    /* Asegura que ambos campos ocupen el mismo ancho */
+    box-sizing: border-box;
+    /* Incluye el padding y el borde en el ancho total */
+}
+
+.form-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.form-button-cancel {
+    background-color: #f1f5f9;
+    color: var(--text-secondary);
+}
+
+.form-button-cancel:hover {
+    background-color: #e2e8f0;
+    color: var(--text-main);
+}

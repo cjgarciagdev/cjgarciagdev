@@ -16,6 +16,7 @@
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
     <style>
         * {
             font-family: 'Plus Jakarta Sans', 'Nunito', sans-serif;
@@ -46,7 +47,7 @@
     </style>
 </head>
 
-<body>
+<body class="has-mobile-header">
 
     <!-- Page Transition Curtain -->
     <div id="page-curtain" style="background:linear-gradient(135deg,#0f172a 0%,#134e4a 50%,#0f172a 100%);">
@@ -76,10 +77,14 @@
         </div>
     </div>
 
+    <!-- Mobile Header -->
+    {% include 'components/header_mobile_especialista.html' %}
+
     <div class="flex min-h-screen">
         <!-- ══════════════ SIDEBAR ══════════════ -->
-        <aside class="sidebar" id="sidebar">
-            <div class="p-5" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+        <aside id="sidebar"
+            class="sidebar fixed top-0 left-0 h-full w-[270px] bg-gradient-to-b from-[#0f172a] to-[#1a2744] text-white shadow-2xl z-50 transform -translate-x-full lg:translate-x-0 transition-all duration-300 ease-in-out flex flex-col pt-4 lg:pt-0 sidebar-transition">
+            <div class="p-5 flex justify-between items-start" style="border-bottom:1px solid rgba(255,255,255,0.08);">
                 <div class="flex items-center gap-3">
                     <div class="sidebar-logo-box w-12 h-12 rounded-2xl flex items-center justify-center">
                         <span class="text-2xl">🩺</span>
@@ -89,6 +94,9 @@
                         <p class="sidebar-brand-sub text-xs font-bold mt-0.5">Hospital J. García C.</p>
                     </div>
                 </div>
+                <button onclick="toggleSidebar()" class="lg:hidden text-white/50 hover:text-white p-2">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
             <nav class="py-3 flex-grow overflow-y-auto" id="sidebar-nav" style="display:flex;flex-direction:column;">
@@ -286,7 +294,7 @@
 
         <!-- ══════════════ MAIN ══════════════ -->
         <main class="flex-1 md:ml-[270px] min-h-screen main-content">
-            <header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
+            <header class="main-header sticky top-0 z-30 px-6 py-4 flex items-center justify-between hidden">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSidebar()"
                         class="md:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center transition-all hover:bg-teal-50 hover:text-teal-600">
@@ -429,7 +437,7 @@
 
                         <!-- KPI: Total Pacientes -->
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-cyan-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
-                            style="animation-delay:0.1s;">
+                            onclick="scrollToAndFilter('todos')" style="animation-delay:0.1s;">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="p-3 bg-cyan-50 rounded-2xl group-hover:bg-cyan-100 transition-colors">
                                     <i class="fas fa-child text-cyan-600 text-xl"></i>
@@ -447,7 +455,7 @@
 
                         <!-- KPI: Riesgo -->
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-rose-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
-                            style="animation-delay:0.2s;">
+                            onclick="scrollToAndFilter('Crítico')" style="animation-delay:0.2s;">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="p-3 bg-rose-50 rounded-2xl group-hover:bg-rose-100 transition-colors">
                                     <i class="fas fa-exclamation-triangle text-rose-600 text-xl"></i>
@@ -465,7 +473,7 @@
 
                         <!-- KPI: Alertas -->
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-amber-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
-                            style="animation-delay:0.3s;">
+                            onclick="showSection('alertas')" style="animation-delay:0.3s;">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="p-3 bg-amber-50 rounded-2xl group-hover:bg-amber-100 transition-colors">
                                     <i class="fas fa-bell text-amber-600 text-xl"></i>
@@ -483,7 +491,7 @@
 
                         <!-- KPI: Mediciones -->
                         <div class="bg-white p-6 rounded-3xl shadow-sm border border-teal-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden stagger-item"
-                            style="animation-delay:0.4s;">
+                            onclick="showSection('graficos')" style="animation-delay:0.4s;">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="p-3 bg-teal-50 rounded-2xl group-hover:bg-teal-100 transition-colors">
                                     <i class="fas fa-database text-teal-600 text-xl"></i>
@@ -831,92 +839,153 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl">
+                    <div class="max-w-3xl mx-auto">
 
-                        <!-- Card: Perfil Especialista -->
+                        <!-- Card: Perfil Único Consolidado -->
                         <div
-                            class="glass-card rounded-[2rem] p-8 border border-teal-500/10 shadow-xl bg-white/60 backdrop-blur-md">
-                            <div class="flex items-center gap-4 mb-6">
+                            class="glass-card rounded-[2rem] p-5 border border-teal-500/10 shadow-xl bg-white/60 backdrop-blur-md">
+                            <div class="flex items-center gap-4 mb-5">
                                 <div
-                                    class="w-16 h-16 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg">
+                                    class="w-14 h-14 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg">
                                     {{ (current_user.nombre_completo or current_user.username)[0] | upper }}
                                 </div>
-                                <div>
-                                    <h3 class="text-xl font-black text-slate-800">Mi Perfil Clínico</h3>
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-black text-slate-800">Mi Perfil Completo</h3>
                                     <p class="text-teal-600 text-xs font-bold uppercase tracking-widest">{{
                                         current_user.rol }}</p>
                                 </div>
                             </div>
 
                             <div class="space-y-4">
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Nombre
-                                        Completo</label>
-                                    <input type="text" id="especialista-nombre"
-                                        value="{{ current_user.nombre_completo or '' }}" class="med-input bg-white/60"
-                                        placeholder="Dr. Nombre Apellido">
-                                </div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label
-                                            class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Cédula
-                                            / ID</label>
-                                        <input type="text" id="especialista-cedula"
-                                            value="{{ current_user.cedula or '' }}" class="med-input bg-white/60">
+                                <!-- Datos Personales -->
+                                <div class="bg-slate-50/50 rounded-xl p-3">
+                                    <h4
+                                        class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <i class="fas fa-user text-teal-500"></i> Datos Personales
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Nombre
+                                                Completo</label>
+                                            <input type="text" id="especialista-nombre"
+                                                value="{{ current_user.nombre_completo or '' }}"
+                                                class="med-input bg-white/60 text-xs py-2"
+                                                placeholder="Dr. Nombre Apellido">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Cédula
+                                                / ID</label>
+                                            <input type="text" id="especialista-cedula"
+                                                value="{{ current_user.cedula or '' }}"
+                                                class="med-input bg-white/60 text-xs py-2">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Teléfono</label>
+                                            <input type="tel" id="especialista-tel"
+                                                value="{{ current_user.telefono or '' }}"
+                                                class="med-input bg-white/60 text-xs py-2">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Email
+                                                Profesional</label>
+                                            <input type="email" id="especialista-email"
+                                                value="{{ current_user.email or '' }}"
+                                                class="med-input bg-white/60 text-xs py-2">
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label
-                                            class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Teléfono</label>
-                                        <input type="tel" id="especialista-tel"
-                                            value="{{ current_user.telefono or '' }}" class="med-input bg-white/60">
-                                    </div>
                                 </div>
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Email
-                                        Profesional</label>
-                                    <input type="email" id="especialista-email" value="{{ current_user.email or '' }}"
-                                        class="med-input bg-white/60">
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Especialidad</label>
-                                    <input type="text" id="especialista-especialidad"
-                                        value="{{ current_user.especialidad or '' }}" class="med-input bg-white/60"
-                                        placeholder="Ej: Endocrinólogo Pediátrico">
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Consultorio
-                                        / Clínica</label>
-                                    <input type="text" id="especialista-clinica"
-                                        value="{{ current_user.consultorio or '' }}" class="med-input bg-white/60"
-                                        placeholder="Ej: Hospital Dr. J. García Coello">
-                                </div>
-                                <button onclick="guardarPerfilEspecialista()"
-                                    class="w-full bg-teal-600 hover:bg-teal-500 text-white font-black py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
-                                    <i class="fas fa-save"></i> Guardar Perfil
-                                </button>
-                            </div>
-                        </div>
 
-                        <div class="space-y-6">
-
-                            <!-- Card: Seguridad -->
-                            <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm">
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center">
-                                        <i class="fas fa-shield-alt text-indigo-600"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-black text-slate-800">Seguridad de Cuenta</h3>
-                                        <p class="text-xs text-slate-500">Protege tu acceso al sistema</p>
+                                <!-- Datos Profesionales -->
+                                <div class="bg-slate-50/50 rounded-xl p-3">
+                                    <h4
+                                        class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <i class="fas fa-briefcase text-cyan-500"></i> Datos Profesionales
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Especialidad</label>
+                                            <input type="text" id="especialista-especialidad"
+                                                value="{{ current_user.especialidad or '' }}"
+                                                class="med-input bg-white/60 text-xs py-2"
+                                                placeholder="Ej: Endocrinólogo Pediátrico">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Consultorio
+                                                / Clínica</label>
+                                            <input type="text" id="especialista-clinica"
+                                                value="{{ current_user.consultorio or '' }}"
+                                                class="med-input bg-white/60 text-xs py-2"
+                                                placeholder="Ej: Hospital Dr. J. García Coello">
+                                        </div>
                                     </div>
                                 </div>
-                                <button onclick="abrirModalPassword()"
-                                    class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-black py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-100">
-                                    <i class="fas fa-key"></i> Cambiar Contraseña
+
+                                <!-- Datos del Sistema -->
+                                <div class="bg-slate-50/50 rounded-xl p-3">
+                                    <h4
+                                        class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <i class="fas fa-hospital text-rose-500"></i> Configuración del Sistema
+                                    </h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Teléfono
+                                                de Emergencia</label>
+                                            <input type="tel" id="config-telefono-emergencia"
+                                                value="{{ config_sistema.telefono_emergencia }}"
+                                                class="med-input bg-white/60 text-xs py-2" placeholder="0414-1234567">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Nombre
+                                                del Hospital</label>
+                                            <input type="text" id="config-hospital-nombre"
+                                                value="{{ config_sistema.hospital_nombre }}"
+                                                class="med-input bg-white/60 text-xs py-2"
+                                                placeholder="Hospital Dr. Jesús García Coello">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Especialista
+                                                por Defecto</label>
+                                            <input type="text" id="config-especialista-default"
+                                                value="{{ config_sistema.especialista_default }}"
+                                                class="med-input bg-white/60 text-xs py-2"
+                                                placeholder="Dr. Jesús García Coello">
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-[9px] font-black text-slate-400 uppercase mb-1">Teléfono
+                                                Especialista</label>
+                                            <input type="tel" id="config-especialista-telefono"
+                                                value="{{ config_sistema.especialista_telefono }}"
+                                                class="med-input bg-white/60 text-xs py-2" placeholder="0414-1234567">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Seguridad -->
+                                <div class="bg-slate-50/50 rounded-xl p-3">
+                                    <h4
+                                        class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <i class="fas fa-shield-alt text-indigo-500"></i> Seguridad de la Cuenta
+                                    </h4>
+                                    <button onclick="abrirModalPassword()"
+                                        class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-black py-2.5 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-indigo-100 text-xs">
+                                        <i class="fas fa-key"></i> Cambiar Contraseña
+                                    </button>
+                                </div>
+
+                                <!-- Botón Guardar -->
+                                <button onclick="guardarPerfilCompleto()"
+                                    class="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-black py-3 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fas fa-save"></i> Guardar Todos los Datos
                                 </button>
                             </div>
                         </div>
@@ -1057,6 +1126,17 @@
                                 </div>
                                 <span class="font-black text-slate-800 text-sm uppercase">Tu Escudo</span>
                                 <span class="text-orange-600 font-bold text-xs mt-1">+10 Pts</span>
+                            </button>
+
+                            <!-- Juego 8 -->
+                            <button onclick="abrirJuego(8)"
+                                class="game-card bg-white rounded-[2rem] p-6 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2 border border-slate-100 flex flex-col items-center group">
+                                <div
+                                    class="w-20 h-20 bg-lime-50 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-all">
+                                    <img src="/static/img/emoji/emoji5.svg" class="w-12 h-12" alt="Comida">
+                                </div>
+                                <span class="font-black text-slate-800 text-sm uppercase">Sana vs Chatarra</span>
+                                <span class="text-lime-600 font-bold text-xs mt-1">+10 Pts</span>
                             </button>
                         </div>
                     </div>
@@ -1696,43 +1776,7 @@
     {% endif %}
 
     <!-- BOTTOM NAV (Mobile) -->
-    <nav
-        class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
-        {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
-        <div class="grid grid-cols-4 py-3">
-            <button onclick="showSection('dashboard')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-chart-pie text-lg"></i>Dashboard</button>
-            <button onclick="showSection('pacientes')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-child text-lg"></i>Pacientes</button>
-            <button onclick="showSection('alertas')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-bell text-lg"></i>Alertas</button>
-            <button onclick="showSection('exportar')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-file-export text-lg"></i>Reportes</button>
-        </div>
-        {% else %}
-        <div class="grid grid-cols-5 py-3">
-            <button onclick="showSection('miHeroe')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-mask text-lg"></i>Héroe</button>
-            <button onclick="showSection('glucosa')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-tint text-lg"></i>Glucosa</button>
-            <button onclick="showSection('comidas')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-utensils text-lg"></i>Comida</button>
-            <button onclick="showSection('bienestar')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-smile-beam text-lg"></i>Ánimo</button>
-            <button onclick="showSection('historial')"
-                class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i
-                    class="fas fa-history text-lg"></i>Notas</button>
-        </div>
-        {% endif %}
-    </nav>
+    {% include 'components/bottom_nav_especialista.html' %}
 
     <!-- MODAL: FICHA CLÍNICA EXPANDIDA (ESPECIALISTA) -->
     <div id="modal-ficha-paciente" class="hidden fixed inset-0 z-[4000] flex items-center justify-center p-4">
@@ -2011,19 +2055,22 @@
                     <div>
                         <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Especialista
                             Asignado</p>
-                        <h4 class="font-black text-slate-800" id="sos-doctor-name">Dr. Jesús García Coello</h4>
-                        <p class="text-xs text-slate-500 font-bold" id="sos-doctor-specialty">Endocrinólogo Pediátrico
+                        <h4 class="font-black text-slate-800" id="sos-doctor-name">{{
+                            config_sistema.especialista_default }}</h4>
+                        <p class="text-xs text-slate-500 font-bold" id="sos-doctor-specialty">{{
+                            config_sistema.especialista_default_especialidad }}
                         </p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <a href="tel:04141234567" id="sos-btn-call"
+                    <a href="tel:{{ config_sistema.especialista_telefono }}" id="sos-btn-call"
                         class="bg-slate-800 text-white font-black py-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-slate-700 transition-all shadow-lg active:scale-95">
                         <i class="fas fa-phone-alt text-rose-400"></i>
                         <span class="text-xs">Llamar Ahora</span>
                     </a>
-                    <a href="https://wa.me/584141234567" id="sos-btn-whatsapp" target="_blank"
+                    <a href="https://wa.me/{{ config_sistema.especialista_telefono|replace('-','')|replace(' ','') }}"
+                        id="sos-btn-whatsapp" target="_blank"
                         class="bg-emerald-600 text-white font-black py-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-emerald-500 transition-all shadow-lg active:scale-95">
                         <i class="fab fa-whatsapp text-white"></i>
                         <span class="text-xs">WhatsApp</span>

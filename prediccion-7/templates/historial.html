@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">📜 Historial de Predicciones</h1>
+        <p style="color: var(--text-secondary);">Revisa todas las predicciones realizadas y su precisión</p>
+    </div>
+
+    {% if predicciones %}
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">🎯 Predicciones Registradas</h2>
+            <span class="badge badge-primary">{{ predicciones|length }} predicciones</span>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border);">
+                        <th
+                            style="padding: 1rem; text-align: left; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Fecha</th>
+                        <th
+                            style="padding: 1rem; text-align: center; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Número Predicho</th>
+                        <th
+                            style="padding: 1rem; text-align: center; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Confianza</th>
+                        <th
+                            style="padding: 1rem; text-align: center; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Modelo</th>
+                        <th
+                            style="padding: 1rem; text-align: center; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">
+                            Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in predicciones %}
+                    <tr style="border-bottom: 1px solid var(--border); transition: all var(--transition-base);"
+                        onmouseover="this.style.background='var(--bg-tertiary)'"
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1rem;">
+                            {{ pred.fecha_prediccion.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <div
+                                style="display: inline-block; min-width: 60px; min-height: 60px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); border-radius: var(--radius-md); font-size: 1.5rem; font-weight: 700; color: white;">
+                                {{ pred.numero_predicho }}
+                            </div>
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
+                                <div style="font-weight: 600; font-size: 1.1rem;">
+                                    {{ (pred.confianza * 100)|round(1) }}%
+                                </div>
+                                <div
+                                    style="width: 100px; height: 6px; background: var(--bg-secondary); border-radius: 3px; overflow: hidden;">
+                                    <div
+                                        style="height: 100%; background: linear-gradient(90deg, var(--success) 0%, var(--primary) 100%); width: {{ (pred.confianza * 100)|round }}%;">
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            <span class="badge badge-primary">{{ pred.modelo_usado }}</span>
+                        </td>
+                        <td style="padding: 1rem; text-align: center;">
+                            {% if pred.acertado == True %}
+                            <span class="badge badge-success">✅ Acertado</span>
+                            {% elif pred.acertado == False %}
+                            <span class="badge badge-danger">❌ Fallido</span>
+                            {% if pred.numero_real %}
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                Real: {{ pred.numero_real }}
+                            </div>
+                            {% endif %}
+                            {% else %}
+                            <span class="badge badge-warning">⏳ Pendiente</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 4rem;">
+        <div style="font-size: 5rem; margin-bottom: 1rem;">📭</div>
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">No hay predicciones en el historial</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Genera tu primera predicción desde el Dashboard
+        </p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            🔮 Ir al Dashboard
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

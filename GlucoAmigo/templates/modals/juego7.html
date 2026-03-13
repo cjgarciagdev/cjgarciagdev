@@ -1,36 +1,73 @@
 <div class="text-center">
     <h2 class="text-2xl font-bold mb-4 text-slate-800">Crea tu Escudo de Héroe 🛡️</h2>
-    <p class="mb-4 text-slate-600">Personaliza tu escudo protector para el consultorio.</p>
+    <p class="mb-4 text-slate-600">Personaliza tu escudo protector. ¡Añade hasta 10 stickers!</p>
     <div id="shield-canvas"
-        class="relative w-48 h-48 bg-slate-100 rounded-[3rem] mx-auto border-4 border-slate-200 flex items-center justify-center mb-6 overflow-hidden">
-        <div id="shield-base" class="text-8xl">🛡️</div>
-        <div id="stickers-placed" class="absolute inset-0"></div>
+        class="relative w-48 h-48 bg-gradient-to-br from-slate-100 to-slate-200 rounded-[3rem] mx-auto border-4 border-slate-300 flex items-center justify-center mb-4 overflow-hidden shadow-inner">
+        <div id="shield-base" class="text-8xl select-none">🛡️</div>
+        <div id="stickers-placed" class="absolute inset-0 pointer-events-none"></div>
     </div>
+    <p id="shield-counter" class="text-sm text-slate-400 font-bold mb-4">Stickers: 0 / 10</p>
     <div class="grid grid-cols-4 gap-2 mb-6">
-        ${['⭐', '🔥', '💧', '⚡', '🍀', '💎', '🎨', '🦴'].map(s => `
-        <button onclick="addSticker('${s}')"
-            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-slate-50 transition-all">${s}</button>
-        `).join('')}
+        <button onclick="addSticker('⭐')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-amber-50 transition-all hover:scale-110 active:scale-95">⭐</button>
+        <button onclick="addSticker('🔥')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-red-50 transition-all hover:scale-110 active:scale-95">🔥</button>
+        <button onclick="addSticker('💧')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-blue-50 transition-all hover:scale-110 active:scale-95">💧</button>
+        <button onclick="addSticker('⚡')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-yellow-50 transition-all hover:scale-110 active:scale-95">⚡</button>
+        <button onclick="addSticker('🍀')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-green-50 transition-all hover:scale-110 active:scale-95">🍀</button>
+        <button onclick="addSticker('💎')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-cyan-50 transition-all hover:scale-110 active:scale-95">💎</button>
+        <button onclick="addSticker('🎨')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-purple-50 transition-all hover:scale-110 active:scale-95">🎨</button>
+        <button onclick="addSticker('🦸')"
+            class="bg-white border border-slate-200 p-2 rounded-xl text-2xl hover:bg-indigo-50 transition-all hover:scale-110 active:scale-95">🦸</button>
     </div>
-    <button class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 rounded-xl shadow-lg"
-        onclick="finalizarJuego(7)">¡Guardar Mi Escudo!</button>
+    <button
+        class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-amber-500/30 transition-all active:scale-95"
+        onclick="finalizarJuego7()">¡Guardar Mi Escudo! 🏆</button>
 </div>
 <script>
-    let stickerCount = 0;
-    function addSticker(s) {
-        if (stickerCount >= 10) return;
-        const st = document.createElement('div');
-        st.className = 'absolute text-2xl cursor-move';
-        st.style.left = (20 + Math.random() * 60) + '%';
-        st.style.top = (20 + Math.random() * 60) + '%';
-        st.textContent = s;
-        document.getElementById('stickers-placed').appendChild(st);
-        stickerCount++;
-    }
+    (function () {
+        let stickerCount = 0;
 
-    function finalizarJuego(id) {
-        const puntos = Math.min(10, stickerCount);
-        registrarPuntuacion(id, puntos);
-        document.getElementById('modal-juego-overlay').remove();
-    }
+        window.addSticker = function (s) {
+            if (stickerCount >= 10) {
+                return;
+            }
+            const placed = document.getElementById('stickers-placed');
+            const st = document.createElement('div');
+            st.className = 'absolute text-2xl select-none cursor-pointer pointer-events-auto';
+            st.style.left = (10 + Math.random() * 65) + '%';
+            st.style.top = (10 + Math.random() * 65) + '%';
+            st.style.transition = 'transform 0.2s';
+            st.style.animation = 'stickerPop 0.3s ease-out';
+            st.textContent = s;
+            st.title = 'Clic para quitar';
+            st.onclick = () => {
+                st.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    st.remove();
+                    stickerCount--;
+                    document.getElementById('shield-counter').textContent = 'Stickers: ' + stickerCount + ' / 10';
+                }, 200);
+            };
+            placed.appendChild(st);
+            stickerCount++;
+            document.getElementById('shield-counter').textContent = 'Stickers: ' + stickerCount + ' / 10';
+        };
+
+        window.finalizarJuego7 = function () {
+            const puntos = Math.min(10, stickerCount);
+            registrarPuntuacion(7, puntos);
+            document.getElementById('modal-juego-overlay').remove();
+        };
+
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = '@keyframes stickerPop { from { transform: scale(0) rotate(-20deg); } to { transform: scale(1) rotate(0deg); } }';
+        document.head.appendChild(style);
+    })();
 </script>

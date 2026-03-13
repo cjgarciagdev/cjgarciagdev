@@ -1,0 +1,93 @@
+<div class="text-center">
+    <h2 class="text-2xl font-bold mb-2 text-slate-800">Sana 🥗 vs Chatarra 🍔</h2>
+    <p class="mb-4 text-slate-600 text-sm">¡Clasifica el alimento! ¿Es sano o chatarra para un héroe con diabetes?</p>
+    <div id="svsc-area" class="relative bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 p-6 mb-4">
+        <div id="svsc-emoji" class="text-7xl mb-3 inline-block">🍎</div>
+        <p id="svsc-nombre" class="text-xl font-black text-slate-800 mb-1">Manzana</p>
+        <p id="svsc-dato" class="text-xs text-slate-400 font-bold mb-5">Carbohidratos: ~15g por 100g</p>
+        <div class="flex gap-4">
+            <button onclick="svscResponder('sana')"
+                class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-white font-black py-4 rounded-2xl text-lg transition-all active:scale-95 shadow-md">
+                🥗 Sana
+            </button>
+            <button onclick="svscResponder('chatarra')"
+                class="flex-1 bg-rose-500 hover:bg-rose-400 text-white font-black py-4 rounded-2xl text-lg transition-all active:scale-95 shadow-md">
+                🍔 Chatarra
+            </button>
+        </div>
+    </div>
+    <div id="svsc-feedback" class="hidden mb-4 p-3 rounded-xl font-bold text-sm"></div>
+    <div class="flex justify-between items-center px-2">
+        <span class="text-slate-400 font-bold text-sm" id="svsc-progreso">Ronda 1 / 10</span>
+        <span class="text-amber-500 font-black text-sm" id="svsc-puntos-disp">✅ Aciertos: 0</span>
+    </div>
+</div>
+<script>
+    (function () {
+        const svscAlimentos = [
+            { e: '🍎', n: 'Manzana', d: 'Carbohidratos: ~15g. Rica en fibra.', c: 'sana' },
+            { e: '🥦', n: 'Brócoli', d: 'Carbohidratos: ~7g. Bajo índice glucémico.', c: 'sana' },
+            { e: '🍔', n: 'Hamburguesa doble', d: 'Alta en carbohidratos y grasas saturadas.', c: 'chatarra' },
+            { e: '🥚', n: 'Huevo cocido', d: 'Sin carbohidratos. Proteína de calidad.', c: 'sana' },
+            { e: '🍕', n: 'Pizza', d: 'Alta en carbos refinados y sodio.', c: 'chatarra' },
+            { e: '🥕', n: 'Zanahoria', d: 'Carbohidratos: ~10g. Rica en betacaroteno.', c: 'sana' },
+            { e: '🥤', n: 'Refresco azucarado', d: '¡Hasta 40g de azúcar pura! No recomendado.', c: 'chatarra' },
+            { e: '🍗', n: 'Pechuga de pollo', d: 'Sin carbohidratos. Excelente proteína magra.', c: 'sana' },
+            { e: '🍩', n: 'Dona glaseada', d: 'Azúcar + harina refinada. Pico de glucosa.', c: 'chatarra' },
+            { e: '🥑', n: 'Aguacate', d: 'Grasas saludables. Bajo en carbohidratos.', c: 'sana' },
+        ].sort(() => Math.random() - 0.5);
+
+        let svscIdx = 0;
+        let svscAciertos = 0;
+        let svscRespOk = false;
+
+        function svscMostrar() {
+            if (svscIdx >= svscAlimentos.length) {
+                svscFinalizar();
+                return;
+            }
+            const item = svscAlimentos[svscIdx];
+            document.getElementById('svsc-emoji').textContent = item.e;
+            document.getElementById('svsc-nombre').textContent = item.n;
+            document.getElementById('svsc-dato').textContent = item.d;
+            document.getElementById('svsc-progreso').textContent = 'Ronda ' + (svscIdx + 1) + ' / ' + svscAlimentos.length;
+            const fb = document.getElementById('svsc-feedback');
+            fb.className = 'hidden mb-4 p-3 rounded-xl font-bold text-sm';
+            svscRespOk = false;
+        }
+
+        window.svscResponder = function (resp) {
+            if (svscRespOk) return;
+            svscRespOk = true;
+            const item = svscAlimentos[svscIdx];
+            const correcto = resp === item.c;
+            const fb = document.getElementById('svsc-feedback');
+            fb.classList.remove('hidden');
+            fb.className = 'mb-4 p-3 rounded-xl font-bold text-sm ' + (correcto ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200');
+            fb.textContent = correcto
+                ? '✅ ¡Correcto! ' + item.d
+                : '❌ Era ' + (item.c === 'sana' ? 'SANA' : 'CHATARRA') + '. ' + item.d;
+            if (correcto) {
+                svscAciertos++;
+                document.getElementById('svsc-puntos-disp').textContent = '✅ Aciertos: ' + svscAciertos;
+            }
+            setTimeout(() => {
+                svscIdx++;
+                svscMostrar();
+            }, 1400);
+        };
+
+        function svscFinalizar() {
+            const puntos = Math.min(10, svscAciertos);
+            registrarPuntuacion(8, puntos);
+            document.getElementById('svsc-area').innerHTML =
+                '<div class="py-8"><div class="text-6xl mb-4">' + (svscAciertos >= 7 ? '🏆' : svscAciertos >= 4 ? '👍' : '💪') + '</div>' +
+                '<h3 class="text-2xl font-black text-slate-800 mb-2">' + (svscAciertos >= 7 ? '¡Experto en Nutrición!' : '¡Bien intentado!') + '</h3>' +
+                '<p class="text-slate-600">Acertaste <strong>' + svscAciertos + ' de ' + svscAlimentos.length + '</strong> alimentos.</p>' +
+                '<p class="text-amber-500 font-black mt-2">+' + puntos + ' Puntos de Poder ganados</p>' +
+                '<button onclick="document.getElementById(\'modal-juego-overlay\').remove()" class="mt-6 bg-slate-800 text-white font-bold px-8 py-3 rounded-xl cursor-pointer">Cerrar</button></div>';
+        }
+
+        svscMostrar();
+    })();
+</script>

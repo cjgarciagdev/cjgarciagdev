@@ -1,49 +1,91 @@
 <div class="text-center">
     <h2 class="text-2xl font-bold mb-4 text-slate-800">Raspa y Gana 🕵️‍♂️</h2>
-    <p class="mb-4 text-slate-600">¡Limpia la pantalla para descubrir al héroe oculto!</p>
-    <div class="relative w-64 h-64 mx-auto mb-6 bg-emerald-50 rounded-3xl overflow-hidden border-4 border-emerald-200">
-        <div class="absolute inset-0 flex items-center justify-center text-8xl">🦸‍♂️</div>
+    <p class="mb-4 text-slate-600">¡Raspa la pantalla para descubrir al héroe oculto!</p>
+    <div
+        class="relative w-64 h-64 mx-auto mb-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl overflow-hidden border-4 border-emerald-200">
+        <div class="absolute inset-0 flex items-center justify-center flex-col gap-2">
+            <div class="text-8xl">🦸‍♂️</div>
+            <p class="text-emerald-700 font-black text-sm">¡HÉROE DESCUBIERTO!</p>
+        </div>
         <canvas id="scratch-canvas" class="absolute inset-0 cursor-crosshair" width="256" height="256"></canvas>
     </div>
     <div id="reveal-pct" class="mb-4 text-emerald-700 font-bold">Descubierto: 0%</div>
-    <button class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl"
-        onclick="finalizarJuego(5)">Hecho</button>
+    <button id="scratch-btn" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl hidden"
+        onclick="finalizarJuego(5)">¡Ganar Puntos!</button>
 </div>
 <script>
-    const canvas = document.getElementById('scratch-canvas');
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#CBD5E1'; // Slate-300
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    (function () {
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
 
-    let cleared = 0;
-    let isDrawing = false;
+        // Draw scratch layer with a fun pattern
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#64748b';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        for (let y = 20; y < canvas.height; y += 40) {
+            for (let x = 30; x < canvas.width; x += 60) {
+                ctx.fillText('?', x, y);
+            }
+        }
 
-    function scratch(e) {
-        if (!isDrawing) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX || e.touches[0].clientX) - rect.left;
-        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+        let isDrawing = false;
+        const totalPixels = canvas.width * canvas.height;
 
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.beginPath();
-        ctx.arc(x, y, 20, 0, Math.PI * 2);
-        ctx.fill();
+        function getPercentCleared() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let cleared = 0;
+            for (let i = 3; i < imageData.data.length; i += 4) {
+                if (imageData.data[i] === 0) cleared++;
+            }
+            return Math.floor((cleared / totalPixels) * 100);
+        }
 
-        // Calcular porcentaje (aproximado)
-        cleared += 1;
-        document.getElementById('reveal-pct').textContent = `Descubierto: ${Math.min(100, Math.floor(cleared / 5))}%`;
-    }
+        function scratch(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
 
-    canvas.addEventListener('mousedown', () => isDrawing = true);
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mousemove', scratch);
-    canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); });
-    canvas.addEventListener('touchend', () => isDrawing = false);
-    canvas.addEventListener('touchmove', scratch);
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 22, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
-    function finalizarJuego(id) {
-        const puntos = Math.min(10, Math.floor(cleared / 10));
-        registrarPuntuacion(id, puntos);
-        document.getElementById('modal-juego-overlay').remove();
-    }
+        function updatePercent() {
+            const pct = getPercentCleared();
+            document.getElementById('reveal-pct').textContent = 'Descubierto: ' + pct + '%';
+            if (pct >= 60) {
+                document.getElementById('scratch-btn').classList.remove('hidden');
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(e); });
+        canvas.addEventListener('mouseup', () => { isDrawing = false; updatePercent(); });
+        canvas.addEventListener('mouseleave', () => { isDrawing = false; });
+        canvas.addEventListener('mousemove', scratch);
+        canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); }, { passive: false });
+        canvas.addEventListener('touchend', () => { isDrawing = false; updatePercent(); });
+        canvas.addEventListener('touchmove', scratch, { passive: false });
+
+        window.finalizarJuego = function (id) {
+            const pct = getPercentCleared();
+            const puntos = Math.min(10, Math.floor(pct / 10));
+            registrarPuntuacion(id, puntos);
+            document.getElementById('modal-juego-overlay').remove();
+        };
+    })();
 </script>

@@ -1,0 +1,108 @@
+body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', sans-serif;
+    background-image: url('FondoB.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: #fff;
+    height: 100vh;
+    width: auto;
+}
+
+main {
+    align-items: center;
+    max-width: 90vw;
+    max-height: 90vh;
+    gap: 2rem;
+
+    overflow: hidden;
+}
+
+/* Navegación */
+header nav {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px;
+    align-items: center;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    gap: 50px;
+}
+
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.hero {
+    position: relative;
+    text-align: center;
+    bottom: 13%;
+}
+
+
+.car {
+    max-width: 85%;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(255, 238, 0, 0.637));
+}
+
+/* Lista de características */
+.features {
+    position: absolute;
+    top: 50%;
+    right: 2%;
+    transform: translateY(-50%);
+    padding: 20px;
+}
+
+.features ul {
+    list-style: none;
+    text-shadow: 0 0 20px rgba(182, 179, 147, 0.863);
+    font-weight: bold;
+}
+
+.features ul li {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    padding-bottom: 5px;
+
+
+}
+
+/* Footer */
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0, 8rem;
+    font-size: 0.9rem;
+    background-color: transparent;
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.social img {
+    width: 24px;
+    margin-right: 10px;
+}
+
+.logo img {
+    position: relative;
+    width: 10vw;
+    height: auto;
+    left: 1rem;
+}
+
+.location {
+    color: #aaa;
+}
