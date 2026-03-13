@@ -1,0 +1,21 @@
+.modal {
+  position: fixed; /* Fija el modal en la pantalla */
+  top: 50%; /* Centra verticalmente */
+  left: 50%; /* Centra horizontalmente */
+  transform: translate(-50%, -50%); /* Ajusta el centro */
+  width: 90%; /* Ancho máximo del modal */
+  max-width: 600px; /* Ancho máximo fijo */
+  max-height: 90%; /* Altura máxima del modal */
+  overflow: hidden; /* Evita que el contenido se desborde fuera del modal */
+  background-color: #fff; /* Fondo blanco */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra */
+  z-index: 1000; /* Asegura que esté por encima de otros elementos */
+  height: calc(100vh - 14.5rem);
+}
+
+.modal-content {
+  overflow-y: auto; /* Habilita el scroll vertical si el contenido es demasiado grande */
+  padding: 20px; /* Espaciado interno */
+  max-height: calc(90vh - 40px); /* Ajusta la altura del contenido para que no se desborde */
+}

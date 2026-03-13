@@ -1,0 +1,105 @@
+<!-- MODAL: EVENTO DE CALENDARIO -->
+<div id="modalEvento"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-in">
+        <div class="sticky top-0 bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-t-3xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-black text-white"><i class="fas fa-calendar-plus mr-2"></i>Evento de Calendario
+                </h3>
+                <button onclick="closeModalEvento()" class="text-white/80 hover:text-white transition text-2xl"><i
+                        class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">Título *</label>
+                <input type="text" id="evtTitulo" placeholder="Nombre del evento..."
+                    class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Tipo *</label>
+                    <select id="evtTipo"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+                        <option value="Vacunación">Vacunación</option>
+                        <option value="Parto">Parto</option>
+                        <option value="Destete">Destete</option>
+                        <option value="Rotación">Rotación de Potrero</option>
+                        <option value="Veterinario">Visita Veterinaria</option>
+                        <option value="Inventario">Revisión de Inventario</option>
+                        <option value="Financiero">Pago / Cobro</option>
+                        <option value="Reunión">Reunión</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Prioridad</label>
+                    <select id="evtPrioridad"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+                        <option value="Alta">Alta</option>
+                        <option value="Media" selected>Media</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Fecha Inicio *</label>
+                    <input type="datetime-local" id="evtFechaInicio"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Fecha Fin</label>
+                    <input type="datetime-local" id="evtFechaFin"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">Descripción</label>
+                <textarea id="evtDescripcion" rows="2" placeholder="Detalles del evento..."
+                    class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none resize-none"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Asignar a</label>
+                    <input type="text" id="evtAsignado" placeholder="Persona responsable"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Recordatorio</label>
+                    <select id="evtRecordatorio"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+                        <option value="15">15 minutos</option>
+                        <option value="30">30 minutos</option>
+                        <option value="60" selected>1 hora</option>
+                        <option value="1440">1 día</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 p-3 bg-indigo-50 rounded-xl">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="evtTodoElDia" class="w-4 h-4 rounded text-indigo-600">
+                    <span class="text-sm font-medium text-gray-700">Todo el día</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="evtRecurrente" onchange="toggleRecurrencia()">
+                    <span class="text-sm font-medium text-gray-700">Recurrente</span>
+                </label>
+            </div>
+            <div id="campos-recurrencia" class="hidden">
+                <label class="block text-sm font-bold text-gray-600 mb-1">Patrón de Recurrencia</label>
+                <select id="evtPatronRecurrencia"
+                    class="w-full p-3 border rounded-xl bg-gray-50 focus:border-indigo-500 outline-none">
+                    <option value="diario">Diario</option>
+                    <option value="semanal">Semanal</option>
+                    <option value="mensual">Mensual</option>
+                    <option value="anual">Anual</option>
+                </select>
+            </div>
+            <button onclick="saveEvento()"
+                class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5">
+                <i class="fas fa-save mr-2"></i>Guardar Evento
+            </button>
+        </div>
+    </div>
+</div>

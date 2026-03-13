@@ -92,7 +92,7 @@
             </div>
 
             <nav class="py-3 flex-grow overflow-y-auto" id="sidebar-nav" style="display:flex;flex-direction:column;">
-                {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+                {% if current_user.rol in ['especialista', 'admin', 'maestro', 'nutricionista'] %}
                 <!-- ZONA: ÁREA CLÍNICA -->
                 <div>
                     <button onclick="toggleSidebarGroup('group-clinica', this)"
@@ -390,7 +390,7 @@
                 </section>
                 {% endif %}
 
-                {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+                {% if current_user.rol in ['especialista', 'admin', 'maestro', 'nutricionista'] %}
                 <!-- ══ DASHBOARD ESPECIALISTA ══ -->
                 <section id="sec-dashboard" class="content-section active">
 
@@ -1511,7 +1511,7 @@
     <!-- BOTTOM NAV (Mobile) -->
     <nav
         class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
-        {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+        {% if current_user.rol in ['especialista', 'admin', 'maestro', 'nutricionista'] %}
         <div class="grid grid-cols-4 py-3">
             <button onclick="showSection('dashboard')"
                 class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600"><i

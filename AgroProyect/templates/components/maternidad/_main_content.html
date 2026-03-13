@@ -1,0 +1,53 @@
+<!-- Columna Izquierda: Animales y Planes -->
+<div class="lg:col-span-8 space-y-6">
+    <!-- Hembras en Reproducción -->
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-pink-50/30">
+            <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-venus text-pink-500"></i> Hembras en Reproducción
+            </h3>
+            <div class="flex gap-2">
+                <select id="filterMaternidadEstado" onchange="loadMaternityAnimals()"
+                    class="text-sm border-gray-200 rounded-lg p-2 outline-none focus:ring-2 focus:ring-pink-200 transition">
+                    <option value="todos">Todos los estados</option>
+                    <option value="Gestante">Gestante</option>
+                    <option value="Lactancia">Lactancia</option>
+                    <option value="Parto Reciente">Parto Reciente</option>
+                    <option value="Secado">Secado / Descanso</option>
+                    <option value="Saludable">Vacía / Disponible</option>
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto h-[25rem] custom-scrollbar">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs sticky top-0 md:z-10">
+                    <tr>
+                        <th class="p-4">ID / Raza</th>
+                        <th class="p-4">Estado Actual</th>
+                        <th class="p-4">Plan Activo</th>
+                        <th class="p-4 text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="maternidadTableBody" class="divide-y divide-gray-100">
+                    <!-- Injected via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Planes de Maternidad Activos -->
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-purple-50/30">
+            <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-clipboard-list text-purple-500"></i> Seguimiento de Planes Activos
+            </h3>
+            <button onclick="loadMaternityPlanesList()" class="text-purple-600 hover:text-purple-800 transition">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+        <div id="maternityPlanesList" class="p-4 space-y-4 max-h-[25rem] overflow-y-auto custom-scrollbar">
+            <!-- Injected via JS -->
+            <p class="text-gray-400 text-center py-10 italic">No hay planes activos registrados.</p>
+        </div>
+    </div>
+</div>

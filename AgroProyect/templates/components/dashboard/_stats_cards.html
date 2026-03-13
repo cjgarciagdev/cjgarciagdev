@@ -1,0 +1,114 @@
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    {% if has_perm('ver_dashboard_completo') %}
+    <!-- Population Card -->
+    <div id="card-poblacion"
+        class="bg-white p-6 rounded-3xl shadow-sm border border-green-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden card-transition stagger-item"
+        style="animation-delay: 0.1s;" onclick="togglePoblacionView()">
+        <div class="flex justify-between items-start mb-4">
+            <div class="p-3 bg-green-50 rounded-2xl group-hover:bg-green-100 transition-colors">
+                <i class="fas fa-paw text-green-600 text-xl"></i>
+            </div>
+            <span
+                class="bg-green-50 text-green-700 text-[0.625rem] uppercase font-bold px-2 py-1 rounded-full">Activo</span>
+        </div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1" id="poblacion-label">
+            Población Total</p>
+        <h3 id="poblacion" class="text-4xl font-black text-gray-800 tracking-tight">{{ poblacion }}</h3>
+        <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1" id="poblacion-subtitle">
+            <i class="fas fa-arrow-up text-green-500"></i> Total de animales
+        </p>
+    </div>
+    {% endif %}
+
+    {% if has_perm('ver_dashboard_completo') %}
+    <!-- Weight Card -->
+    <div id="card-peso"
+        class="bg-white p-6 rounded-3xl shadow-sm border border-blue-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden card-transition stagger-item"
+        style="animation-delay: 0.2s;" onclick="togglePesoView()">
+
+        <div class="flex justify-between items-start mb-4">
+            <div class="p-3 bg-blue-50 rounded-2xl group-hover:bg-blue-100 transition-colors">
+                <i class="fas fa-weight text-blue-600 text-xl"></i>
+            </div>
+            <span
+                class="bg-blue-50 text-blue-700 text-[0.625rem] uppercase font-bold px-2 py-1 rounded-full">Promedio</span>
+        </div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1" id="peso-label">Peso
+            Promedio</p>
+        <h3 id="peso_avg" class="text-4xl font-black text-gray-800 tracking-tight">{{ peso_avg }} <span
+                class="text-lg text-gray-400 font-bold">kg</span></h3>
+        <p class="text-xs text-gray-500 mt-2 font-medium flex items-center gap-1" id="peso-subtitle">
+            <i class="fas fa-balance-scale text-blue-400"></i> Promedio de la Manada
+        </p>
+    </div>
+    {% endif %}
+
+    {% if has_perm('ver_dashboard_completo') or has_perm('gestionar_inventario') %}
+    <!-- Alerts Card -->
+    <div id="card-alertas"
+        class="bg-white p-6 rounded-3xl shadow-sm border border-yellow-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative stagger-item"
+        style="animation-delay: 0.3s;" onclick="toggleAlertasDetail()">
+
+        <div id="badge-inventario" class="absolute right-0 top-0">
+            {% if inv_critico > 0 %}
+            <div
+                class="absolute right-0 top-0 bg-yellow-500 text-white text-[0.5625rem] font-black px-3 py-1 rounded-bl-xl shadow-sm animate-pulse whitespace-nowrap">
+                {{ inv_critico }} INSUMOS BAJOS
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="flex justify-between items-start mb-4">
+            <div class="p-3 bg-yellow-50 rounded-2xl group-hover:bg-yellow-100 transition-colors">
+                <i class="fas fa-bell text-yellow-600 text-xl"></i>
+            </div>
+            <span
+                class="bg-yellow-50 text-yellow-700 text-[0.625rem] uppercase font-bold px-2 py-1 rounded-full">Atención</span>
+        </div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1" id="alertas-label">Alertas
+            Activas</p>
+        <h3 id="alertas" class="text-4xl font-black text-gray-800 tracking-tight">{{ alertas }}</h3>
+        <p class="text-xs text-gray-500 mt-2 font-medium" id="alertas-subtitle">
+            {% if inv_critico > 0 %}
+            Insumos y tareas pendientes
+            {% else %}
+            Protocolos por realizar
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    {% if has_perm('ver_dashboard_completo') or has_perm('gestionar_salud') %}
+    <!-- Critical Card -->
+    <div id="card-criticos"
+        class="bg-white p-6 rounded-3xl shadow-sm border border-red-100 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative stagger-item"
+        style="animation-delay: 0.4s;" onclick="toggleCriticosDetail()">
+
+        <div id="badge-tratamientos">
+            {% if desparasitacion > 0 %}
+            <div
+                class="absolute -right-2 -top-2 bg-red-600 text-white text-[0.625rem] font-black px-4 py-3 rotate-12 shadow-lg animate-pulse whitespace-nowrap z-10">
+                {{ desparasitacion }} TRATAMIENTOS
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="flex justify-between items-start mb-4">
+            <div class="p-3 bg-red-50 rounded-2xl group-hover:bg-red-100 transition-colors">
+                <i class="fas fa-heart-broken text-red-600 text-xl"></i>
+            </div>
+        </div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1" id="criticos-label">Salud
+            Crítica</p>
+        <h3 id="criticos" class="text-4xl font-black text-gray-800 tracking-tight">{{ criticos }}</h3>
+        <p class="text-xs text-gray-500 mt-2 font-medium" id="criticos-subtitle">
+            {% if desparasitacion > 0 %}
+            <span class="text-red-700 font-bold"><i class="fas fa-exclamation-triangle mr-1"></i> </span>
+            {% else %}
+            Requieren revisión médica
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,28 @@
+<!-- Columna Derecha: Recomendaciones y Registro -->
+<div class="lg:col-span-4 space-y-6">
+    <!-- Recomendaciones Especializadas -->
+    <div class="bg-gradient-to-br from-pink-50 to-white p-6 rounded-3xl shadow-sm border border-pink-100 sticky top-4">
+        <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fas fa-magic text-pink-500"></i> Recomendaciones IA
+        </h3>
+        <div id="maternidadRecomendaciones" class="space-y-4 min-h-[9.375rem]">
+            <p class="text-gray-400 text-sm italic text-center">Selecciona un animal para ver
+                recomendaciones inteligentes basadas en su especie y estado.</p>
+        </div>
+
+        <div id="maternityQuickActions" class="mt-8 hidden">
+            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Acciones Rápidas
+            </h4>
+            <div class="grid grid-cols-1 gap-3">
+                <button onclick="openModalMaternityPlan()"
+                    class="w-full bg-white border-2 border-pink-200 text-pink-600 font-bold py-3 rounded-xl hover:bg-pink-50 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-calendar-plus"></i> Crear Plan Detallado
+                </button>
+                <button onclick="openModalUpdateStatus()"
+                    class="w-full bg-pink-500 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition shadow-lg shadow-pink-200 flex items-center justify-center gap-2">
+                    <i class="fas fa-sync"></i> Actualizar Estado
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

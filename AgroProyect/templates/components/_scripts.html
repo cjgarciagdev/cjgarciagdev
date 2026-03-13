@@ -1,0 +1,197 @@
+<!-- PRODUCTOR UNICO: CRISTIAN J GARCIA | CI: 32.170.910 | Email: dicrisog252@gmail.com -->
+<!-- Alpine.js -->
+<script src="{{ url_for('static', filename='vendor/alpine.js') }}" defer></script>
+
+<!-- Application Utilities -->
+<script src="{{ url_for('static', filename='js/agro_notify.js') }}"></script>
+<script src="{{ url_for('static', filename='js/agro_sync.js') }}"></script>
+
+<!-- Application Scripts -->
+<script src="{{ url_for('static', filename='js/app.js') }}?t={{ range(1, 100000) | random }}"></script>
+<script src="{{ url_for('static', filename='js/app-advanced.js') }}"></script>
+<script src="{{ url_for('static', filename='js/genealogia.js') }}"></script>
+<script src="{{ url_for('static', filename='js/grafos_complex.js') }}"></script>
+<script src="{{ url_for('static', filename='js/circuitos_logicos.js') }}"></script>
+<script src="{{ url_for('static', filename='js/inventario.js') }}"></script>
+<script src="{{ url_for('static', filename='js/produccion.js') }}"></script>
+<script src="{{ url_for('static', filename='js/finanzas.js') }}"></script>
+<script src="{{ url_for('static', filename='js/calendario.js') }}"></script>
+
+
+<!-- Utility Functions -->
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        if (sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
+    }
+
+    function toggleSidebarIfMobile() {
+        if (window.innerWidth < 1024) {
+            toggleSidebar();
+        }
+    }
+
+    /**
+     * Alterna la visibilidad de los grupos de categorías en el sidebar.
+     * Implementado con transiciones suaves de altura y rotación de flecha.
+     */
+    function toggleSidebarGroup(groupId) {
+        const group = document.getElementById(groupId);
+        const arrow = document.getElementById(`arrow-${groupId}`);
+
+        if (!group) return;
+
+        // Si está colapsado (h-0 o maxHeight=0)
+        const isCollapsed = group.classList.contains('h-0') || group.style.maxHeight === '0';
+
+        if (isCollapsed) {
+            // EXPANDIR
+            group.classList.remove('h-0');
+            group.style.maxHeight = group.scrollHeight + "px";
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+
+            // Después de la animación, podemos poner h-auto para que sea responsivo si cambia el contenido
+            // Pero como el contenido es estático, maxHeight fijo es suficiente.
+        } else {
+            // COLAPSAR
+            // Primero fijamos el maxHeight al valor actual para que la transición de 'auto' funcione (si lo estuviera)
+            group.style.maxHeight = group.scrollHeight + "px";
+
+            // Pequeño delay para que el navegador note el cambio de maxHeight antes de ponerlo a 0
+            setTimeout(() => {
+                group.style.maxHeight = "0";
+                group.classList.add('h-0');
+                if (arrow) arrow.style.transform = 'rotate(-90deg)';
+            }, 10);
+        }
+    }
+
+    // Inicializar estados de los grupos del sidebar
+    document.addEventListener('DOMContentLoaded', () => {
+        const groups = ['group-core', 'group-data', 'group-admin', 'group-user'];
+
+        // Buscar qué grupo contiene el enlace activo actualmente
+        let activeGroupId = 'group-core'; // Por defecto
+        for (const id of groups) {
+            const group = document.getElementById(id);
+            if (group && group.querySelector('.active-link')) {
+                activeGroupId = id;
+                break;
+            }
+        }
+
+        groups.forEach((id) => {
+            const group = document.getElementById(id);
+            const arrow = document.getElementById(`arrow-${id}`);
+
+            if (group) {
+                if (id === activeGroupId) {
+                    // Grupo activo expandido
+                    group.style.maxHeight = group.scrollHeight + "px";
+                    if (arrow) arrow.style.transform = 'rotate(0deg)';
+                } else {
+                    // Otros grupos colapsados
+                    group.classList.add('h-0');
+                    group.style.maxHeight = "0";
+                    if (arrow) arrow.style.transform = 'rotate(-90deg)';
+                }
+            }
+        });
+    });
+
+    function filtrarRazas(especie) {
+        const cards = document.querySelectorAll('.raza-card');
+        const btns = document.querySelectorAll('.filtro-raza-btn');
+
+        btns.forEach(btn => {
+            btn.classList.remove('active', 'bg-purple-600', 'text-white');
+            btn.classList.add('bg-gray-100', 'text-gray-700');
+        });
+
+        event.target.classList.add('active', 'bg-purple-600', 'text-white');
+        event.target.classList.remove('bg-gray-100', 'text-gray-700');
+
+        cards.forEach(card => {
+            if (especie === 'Todas' || card.dataset.especie === especie) {
+                card.style.display = 'block';
+                card.classList.add('animate-slideIn');
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Función para abrir el lightbox de imágenes de razas (Versión Global Robusta)
+    function openRazaLightbox(imgElement, title) {
+        const modal = document.getElementById('razaLightbox');
+        const modalImg = document.getElementById('razaLightboxImg');
+        const caption = document.getElementById('razaLightboxCaption');
+
+        if (!modal || !modalImg || !caption) {
+            console.error('ERROR: No se encontró el modal global. Abriendo en pestaña nueva.');
+            window.open(imgElement.src, '_blank');
+            return;
+        }
+
+        // Limpiar para evitar mostrar la imagen anterior
+        modalImg.src = '';
+
+        // Cargar imagen con timestamp para evitar cache
+        const src = imgElement.src;
+        modalImg.src = src.includes('?') ? (src + '&t=' + Date.now()) : (src + '?t=' + Date.now());
+        caption.textContent = title;
+
+        // Mostrar con prioridad alta
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeRazaLightbox() {
+        const modal = document.getElementById('razaLightbox');
+        if (modal) {
+            modal.style.setProperty('display', 'none', 'important');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === "Escape") closeRazaLightbox();
+    });
+
+    // PASSWORD VISIBILITY TOGGLE (GLOBAL FOR MODALS)
+    function toggleModalPassword() {
+        const input = document.getElementById('usr-password');
+        const icon = event.currentTarget;
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register("/static/service-worker.js")
+                .then(registration => {
+                    console.log('SW Registered:', registration);
+                })
+                .catch(error => {
+                    console.log('SW Registration Failed:', error);
+                });
+        });
+    }
+</script>

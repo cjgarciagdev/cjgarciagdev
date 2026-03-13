@@ -339,7 +339,7 @@ def gestionar_usuarios():
         return jsonify([u.to_dict() for u in usuarios])
 
     if request.method == 'POST':
-        if not (current_user.rol in ['admin', 'especialista']):
+        if not (current_user.rol in ['maestro', 'especialista']):
              return jsonify({'error': 'No autorizado para crear usuarios'}), 403
         data = request.json or {}
         result = create_user_by(current_user, data)
@@ -350,12 +350,19 @@ def gestionar_usuarios():
 @panel_bp.route('/panel/usuarios/<int:uid>', methods=['PUT'])
 @login_required
 def actualizar_usuario(uid):
-    """Permite editar todos los datos de un usuario representante (nombre, cédula, email, teléfono, estado)."""
-    if current_user.rol not in ['admin', 'especialista', 'nutricionista', 'auditor', 'gerente']:
+    """Permite editar todos los datos de un usuario representante."""
+    if current_user.rol not in ['maestro', 'especialista']:
         return jsonify({'error': 'No autorizado'}), 403
 
     usuario = Usuario.query.get_or_404(uid)
     data = request.json or {}
+
+    # Verificar si se está intentando cambiar el rol
+    nuevo_rol = data.get('rol')
+    if nuevo_rol and nuevo_rol != usuario.rol:
+        # Solo maestro puede cambiar roles
+        if current_user.rol not in ['maestro']:
+            return jsonify({'error': 'No tiene permisos para cambiar el rol de usuario'}), 403
 
     # Campos editables con auditoría individual
     campos = {
@@ -365,6 +372,10 @@ def actualizar_usuario(uid):
         'telefono':        data.get('telefono', usuario.telefono),
         'activo':          data.get('activo', usuario.activo),
     }
+
+    # Solo maestro puede cambiar el rol
+    if nuevo_rol and nuevo_rol != usuario.rol and current_user.rol in ['maestro']:
+        campos['rol'] = nuevo_rol
 
     for campo, nuevo_val in campos.items():
         valor_ant = getattr(usuario, campo)
@@ -404,7 +415,7 @@ def actualizar_usuario(uid):
 @login_required
 def actualizar_emergencia_usuario(uid):
     """Compatibilidad retroactiva – solo actualiza el teléfono."""
-    if current_user.rol not in ['admin', 'especialista', 'nutricionista', 'auditor', 'gerente']:
+    if current_user.rol not in ['admin', 'maestro', 'especialista']:
         return jsonify({'error': 'No autorizado'}), 403
 
     usuario = Usuario.query.get_or_404(uid)
@@ -421,6 +432,21 @@ def actualizar_emergencia_usuario(uid):
     ))
     db.session.commit()
     return jsonify({'status': 'success', 'telefono': telefono})
+
+@panel_bp.route('/panel/especialistas', methods=['GET'])
+@login_required
+def get_especialistas():
+    """Devuelve todos los especialistas/doctores del sistema para contactar desde SOS."""
+    especialistas = Usuario.query.filter(
+        Usuario.rol.in_(['especialista'])
+    ).all()
+    return jsonify([{
+        'id': e.id,
+        'nombre': e.nombre_completo or e.username,
+        'telefono': e.telefono or '',
+        'rol': e.rol,
+        'especialidad': e.perfil.especialidad if e.perfil else e.rol
+    } for e in especialistas])
 
 @panel_bp.route('/panel/audit-logs', methods=['GET'])
 @login_required

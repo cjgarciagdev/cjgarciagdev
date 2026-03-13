@@ -1,0 +1,15 @@
+<div id="nutricionActionBar" class="fixed bottom-8 right-8 flex gap-4 hidden z-40">
+    <!-- Botón Exportar Plan Individual -->
+    <button onclick="exportarPlanIndividual(event)"
+        class="shadow-xl bg-white text-blue-800 border-2 border-blue-100 hover:bg-blue-50 hover:border-blue-200 px-6 py-4 rounded-full font-bold transition transform hover:-translate-y-1 flex items-center gap-3">
+        <div class="bg-blue-100 p-2 rounded-full text-blue-600">
+            <i class="fas fa-file-pdf"></i>
+        </div>
+        <span>Exportar Plan</span>
+    </button>
+
+    <button onclick="openModalNutricion()"
+        class="shadow-xl bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-500 hover:to-emerald-600 text-white px-8 py-4 rounded-full font-bold transition transform hover:-translate-y-1 flex items-center gap-3">
+        <i class="fas fa-edit"></i> <span id="btnTextEditar">Gestionar Plan</span>
+    </button>
+</div>

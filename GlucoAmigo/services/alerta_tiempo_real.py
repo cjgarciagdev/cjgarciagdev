@@ -40,7 +40,7 @@ def init_socketio(app):
     """Inicializa SocketIO con la app Flask"""
     global socketio
     # Usar threading en lugar de eventlet por compatibilidad con Python 3.14
-    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+    socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
     registrar_handlers(socketio)
     return socketio
 

@@ -284,8 +284,30 @@
             <div style="max-width:380px;width:100%;margin:0 auto;">
                 <h2 style="font-weight:900;color:#0f172a;font-size:1.5rem;margin-bottom:24px;">Bienvenido</h2>
 
+                {% if error %}
+                <div id="error-message"
+                    style="background:#fef2f2; border:1px solid #fee2e2; color:#b91c1c; padding:12px; border-radius:12px; margin-bottom:20px; font-size:0.85rem; font-weight:700; display:flex; align-items:center; gap:8px; animation: shake 0.5s;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ error }}
+                </div>
+                <style>
+                    @keyframes shake {
 
+                        0%,
+                        100% {
+                            transform: translateX(0);
+                        }
 
+                        25% {
+                            transform: translateX(-5px);
+                        }
+
+                        75% {
+                            transform: translateX(5px);
+                        }
+                    }
+                </style>
+                {% endif %}
                 <div id="panel-login">
                     <form action="{{ url_for('auth.login') }}" method="POST">
                         <div class="input-group">

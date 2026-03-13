@@ -11,6 +11,8 @@ cryptography==42.0.5
 
 # runtime dependencies for deployment
 gunicorn==21.2.0
+gevent>=24.2.1
+gevent-websocket>=0.10.1
 # used by Postgres drivers; neon or render db needs a postgres adapter
 psycopg2-binary>=2.9.11
 python-dotenv==1.1.0

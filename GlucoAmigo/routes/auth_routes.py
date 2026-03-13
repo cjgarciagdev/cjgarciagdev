@@ -20,22 +20,46 @@ def login():
         password = request.form.get('password', '')
         remember_me = request.form.get('remember_me') == 'on'
         
-        usuario = Usuario.query.filter_by(username=username, activo=True).first()
-        if usuario and usuario.check_password(password):
-            usuario.registrar_acceso()
+        print(f"[AUTH] LOGIN ATTEMPT: User='{username}'")
+        
+        try:
+            # 1. Test database access
+            num_users = Usuario.query.count()
+            print(f"[AUTH] DB connected! Total Users found in DB: {num_users}")
             
-            # Hacer la sesión permanente (tipo Facebook)
-            login_user(usuario, remember=remember_me, duration=timedelta(days=30) if remember_me else None)
-            
-            # Marcar sesión como permanente
-            if remember_me:
+            # 2. Find user
+            candidate = Usuario.query.filter_by(username=username).first()
+            if not candidate:
+                print(f"[AUTH] FAIL: User '{username}' does NOT exist in DB.")
+                error = 'Usuario no encontrado'
+            elif not candidate.activo:
+                print(f"[AUTH] FAIL: User '{username}' is inactive.")
+                error = 'Usuario inactivo'
+            elif not candidate.check_password(password):
+                print(f"[AUTH] FAIL: Wrong password for '{username}'.")
+                error = 'Contraseña incorrecta'
+            else:
+                print(f"[AUTH] SUCCESS! Logging in user: {username}")
+                # Forzar sesión permanente para evitar que se pierda en Render
                 session.permanent = True
-            
-            if usuario.cambio_password_requerido:
-                return redirect(url_for('auth.cambio_password_vista'))
+                login_user(candidate, remember=True, duration=timedelta(days=30))
                 
-            return redirect(url_for('index'))
-        error = 'Usuario o contraseña incorrectos'
+                # Registrar el acceso y guardar en DB
+                candidate.registrar_acceso()
+                
+                # Log de redirección
+                print(f"[AUTH] Redirecting {username} to main index...")
+                
+                # Check for forced password change
+                if candidate.cambio_password_requerido:
+                    return redirect(url_for('auth.cambio_password_vista'))
+                
+                # Redirección final
+                return redirect(url_for('index'))
+                
+        except Exception as e:
+            print(f"[AUTH] ERROR: Exception during login: {e}")
+            error = f"Error del sistema: {str(e)}"
     return render_template('login.html', error=error)
 
 @auth_bp.route('/logout')

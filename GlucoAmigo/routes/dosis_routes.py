@@ -6,7 +6,7 @@ dosis_bp = Blueprint('dosis', __name__, url_prefix='/api')
 
 def verificar_permiso_clinico():
     """Roles profesionales autorizados para gestión clínica."""
-    return current_user.rol in ['admin', 'especialista', 'nutricionista', 'auditor', 'gerente']
+    return current_user.rol in ['maestro', 'especialista']
 
 def _generar_alerta(heroe, glucemia, tipo):
     """Protocolo de Notificaciones GlucoAmigo (moo.md §Alertas de Emergencia)."""

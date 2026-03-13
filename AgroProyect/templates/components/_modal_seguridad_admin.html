@@ -1,0 +1,145 @@
+<!-- Modal Seguridad Admin -->
+<div id="modalSecurity"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2.5rem] max-w-lg w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl animate-scaleIn">
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-user-shield text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-black text-gray-800 tracking-tight">Preguntas de Seguridad</h3>
+            </div>
+            <button onclick="closeSecurityModal()" class="text-gray-400 hover:text-gray-600 transition">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <p class="text-sm text-gray-500 mb-6">
+            Configura 3 preguntas de seguridad para poder recuperar tu acceso en caso de olvidar la contraseña.
+        </p>
+
+        <form id="formSecurity" onsubmit="event.preventDefault(); saveSecuritySettings();" class="space-y-5">
+            <div id="security-questions-container" class="space-y-6">
+                <!-- Pregunta 1 -->
+                <div class="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <p class="text-[0.625rem] font-black text-yellow-600 uppercase tracking-widest">Pregunta 1</p>
+                    <select
+                        class="sec-q w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 outline-none focus:border-yellow-500 transition"
+                        required>
+                        <option value="">Selecciona una pregunta...</option>
+                        <option value="¿Cuál es el nombre de tu primera mascota?">¿Cuál es el nombre de tu primera
+                            mascota?</option>
+                        <option value="¿En qué ciudad naciste?">¿En qué ciudad naciste?</option>
+                        <option value="¿Cuál es el nombre de tu abuela materna?">¿Cuál es el nombre de tu abuela
+                            materna?</option>
+                    </select>
+                    <input type="text"
+                        class="sec-a w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 outline-none focus:border-yellow-500 transition"
+                        placeholder="Tu respuesta 1" required>
+                </div>
+
+                <!-- Pregunta 2 -->
+                <div class="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <p class="text-[0.625rem] font-black text-yellow-600 uppercase tracking-widest">Pregunta 2</p>
+                    <select
+                        class="sec-q w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 outline-none focus:border-yellow-500 transition"
+                        required>
+                        <option value="">Selecciona una pregunta...</option>
+                        <option value="¿Cuál era el nombre de tu escuela primaria?">¿Cuál era el nombre de tu escuela
+                            primaria?</option>
+                        <option value="¿Cuál es tu color favorito?">¿Cuál es tu color favorito?</option>
+                        <option value="¿Cuál fue tu primer carro?">¿Cuál fue tu primer carro?</option>
+                    </select>
+                    <input type="text"
+                        class="sec-a w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 outline-none focus:border-yellow-500 transition"
+                        placeholder="Tu respuesta 2" required>
+                </div>
+
+                <!-- Pregunta 3 -->
+                <div class="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <p class="text-[0.625rem] font-black text-yellow-600 uppercase tracking-widest">Pregunta 3</p>
+                    <select
+                        class="sec-q w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-700 outline-none focus:border-yellow-500 transition"
+                        required>
+                        <option value="">Selecciona una pregunta...</option>
+                        <option value="¿Cuál es tu comida favorita?">¿Cuál es tu comida favorita?</option>
+                        <option value="¿Cuál es el nombre de tu mejor amigo de la infancia?">¿Cuál es el nombre de tu
+                            mejor amigo de la infancia?</option>
+                        <option value="¿Qué deporte prefieres?">¿Qué deporte prefieres?</option>
+                    </select>
+                    <input type="text"
+                        class="sec-a w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 outline-none focus:border-yellow-500 transition"
+                        placeholder="Tu respuesta 3" required>
+                </div>
+            </div>
+
+            <div class="flex gap-4 pt-4">
+                <button type="button" onclick="closeSecurityModal()"
+                    class="flex-1 py-4 bg-gray-100 text-gray-500 rounded-2xl font-black hover:bg-gray-200 transition active:scale-95">
+                    CANCELAR
+                </button>
+                <button type="submit"
+                    class="flex-2 py-4 bg-yellow-500 text-white rounded-2xl font-black shadow-lg shadow-yellow-100 hover:brightness-110 transition active:scale-95">
+                    GUARDAR CONFIGURACIÓN
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openSecurityModal() {
+        document.getElementById('modalSecurity').classList.remove('hidden');
+    }
+
+    function closeSecurityModal() {
+        document.getElementById('modalSecurity').classList.add('hidden');
+        document.getElementById('formSecurity').reset();
+    }
+
+    async function saveSecuritySettings() {
+        const questions_els = document.querySelectorAll('.sec-q');
+        const answers_els = document.querySelectorAll('.sec-a');
+        const questions = [];
+
+        const seen = new Set();
+
+        for (let i = 0; i < 3; i++) {
+            const q = questions_els[i].value;
+            const a = answers_els[i].value.trim();
+
+            if (!q || !a) {
+                return agroToast('Debes completar las 3 preguntas y sus respuestas.', 'warning');
+            }
+
+            if (seen.has(q)) {
+                return agroToast('No puedes seleccionar la misma pregunta dos veces.', 'warning');
+            }
+            seen.add(q);
+
+            questions.push({ pregunta: q, respuesta: a });
+        }
+
+        if (questions.length < 3) {
+            return agroToast('Se requieren las 3 preguntas.', 'error');
+        }
+
+        try {
+            const response = await fetch('/api/auth/set_security_questions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ questions })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                agroToast('Configuración de seguridad guardada', 'success');
+                closeSecurityModal();
+            } else {
+                agroToast(data.error || 'Error al guardar', 'error');
+            }
+        } catch (error) {
+            agroToast('Error de conexión', 'error');
+        }
+    }
+</script>

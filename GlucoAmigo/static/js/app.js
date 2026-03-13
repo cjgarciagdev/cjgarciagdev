@@ -1002,42 +1002,47 @@ async function enviarCDI() {
     let html = '';
     if (res.estado === 'Riesgo') {
         html = `<div class="bg-rose-50 border-2 border-rose-200 rounded-[2rem] p-8 text-center">
-            <div class="text-6xl mb-4 flex items-center justify-center gap-3">😰⚠️💔</div>
-            <p class="font-black text-rose-600 text-xl mb-2">Riesgo de Sintomatología Depresiva 😟</p>
-            <p class="text-slate-600 text-sm mt-2">📊 Puntaje CDI: <b class="text-slate-800">${res.puntaje} pts</b> (umbral: 19)</p>
-            <p class="text-slate-700 text-sm mt-2">🩺 Se recomienda evaluación psicológica y sesión de TCC.</p>
-            <p class="text-teal-600 text-sm mt-3 font-bold bg-teal-50 rounded-xl p-3 border border-teal-200">✅ Alerta enviada al especialista automáticamente 📨</p>
+            <div class="text-6xl mb-4 flex items-center justify-center gap-3">
+                <i class="fas fa-exclamation-circle text-rose-500"></i>
+                <i class="fas fa-heart-broken text-rose-400"></i>
+            </div>
+            <p class="font-black text-rose-600 text-xl mb-2">Riesgo de Sintomatología Depresiva</p>
+            <p class="text-slate-600 text-sm mt-2"><i class="fas fa-chart-bar mr-1"></i> Puntaje CDI: <b class="text-slate-800">${res.puntaje} pts</b> (umbral: 19)</p>
+            <p class="text-slate-700 text-sm mt-2"><i class="fas fa-user-md mr-1"></i> Se recomienda evaluación psicológica y sesión de TCC.</p>
+            <p class="text-teal-600 text-sm mt-3 font-bold bg-teal-50 rounded-xl p-3 border border-teal-200"><i class="fas fa-check-circle mr-1"></i> Alerta enviada al especialista automáticamente <i class="fas fa-paper-plane ml-1"></i></p>
         </div>`;
         inyectarApoyoPsicologico();
     } else {
         // Determinar nivel de bienestar con emojis según puntaje
         let emojiSet, titulo, subtitulo;
         if (res.puntaje <= 5) {
-            emojiSet = '🌟😄💪🎉';
+            emojiSet = ['🌟', '😄', '💪', '🎉'];
             titulo = '¡Excelente Estado Emocional!';
             subtitulo = '¡Tu héroe se siente increíble! Sigue así 🌈';
         } else if (res.puntaje <= 10) {
-            emojiSet = '😊✨👍🌤️';
+            emojiSet = ['😊', '✨', '👍', '☀️'];
             titulo = '¡Estado Emocional Muy Bueno!';
             subtitulo = 'Tu héroe está bien y con buena energía ☀️';
         } else if (res.puntaje <= 15) {
-            emojiSet = '🙂💚👌🌻';
+            emojiSet = ['🙂', '💚', '👌', '🌻'];
             titulo = '¡Estado Emocional Estable!';
             subtitulo = 'Todo dentro del rango normal 🌿';
         } else {
-            emojiSet = '😐💛🤔🌥️';
+            emojiSet = ['😐', '💛', '🤔', '☁️'];
             titulo = 'Estado Emocional Aceptable';
             subtitulo = 'Cerca del umbral, vale la pena estar atentos 👀';
         }
         html = `<div class="text-center bg-emerald-50 border-2 border-emerald-200 rounded-[2rem] p-8">
-            <div class="text-5xl mb-4 flex items-center justify-center gap-2">${emojiSet.split('').map(e => `<span class="inline-block animate-bounce" style="animation-delay:${Math.random() * 0.5}s">${e}</span>`).join('')}</div>
+            <div class="text-5xl mb-4 flex items-center justify-center gap-2">
+                ${emojiSet.map(e => `<span class="inline-block animate-bounce" style="animation-delay:${Math.random() * 0.5}s">${e}</span>`).join('')}
+            </div>
             <p class="font-black text-emerald-600 text-xl mb-2">${titulo}</p>
             <p class="text-slate-600 text-sm">${subtitulo}</p>
-            <p class="text-slate-500 text-sm mt-3 bg-white/60 rounded-xl p-3 border border-emerald-100">📊 CDI: <b class="text-slate-800">${res.puntaje} pts</b> · Rango normal ✅</p>
+            <p class="text-slate-500 text-sm mt-3 bg-white/60 rounded-xl p-3 border border-emerald-100"><i class="fas fa-chart-bar mr-1"></i> CDI: <b class="text-slate-800">${res.puntaje} pts</b> · Rango normal <i class="fas fa-check-circle text-emerald-500 ml-1"></i></p>
         </div>`;
         sumarXP(40);
     }
-    resDiv.innerHTML = html + `<button onclick="resetCDI()" class="mt-5 bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all active:scale-95 shadow-lg">🔄 Realizar otra evaluación</button>`;
+    resDiv.innerHTML = html + `<button onclick="resetCDI()" class="mt-5 bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-3 rounded-xl transition-all active:scale-95 shadow-lg"><i class="fas fa-sync-alt mr-2"></i> Realizar otra evaluación</button>`;
     mostrarNotificacion('Evaluación CDI Guardada', 'Se ha registrado el estado emocional del héroe.', 'info');
 }
 
@@ -2176,6 +2181,31 @@ function mostrarModalNuevoUsuario() {
     if (m) {
         m.classList.remove('hidden');
         m.classList.add('flex');
+
+        // Add role change listener if not already added
+        const rolSelect = $('user-rol');
+        if (rolSelect) {
+            // Remove existing listener to avoid duplicates
+            rolSelect.removeEventListener('change', toggleCamposEspecialidad);
+            // Add new listener
+            rolSelect.addEventListener('change', toggleCamposEspecialidad);
+            // Initial toggle
+            toggleCamposEspecialidad();
+        }
+    }
+}
+
+function toggleCamposEspecialidad() {
+    const rolSelect = $('user-rol');
+    const camposEsp = $('campos-especialidad');
+    if (rolSelect && camposEsp) {
+        const rol = rolSelect.value;
+        // Show specialty fields for doctor, especialista, nutritionist roles
+        if (['doctor', 'especialista', 'nutricionista'].includes(rol)) {
+            camposEsp.classList.remove('hidden');
+        } else {
+            camposEsp.classList.add('hidden');
+        }
     }
 }
 
@@ -2195,7 +2225,9 @@ async function guardarNuevoUsuario() {
         cedula: $('user-cedula').value.trim(),
         email: $('user-email').value.trim(),
         telefono: $('user-telefono').value.trim(),
-        password: $('user-password').value
+        password: $('user-password').value,
+        especialidad: $('user-especialidad') ? $('user-especialidad').value.trim() : '',
+        consultorio: $('user-consultorio') ? $('user-consultorio').value.trim() : ''
     };
 
     if (!data.username || !data.nombre_completo || !data.password) {
@@ -2216,6 +2248,11 @@ async function guardarNuevoUsuario() {
             $('user-nombre').value = '';
             $('user-cedula').value = '';
             $('user-email').value = '';
+            // Reset specialty fields if visible
+            if ($('campos-especialidad') && !$('campos-especialidad').classList.contains('hidden')) {
+                $('user-especialidad').value = '';
+                $('user-consultorio').value = '';
+            }
         } else {
             mostrarToast(res.error || 'Error al crear usuario', 'error');
         }
@@ -2783,7 +2820,8 @@ async function guardarPerfilCompleto() {
                     telefono_emergencia: telefonoEmergencia,
                     hospital_nombre: hospitalNombre,
                     especialista_default: especialistaDefault,
-                    especialista_default_telefono: especialistaTelefono
+                    especialista_telefono: especialistaTelefono,
+                    especialista_default_especialidad: (document.getElementById('config-especialista-especialidad')?.value || '').trim()
                 })
             });
             const data = await response.json();

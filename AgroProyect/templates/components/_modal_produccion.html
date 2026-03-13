@@ -1,0 +1,103 @@
+<!-- MODAL: REGISTRO DE PRODUCCIÓN -->
+<div id="modalProduccion"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-in">
+        <div class="sticky top-0 bg-gradient-to-r from-amber-500 to-orange-600 p-6 rounded-t-3xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-black text-white"><i class="fas fa-chart-line mr-2"></i>Registro de Producción
+                </h3>
+                <button onclick="closeModalProduccion()" class="text-white/80 hover:text-white transition text-2xl"><i
+                        class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">Animal *</label>
+                <select id="prodAnimalId"
+                    class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none">
+                    <option value="">Seleccionar animal...</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Tipo Producción *</label>
+                    <select id="prodTipo"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none">
+                        <option value="Leche">Leche</option>
+                        <option value="Carne">Carne</option>
+                        <option value="Lana">Lana</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Cantidad *</label>
+                    <input type="number" step="0.1" id="prodCantidad" placeholder="Ej: 15.5"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="hidden">
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Unidad</label>
+                    <select id="prodUnidad"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none">
+                        <option value="litros">Litros</option>
+                        <option value="kg">Kilogramos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Turno</label>
+                    <select id="prodTurno"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none">
+                        <option value="Mañana">Mañana</option>
+                        <option value="Tarde">Tarde</option>
+                        <option value="Noche">Noche</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Calidad</label>
+                    <select id="prodCalidad"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none">
+                        <option value="">Sin evaluar</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Estándar">Estándar</option>
+                        <option value="Baja">Baja</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-600 mb-1">Fecha</label>
+                    <input type="datetime-local" id="prodFecha"
+                        class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none">
+                </div>
+            </div>
+            <!-- Campos de calidad de leche -->
+            <div id="campos-calidad-leche"
+                class="grid grid-cols-3 gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                <div>
+                    <label class="block text-xs font-bold text-amber-700 mb-1">% Grasa</label>
+                    <input type="number" step="0.1" id="prodGrasa" placeholder="3.5"
+                        class="w-full p-2 border rounded-lg text-sm outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-amber-700 mb-1">% Proteína</label>
+                    <input type="number" step="0.1" id="prodProteina" placeholder="3.2"
+                        class="w-full p-2 border rounded-lg text-sm outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-amber-700 mb-1">Células Som.</label>
+                    <input type="number" id="prodCelulas" placeholder="200000"
+                        class="w-full p-2 border rounded-lg text-sm outline-none focus:border-amber-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-600 mb-1">Observaciones</label>
+                <textarea id="prodObservaciones" rows="2" placeholder="Notas adicionales..."
+                    class="w-full p-3 border rounded-xl bg-gray-50 focus:border-amber-500 outline-none resize-none"></textarea>
+            </div>
+            <button onclick="saveProduccion()"
+                class="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-3 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5">
+                <i class="fas fa-save mr-2"></i>Guardar Registro
+            </button>
+        </div>
+    </div>
+</div>

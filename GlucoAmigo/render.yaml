@@ -1,0 +1,23 @@
+# Render configuration for GlucoAmigo application
+services:
+  - type: web
+    name: glucoamigo
+    # you can switch to runtime: python if you prefer not to build a custom image
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class gevent --workers 1 --bind 0.0.0.0:$PORT server:app --log-file -
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: ""
+      - key: PYTHON_VERSION
+        value: 3.11.10
+    region: ohio
+
+# Optionally define a managed Postgres here instead of using Neon:
+# databases:
+#   - name: glucoamigo-db
+#     plan: free
+#     region: ohio

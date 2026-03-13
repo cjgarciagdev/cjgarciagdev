@@ -1,0 +1,26 @@
+.app {
+    width: 100vw;
+    height: 100vh;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3.2vh 1.25vw;
+    height: calc(100vh - 13.5vh);
+    width: calc(100vw - 13.8vw);
+    padding: 3vh;
+    box-sizing: border-box;
+    background: linear-gradient(95deg, gray, rgba(23, 23, 151, 0.562));
+    border-radius: 1.5625rem;
+    margin-top: 12vh;
+    /* Header */
+    margin-left: 12vw;
+    margin-right: 0.5vw;
+    /* Right margin */
+    margin-bottom: 0.3vh;
+    /* Bottom margin */
+    overflow: hidden;
+    position: relative;
+    z-index: 100;
+}

@@ -3,27 +3,23 @@ COMPONENTE: Bottom Navigation Bar - Niño
 Mobile Only - Con opción "ánimo" (bienestar)
 ════════════════════════════════════════════ #}
 <nav
-    class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-40">
-    <div class="grid grid-cols-5 py-3">
-        <button onclick="showSection('miHeroe')"
-            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
-            <i class="fas fa-mask text-lg"></i>Héroe
+    class="bottom-nav fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-1px_20px_rgba(0,0,0,0.03)] z-[100] md:hidden">
+    <div class="flex justify-evenly items-center w-full py-3">
+        <button onclick="showSection('bienestar')"
+            class="flex flex-col items-center justify-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600 w-1/4">
+            <i class="fas fa-smile-beam text-xl text-pink-400"></i>Ánimo
         </button>
-        <button onclick="showSection('glucosa')"
-            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
-            <i class="fas fa-tint text-lg"></i>Glucosa
+        <button onclick="showSection('tienda')"
+            class="flex flex-col items-center justify-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600 w-1/4">
+            <i class="fas fa-store text-xl text-purple-400"></i>Tienda
+        </button>
+        <button onclick="showSection('heroe')"
+            class="flex flex-col items-center justify-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600 w-1/4">
+            <i class="fas fa-gamepad text-xl text-amber-400"></i>Juegos
         </button>
         <button onclick="showSection('comidas')"
-            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
-            <i class="fas fa-utensils text-lg"></i>Comida
-        </button>
-        <button onclick="showSection('bienestar')"
-            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
-            <i class="fas fa-smile-beam text-lg"></i>Ánimo
-        </button>
-        <button onclick="showSection('historial')"
-            class="flex flex-col items-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600">
-            <i class="fas fa-history text-lg"></i>Notas
+            class="flex flex-col items-center justify-center gap-1 text-[10px] font-black text-slate-400 active:text-teal-600 w-1/4">
+            <i class="fas fa-utensils text-xl text-orange-400"></i>Comida
         </button>
     </div>
 </nav>

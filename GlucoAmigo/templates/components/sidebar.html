@@ -16,7 +16,8 @@
     </div>
 
     <nav class="py-3 flex-grow overflow-y-auto" id="sidebar-nav" style="display:flex;flex-direction:column;">
-        {% if current_user.rol in ['especialista', 'admin', 'nutricionista', 'auditor', 'gerente'] %}
+        {% if current_user.rol in ['especialista', 'admin', 'maestro', 'nutricionista']
+        %}
         <!-- ZONA: ÁREA CLÍNICA -->
         <div>
             <button onclick="toggleSidebarGroup('group-clinica', this)"
@@ -30,32 +31,47 @@
                     onclick="showSection('dashboard')" id="nav-dashboard">
                     <i class="fas fa-th-large w-8 text-lg text-yellow-400"></i>Panel de Control
                 </div>
+                {% if current_user.rol in ['admin', 'maestro', 'especialista', 'nutricionista'] %}
+                <div class="nav-item stagger-item" style="animation-delay:0.48s" onclick="mostrarModalNuevoUsuario()">
+                    <i class="fas fa-user-plus w-8 text-lg text-green-400"></i>Nuevo Usuario
+                </div>
+                {% endif %}
+                {% if current_user.rol in ['admin', 'maestro', 'especialista', 'nutricionista'] %}
                 <div class="nav-item stagger-item" style="animation-delay:0.5s" onclick="showSection('pacientes')"
                     id="nav-pacientes">
                     <i class="fas fa-child w-8 text-lg text-cyan-400"></i>Gestión Pacientes
                 </div>
+                {% endif %}
+                {% if current_user.rol in ['admin', 'maestro', 'especialista', 'nutricionista'] %}
                 <div class="nav-item stagger-item" style="animation-delay:0.55s" onclick="showSection('graficos')"
                     id="nav-graficos">
                     <i class="fas fa-chart-area w-8 text-lg text-violet-400"></i>Análisis Avanzado
                 </div>
+                {% endif %}
                 <div class="nav-item stagger-item" style="animation-delay:0.6s" onclick="showSection('alertas')"
                     id="nav-alertas">
                     <i class="fas fa-bell w-8 text-lg text-red-400"></i>Alertas Críticas
                     <span id="badge-alertas"
                         class="ml-auto bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center hidden pulse-red">0</span>
                 </div>
+                {% if current_user.rol in ['admin', 'maestro', 'especialista', 'nutricionista'] %}
                 <div class="nav-item stagger-item" style="animation-delay:0.65s" onclick="showSection('exportar')"
                     id="nav-exportar">
                     <i class="fas fa-file-export w-8 text-lg text-indigo-400"></i>Generar Reportes
                 </div>
+                {% endif %}
+                {% if current_user.rol in ['admin', 'maestro'] %}
                 <div class="nav-item stagger-item" style="animation-delay:0.7s" onclick="showSection('auditoria')"
                     id="nav-auditoria">
                     <i class="fas fa-history w-8 text-lg text-slate-400"></i>Auditoría de Cambios
                 </div>
+                {% endif %}
+                {% if current_user.rol in ['admin', 'maestro', 'especialista'] %}
                 <div class="nav-item stagger-item" style="animation-delay:0.75s" onclick="showSection('usuarios')"
                     id="nav-usuarios">
                     <i class="fas fa-users-cog w-8 text-lg text-emerald-400"></i>Gestión de Usuarios
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -105,9 +121,11 @@
                         style="font-size:0.55rem;transition:transform 0.3s;"></i>
                 </button>
                 <div id="group-diadia">
+                    {% if current_user.rol not in ['maestro'] %}
                     <div class="nav-item stagger-item" onclick="showSection('glucosa')" id="nav-glucosa">
                         <i class="fas fa-tint w-8 text-lg text-rose-400"></i>Medir Glucosa
                     </div>
+                    {% endif %}
                     <div class="nav-item stagger-item" onclick="showSection('comidas')" id="nav-comidas">
                         <i class="fas fa-utensils w-8 text-lg text-orange-400"></i>Diario de Comidas
                     </div>

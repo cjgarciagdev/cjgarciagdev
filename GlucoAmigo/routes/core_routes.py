@@ -115,7 +115,7 @@ def evaluacion_scir():
 @core_bp.route('/panel_especialista')
 @login_required
 def panel():
-    if current_user.rol != 'especialista':
+    if current_user.rol not in ['especialista', 'maestro']:
         return redirect(url_for('core.dashboard'))
         
     heroes = Heroe.query.all()

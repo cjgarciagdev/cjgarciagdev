@@ -1,0 +1,97 @@
+.productos-list {
+    padding: 2.8rem;
+    height: calc(100vh - 14.5rem);
+
+}
+
+.productos-title {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.productos-search {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+}
+
+.productos-export,
+.productos-import {
+    margin-bottom: 1rem;
+}
+
+.productos-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    background-color: #f0f4f8;
+    border-radius: 0.5rem;
+}
+
+.productos-table th,
+.productos-table td {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+}
+
+.productos-edit,
+.productos-delete,
+.productos-details {
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.productos-edit {
+    background-color: #060707;
+    color: #fff;
+}
+
+.productos-delete {
+    background-color: #ff4d4d;
+    color: #fff;
+}
+
+.productos-details {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.productos-edit-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 0.5rem;
+}
+
+.productos-error {
+    color: red;
+    margin-bottom: 0.5rem;
+}
+
+.productos-save,
+.productos-cancel {
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.productos-save {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+.productos-cancel {
+    background-color: #ccc;
+    color: #000;
+}
+.productos-list .mensaje-vacio{
+    text-align: center;
+}

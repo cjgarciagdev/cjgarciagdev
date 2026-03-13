@@ -1,0 +1,102 @@
+<section id="sec-export" class="content-section hidden fade-in">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div
+                    class="bg-gradient-to-br from-blue-500 to-indigo-700 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                    <i class="fas fa-file-export text-white text-2xl"></i>
+                </div>
+                <h2 class="text-4xl font-extrabold text-gray-800 tracking-tight">Centro de Exportación</h2>
+            </div>
+            <p class="text-gray-500 ml-16">Generación de reportes avanzados y descarga de datos</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Tarjeta: Smart Report -->
+        <div
+            class="bg-white p-6 rounded-3xl shadow-sm border border-blue-100 hover:shadow-xl transition-all duration-300 group">
+            <div
+                class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 transition-colors">
+                <i class="fas fa-magic text-blue-600 text-2xl group-hover:text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Reporte Inteligente</h3>
+            <p class="text-gray-500 text-sm mb-6">Consolida producción, finanzas, inventario y salud en un único informe
+                ejecutivo de alto nivel.</p>
+            <button onclick="exportSmartReport(event)"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-blue-100 flex items-center justify-center gap-2">
+                <i class="fas fa-bolt"></i> Generar Smart Report
+            </button>
+        </div>
+
+        <!-- Tarjeta: Inventario Excel -->
+        <div
+            class="bg-white p-6 rounded-3xl shadow-sm border border-green-100 hover:shadow-xl transition-all duration-300 group">
+            <div
+                class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-green-600 transition-colors">
+                <i class="fas fa-file-excel text-green-600 text-2xl group-hover:text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Libro de Inventario</h3>
+            <p class="text-gray-500 text-sm mb-6">Descarga la base de datos completa de animales en formato Excel para
+                procesamiento externo de datos.</p>
+            <button onclick="exportExcel(event)"
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-green-100 flex items-center justify-center gap-2">
+                <i class="fas fa-download"></i> Descargar Excel (.xlsx)
+            </button>
+        </div>
+
+        <!-- Tarjeta: Inventario PDF -->
+        <div
+            class="bg-white p-6 rounded-3xl shadow-sm border border-red-100 hover:shadow-xl transition-all duration-300 group">
+            <div
+                class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-red-600 transition-colors">
+                <i class="fas fa-file-pdf text-red-600 text-2xl group-hover:text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Inventario Formal PDF</h3>
+            <p class="text-gray-500 text-sm mb-6">Genera un documento PDF con tablas estructuradas, sellos de seguridad
+                y gráficas de distribución de especies.</p>
+            <button onclick="exportPDFInventario(event)"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl transition shadow-lg shadow-red-100 flex items-center justify-center gap-2">
+                <i class="fas fa-print"></i> Generar Inventario PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Sección de ayuda/información -->
+    <div class="mt-12 bg-gray-900 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-2xl">
+        <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+            <div class="flex-1">
+                <h3 class="text-2xl font-black mb-4 flex items-center gap-3">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                    Información sobre Exportación
+                </h3>
+                <ul class="space-y-3 text-gray-400 text-sm">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Los reportes incluyen marca de agua corporativa translúcida para protección de
+                            documentos.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>La exportación inteligente analiza automáticamente las tendencias del mes en curso.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        <span>Todos los datos exportados cumplen con los estándares de auditoría interna de
+                            Agro-Master.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="hidden md:block">
+                <div
+                    class="w-48 h-48 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full flex items-center justify-center border border-white/10">
+                    <i class="fas fa-cloud-download-alt text-6xl text-white/20 animate-bounce"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Elementos decorativos de fondo -->
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+        <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+    </div>
+</section>

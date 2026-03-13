@@ -26,12 +26,11 @@ Usado en: portal_especialista.html
                 <label class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Rol en el
                     Sistema</label>
                 <select id="user-rol" class="med-input bg-slate-50 border-slate-200">
-                    <option value="padre">Representante / Padre</option>
-                    {% if current_user.rol == 'admin' %}
-                    <option value="especialista">Especialista (Médico)</option>
-                    <option value="nutricionista">Nutricionista</option>
-                    <option value="auditor">Auditor (Investigación)</option>
-                    <option value="gerente">Gerente Clínico</option>
+                    {% if current_user.rol in ['admin', 'maestro'] %}
+                    <option value="maestro">Maestro (Investigador Principal)</option>
+                    <option value="especialista">Especialista</option>
+                    {% elif current_user.rol == 'especialista' %}
+                    <option value="especialista">Especialista</option>
                     {% endif %}
                 </select>
             </div>
@@ -58,6 +57,23 @@ Usado en: portal_especialista.html
                 <input type="password" id="user-password" class="med-input bg-slate-50 border-slate-200"
                     placeholder="mín. 8 caracteres">
             </div>
+
+            <!-- Campos de Especialidad (solo para doctor/especialista) -->
+            <div id="campos-especialidad" class="hidden space-y-4">
+                <div>
+                    <label
+                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Especialidad</label>
+                    <input type="text" id="user-especialidad" class="med-input bg-slate-50 border-slate-200"
+                        placeholder="Ej: Endocrinólogo Pediátrico">
+                </div>
+                <div>
+                    <label
+                        class="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Consultorio</label>
+                    <input type="text" id="user-consultorio" class="med-input bg-slate-50 border-slate-200"
+                        placeholder="Ej: Hospital Central">
+                </div>
+            </div>
+
             <button onclick="guardarNuevoUsuario()"
                 class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] mt-4">
                 <i class="fas fa-user-plus mr-2"></i> Crear Usuario

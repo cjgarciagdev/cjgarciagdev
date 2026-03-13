@@ -1,0 +1,100 @@
+<!-- SECCIÓN DE INVENTARIO -->
+<section id="sec-inventario" class="content-section hidden fade-in">
+    <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-4 mb-2">
+                <div
+                    class="bg-gradient-to-br from-teal-500 to-emerald-600 w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
+                    <i class="fas fa-boxes text-white text-2xl"></i>
+                </div>
+                <h2 class="text-4xl font-extrabold text-gray-800 tracking-tight">Inventario de Insumos</h2>
+            </div>
+            <p class="text-gray-500 ml-16">Control de stock médico, alimenticio y operativo</p>
+        </div>
+        <button onclick="openModalInsumo()"
+            class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-teal-200 transition transform hover:-translate-y-1 flex items-center">
+            <i class="fas fa-plus mr-2"></i> Nuevo Insumo
+        </button>
+    </div>
+
+    <!-- Resumen de Stock -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-teal-100 flex items-center gap-4">
+            <div class="bg-teal-50 p-4 rounded-2xl">
+                <i class="fas fa-pills text-teal-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Médicos</p>
+                <h3 class="text-2xl font-black text-gray-800" id="stock-medico">0</h3>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-orange-100 flex items-center gap-4">
+            <div class="bg-orange-50 p-4 rounded-2xl">
+                <i class="fas fa-carrot text-orange-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Alimentos</p>
+                <h3 class="text-2xl font-black text-gray-800" id="stock-alimento">0</h3>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-blue-100 flex items-center gap-4">
+            <div class="bg-blue-50 p-4 rounded-2xl">
+                <i class="fas fa-tools text-blue-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Operativos</p>
+                <h3 class="text-2xl font-black text-gray-800" id="stock-operativo">0</h3>
+            </div>
+        </div>
+        <!-- Nuevas Categorías -->
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-purple-100 flex items-center gap-4">
+            <div class="bg-purple-50 p-4 rounded-2xl">
+                <i class="fas fa-wrench text-purple-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Herramientas</p>
+                <h3 class="text-2xl font-black text-gray-800" id="stock-herramienta">0</h3>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-pink-100 flex items-center gap-4">
+            <div class="bg-pink-50 p-4 rounded-2xl">
+                <i class="fas fa-broom text-pink-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase">Limpieza</p>
+                <h3 class="text-2xl font-black text-gray-800" id="stock-limpieza">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Lista -->
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div
+            class="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex flex-wrap gap-2">
+                <button onclick="filterInsumos('todos')" data-category="todos"
+                    class="filter-btn-inv px-4 py-2 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition active-filter">Todos</button>
+                <button onclick="filterInsumos('Médico')" data-category="Médico"
+                    class="filter-btn-inv px-4 py-2 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition">Médicos</button>
+                <button onclick="filterInsumos('Alimenticio')" data-category="Alimenticio"
+                    class="filter-btn-inv px-4 py-2 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition">Alimentos</button>
+                <button onclick="filterInsumos('Operativo')" data-category="Operativo"
+                    class="filter-btn-inv px-4 py-2 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition">Operativos</button>
+                <button onclick="filterInsumos('Herramienta')" data-category="Herramienta"
+                    class="filter-btn-inv px-4 py-2 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition">Herramientas</button>
+                <button onclick="filterInsumos('Limpieza')" data-category="Limpieza"
+                    class="filter-btn-inv px-4 py-2 rounded-xl text-sm font-bold bg-white border border-gray-200 text-gray-600 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 transition">Limpieza</button>
+            </div>
+            <div class="relative w-full md:w-64">
+                <input type="text" id="searchInsumo" onkeyup="searchInsumos()" placeholder="Buscar producto..."
+                    class="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-100 outline-none text-sm">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 bg-gray-50/30"
+            id="inventarioGrid">
+            <!-- Insumos Card Injected JS -->
+        </div>
+    </div>
+</section>
