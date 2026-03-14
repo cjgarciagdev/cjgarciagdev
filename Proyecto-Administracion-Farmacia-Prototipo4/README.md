@@ -1,33 +1,60 @@
-# Mejora de Interfaz: Servicio de Restaurant
+# My React Project
 
-![Type](https://img.shields.io/badge/tipo-refactorización--uI-blue)
-![Frontend](https://img.shields.io/badge/frontend-CSS--Moderno-pink)
+This is a simple React application built with TypeScript.
 
-Este proyecto representa una evolución visual y estructural de una plataforma de restaurante. El enfoque principal fue la implementación de un **Sistema de Diseño (Design System)** para garantizar consistencia en toda la interfaz.
+## Getting Started
 
----
+To get started with this project, follow the instructions below.
 
-##  Mejoras e Innovaciones
+### Prerequisites
 
-###  Implementación de Design System
-*   **`styleguide.css`**: Centralización de tokens de diseño (colores, tipografía, espaciado).
-*   **`globals.css`**: Estilos base y reseteo para asegurar la uniformidad en diferentes navegadores.
-*   **Componentización:** Estilos modulares que permiten la reutilización de elementos como menús, botones y tarjetas de platos.
+Make sure you have the following installed:
 
-###  Experiencia de Usuario (UX)
-*   **Jerarquía Visual:** Mejor uso de contrastes y tamaños de fuente para guiar la vista hacia los platos destacados.
-*   **Navegación Intuitiva:** Optimización del flujo de selección para el usuario.
-*   **Carga Optimizada:** Estilos CSS limpios y optimizados para un renderizado rápido.
+- Node.js (version 14 or higher)
+- npm (version 6 or higher)
 
----
+### Installation
 
-##  Tecnologías
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   ```
 
-*   **HTML5 Semántico**
-*   **CSS3 Moderno** (Flexbox/Grid para el layout).
+2. Navigate to the project directory:
+   ```
+   cd my-react-project
+   ```
 
----
+3. Install the dependencies:
+   ```
+   npm install
+   ```
 
-## Autor
-**Cristian J Garcia**
-*   GitHub: [@cjgarciagdev](https://github.com/cjgarciagdev)
+### Running the Application
+
+To run the application in development mode, use the following command:
+```
+npm start
+```
+This will start the development server and open the application in your default web browser.
+
+### Building for Production
+
+To create a production build of the application, run:
+```
+npm run build
+```
+This will generate a `build` folder with the optimized production files.
+
+### Folder Structure
+
+- `src/`: Contains the source code of the application.
+  - `components/`: Contains React components.
+  - `types/`: Contains TypeScript type definitions.
+- `public/`: Contains static files, including the main HTML file.
+- `package.json`: Contains project metadata and dependencies.
+- `tsconfig.json`: TypeScript configuration file.
+
+### License
+
+This project is licensed under the MIT License.
