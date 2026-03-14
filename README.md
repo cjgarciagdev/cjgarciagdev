@@ -22,7 +22,7 @@ Soy un desarrollador apasionado por el aprendizaje continuo y la resolución de 
 ### GitHub status
 
 <p align="center">
-  <img width="500" src="https://github-readme-stats.vercel.app/api/top-langs/?username=cjgarciagdev&layout=compact&theme=radical&langs_count=8" alt="Langs" />
+  <img width="400" src="https://github-readme-stats.vercel.app/api/top-langs/?username=cjgarciagdev&layout=compact&theme=radical&langs_count=8" alt="Langs" />
 </p>
 
 
