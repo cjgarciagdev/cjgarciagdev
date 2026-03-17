@@ -836,6 +836,7 @@ async function actualizarPeso() {
 //  MÓDULO 2: DOSIFICACIÓN
 // ══════════════════════════════════════════════════════════
 async function calcularDosis() {
+    reproducirMusica('medicion'); // 🔊 Sonido de medición
     if (!STATE.heroe) { mostrarToast('Primero selecciona un Héroe 🦸', 'warning'); return; }
     const glucemia = parseFloat($('input-glucemia')?.value || 0);
     const carbos = parseFloat($('input-carbos')?.value || 0);
@@ -852,6 +853,44 @@ async function calcularDosis() {
         box.classList.remove('hidden');
 
         let html = '';
+
+        // CLASIFICACION DE GLUCOSA (ADA Guidelines)
+        const clasif = res.clasificacion || {};
+        const alerta = res.alerta_clinica || {};
+
+        // Mostrar clasificacion de glucosa
+        if (clasif.categoria) {
+            html += '<div class="bg-teal-50 border-2 border-teal-200 rounded-[1.5rem] p-4 mb-4 text-center">';
+            html += '<div class="flex items-center justify-center gap-2 mb-2">';
+            html += '<span class="text-2xl">' + (clasif.titulo || '🩸') + '</span>';
+            html += '<span class="font-black text-lg">' + (clasif.categoria.toUpperCase()) + '</span>';
+            html += '</div>';
+            html += '<p class="text-4xl font-black text-slate-800 my-2">' + glucemia + ' <span class="text-base text-slate-500">mg/dL</span></p>';
+            html += '<p class="text-xs text-slate-500">' + (clasif.momento_display || momento) + '</p>';
+            html += '<p class="text-xs text-slate-600 mt-2">' + (clasif.rango || '') + '</p>';
+            if (clasif.mensaje) html += '<p class="text-xs text-teal-700 mt-2 font-medium">' + clasif.mensaje + '</p>';
+            html += '</div>';
+
+            // Mostrar recomendaciones
+            if (clasif.recomendaciones && clasif.recomendaciones.length > 0) {
+                html += '<div class="bg-slate-50 rounded-2xl p-4 mb-4 text-left border border-slate-200">';
+                html += '<p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">📋 Recomendaciones</p>';
+                html += '<ul class="space-y-1">';
+                clasif.recomendaciones.forEach(function (rec) {
+                    html += '<li class="text-xs text-slate-600 flex items-start gap-1"><span class="text-teal-500">•</span> ' + rec + '</li>';
+                });
+                html += '</ul></div>';
+            }
+
+            // Alerta clinica
+            if (alerta.tipo && alerta.tipo !== 'ninguna') {
+                const esRoja = alerta.severidad === 'roja';
+                html += '<div class="' + (esRoja ? 'bg-rose-100 border-rose-300' : 'bg-amber-100 border-amber-300') + ' border-2 rounded-2xl p-4 mb-4 text-center">';
+                html += '<p class="font-black text-lg ' + (esRoja ? 'text-rose-700' : 'text-amber-700') + '">' + alerta.mensaje + '</p>';
+                html += '</div>';
+            }
+        }
+
         if (res.alerta_glucemia === 'hipo') {
             html += `<div class="bg-rose-50 border-2 border-rose-200 rounded-[2rem] p-8 mb-4 text-center">
                 <p class="text-6xl mb-4 animate-bounce">🚨</p>
@@ -895,6 +934,58 @@ async function calcularDosis() {
         mostrarToast('Error al calcular dosis', 'error');
     }
 }
+
+// Clasificar glucosa en tiempo real (sin guardar) - ADA Guidelines
+async function clasificarGlucosaEnVivo() {
+    const glucemia = parseFloat($('input-glucemia')?.value || 0);
+    const momento = $('input-momento')?.value || 'libre';
+
+    if (!glucemia || glucemia <= 0) {
+        const clasifBox = $('clasificacion-glucosa-box');
+        if (clasifBox) clasifBox.classList.add('hidden');
+        return;
+    }
+
+    try {
+        const res = await apiPost('/api/dosificacion/clasificar', { glucemia: glucemia, momento: momento });
+        if (res && res.clasificacion) mostrarClasificacionEnVivo(res);
+    } catch (e) {
+        console.error('Error clasificando glucosa:', e);
+    }
+}
+
+function mostrarClasificacionEnVivo(data) {
+    let box = $('clasificacion-glucosa-box');
+    const inputGlucemia = $('input-glucemia');
+    if (!inputGlucemia) return;
+
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'clasificacion-glucosa-box';
+        box.className = 'hidden mt-3';
+        inputGlucemia.parentNode.appendChild(box);
+    }
+
+    const clasif = data.clasificacion;
+    box.className = 'mt-3 p-3 bg-teal-50 border-2 border-teal-200 rounded-xl';
+    box.innerHTML = '<div class="flex items-center gap-2"><span class="text-lg">' + (clasif.titulo || '') + '</span><span class="text-xs font-bold text-teal-600">' + (clasif.categoria || '') + '</span></div><p class="text-xs text-teal-700 mt-1">' + (clasif.mensaje || '') + '</p>';
+    box.classList.remove('hidden');
+}
+
+// Event listeners para clasificacion en tiempo real
+document.addEventListener('DOMContentLoaded', function () {
+    const inputGlucemia = $('input-glucemia');
+    if (inputGlucemia) {
+        inputGlucemia.addEventListener('input', function () {
+            setTimeout(clasificarGlucosaEnVivo, 300);
+        });
+        inputGlucemia.addEventListener('blur', clasificarGlucosaEnVivo);
+    }
+    const inputMomento = $('input-momento');
+    if (inputMomento) {
+        inputMomento.addEventListener('change', clasificarGlucosaEnVivo);
+    }
+});
 
 async function guardarAplicacionDosis(regId, dosis) {
     const res = await apiPut(`/api/dosificacion/confirmar/${regId}`, { dosis_aplicada: dosis });
@@ -2420,6 +2511,7 @@ function lanzarConfeti() {
 
 function celebrarMision(puntos) {
     lanzarConfeti();
+    reproducirMusica('victoria'); // 🎺 Fanfarria y aplausos
     const popup = document.createElement('div');
     popup.className = 'fixed inset-0 flex items-center justify-center z-[11000] pointer-events-none';
     popup.innerHTML = `
@@ -2429,17 +2521,337 @@ function celebrarMision(puntos) {
             </div>
             <h2 class="text-3xl font-black text-slate-800 mb-2">¡MISIÓN CUMPLIDA!</h2>
             <p class="text-amber-600 font-black text-xl">+${puntos} PUNTOS DE PODER</p>
+            <button onclick="mostrarMisionPaz()" class="mt-4 bg-teal-500 text-white font-black py-3 px-6 rounded-2xl pointer-events-auto hover:bg-teal-600 transition-all">
+                🧘 ¡Hora de Relax!
+            </button>
         </div>
     `;
     document.body.appendChild(popup);
     setTimeout(() => {
         popup.classList.add('animate-modal-out');
         setTimeout(() => popup.remove(), 600);
-    }, 2500);
+    }, 3500);
 
     // Actualizar mascota
     actualizarMascotaDinamica(STATE.heroe ? STATE.heroe.ultima_glucemia : 100);
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// MISIÓN DE PAZ - Técnicas de Relajación para Niños
+// ═══════════════════════════════════════════════════════════════════════
+function mostrarMisionPaz() {
+    // Cerrar popup anterior si existe
+    const existing = document.getElementById('mision-paz-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'mision-paz-modal';
+    modal.className = 'fixed inset-0 flex items-center justify-center z-[12000]';
+    modal.innerHTML = `
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="cerrarMisionPaz()"></div>
+        <div class="bg-white rounded-[3rem] p-8 max-w-lg w-full mx-4 shadow-2xl border-4 border-teal-200 relative overflow-hidden">
+            <button onclick="cerrarMisionPaz()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-all">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg">
+                    🧘
+                </div>
+                <h2 class="text-2xl font-black text-slate-800">¡Misión de Paz!</h2>
+                <p class="text-slate-500 text-sm">Vamos a calmar nuestra mente y cuerpo</p>
+            </div>
+            
+            <!-- Técnica 1: Respira como un Globo -->
+            <div class="bg-rose-50 rounded-2xl p-5 mb-4 border-2 border-rose-100">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="text-3xl">🎈</span>
+                    <h3 class="font-black text-rose-600 text-lg">Respira como un Globo</h3>
+                </div>
+                <ol class="text-slate-600 text-sm space-y-2">
+                    <li class="flex items-start gap-2"><span class="text-rose-500 font-bold">1.</span> Inhala por la nariz contando hasta 4 <span class="text-rose-400">(infla tu pancita)</span></li>
+                    <li class="flex items-start gap-2"><span class="text-rose-500 font-bold">2.</span> Mantén el aire 2 segundos</li>
+                    <li class="flex items-start gap-2"><span class="text-rose-500 font-bold">3.</span> Suelta muy despacio por la boca <span class="text-rose-400">(como desinflar un globo)</span></li>
+                </ol>
+                <button onclick="iniciarRespiracionGlobo()" class="mt-3 w-full bg-rose-500 text-white font-black py-3 rounded-xl hover:bg-rose-600 transition-all">
+                    🎈 Practicar Ahora
+                </button>
+            </div>
+            
+            <!-- Técnica 2: El Abrazo de Oso -->
+            <div class="bg-purple-50 rounded-2xl p-5 mb-4 border-2 border-purple-100">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="text-3xl">🐻</span>
+                    <h3 class="font-black text-purple-600 text-lg">El Abrazo de Oso</h3>
+                </div>
+                <p class="text-slate-600 text-sm mb-3">Cruza tus brazos y date un abrazo fuerte. Di en voz alta:</p>
+                <div class="bg-white/60 p-3 rounded-xl text-center">
+                    <p class="text-purple-700 font-bold text-sm">"Hoy estoy a salvo y lo estoy haciendo muy bien"</p>
+                </div>
+            </div>
+            
+            <!-- Técnica 3: Dibuja tus Emociones -->
+            <div class="bg-amber-50 rounded-2xl p-5 mb-4 border-2 border-amber-100">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="text-3xl">🎨</span>
+                    <h3 class="font-black text-amber-600 text-lg">Dibuja tus Emociones</h3>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="bg-white/60 p-2 rounded-lg">
+                        <span class="text-2xl">😰</span>
+                        <p class="text-slate-600 text-xs">Si sientes <b>ansiedad</b>: Dibuja garabatos rápidos</p>
+                    </div>
+                    <div class="bg-white/60 p-2 rounded-lg">
+                        <span class="text-2xl">😢</span>
+                        <p class="text-slate-600 text-xs">Si te sientes <b>triste</b>: Pinta un sol brillante</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="cerrarMisionPaz()" class="w-full bg-slate-800 text-white font-black py-4 rounded-2xl hover:bg-teal-600 transition-all text-lg">
+                ¡Listo! Continuar 🚀
+            </button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Reproducir música de relax
+    reproducirMusica('relax');
+}
+
+function cerrarMisionPaz() {
+    const modal = document.getElementById('mision-paz-modal');
+    if (modal) {
+        modal.classList.add('animate-modal-out');
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// Ejercicio de respiración guiada
+let respiracionInterval = null;
+function iniciarRespiracionGlobo() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    const estados = [
+        { texto: '😤 Inhala... (1,2,3,4)', clase: 'bg-rose-400' },
+        { texto: '😮 Mantén... (1,2)', clase: 'bg-amber-400' },
+        { texto: '😮‍💨 Exhala... (1,2,3,4,5,6)', clase: 'bg-teal-400' }
+    ];
+
+    let estado = 0;
+    btn.disabled = true;
+
+    respiracionInterval = setInterval(() => {
+        btn.innerHTML = estados[estado].texto;
+        btn.className = 'mt-3 w-full text-white font-black py-4 rounded-xl transition-all ' + estados[estado].clase;
+        estado = (estado + 1) % estados.length;
+    }, 2000);
+
+    // Detener después de 3 ciclos
+    setTimeout(() => {
+        clearInterval(respiracionInterval);
+        btn.innerHTML = '✅ ¡Muy Bien!';
+        btn.className = 'mt-3 w-full bg-teal-500 text-white font-black py-3 rounded-xl';
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            btn.className = 'mt-3 w-full bg-rose-500 text-white font-black py-3 rounded-xl hover:bg-rose-600 transition-all';
+        }, 1500);
+    }, 12000);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SISTEMA DE AUDIO - Efectos de Sonido para GlucoAmigo
+// ═══════════════════════════════════════════════════════════════════════
+
+const AudioManager = {
+    audioContext: null,
+    sounds: {},
+
+    // Inicializar el contexto de audio
+    init: function () {
+        try {
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            console.log('[Audio] Sistema de audio inicializado');
+
+            // Intentar reproducir música de inicio (puede fallar por restricciones del navegador)
+            // Los navegadores requieren interacción del usuario para reproducir audio
+            setTimeout(() => {
+                if (this.audioContext && this.audioContext.state === 'suspended') {
+                    this.audioContext.resume().then(() => {
+                        console.log('[Audio] Audio resumed, reproduciendo música de inicio');
+                        this.playInicio();
+                    }).catch(e => {
+                        console.log('[Audio] Esperando interacción del usuario para reproducir audio');
+                        // Agregar listener para primer click
+                        document.addEventListener('click', () => {
+                            if (this.audioContext && this.audioContext.state === 'suspended') {
+                                this.audioContext.resume().then(() => this.playInicio());
+                            } else {
+                                this.playInicio();
+                            }
+                        }, { once: true });
+                    });
+                } else {
+                    this.playInicio();
+                }
+            }, 500);
+        } catch (e) {
+            console.log('[Audio] Web Audio API no disponible');
+        }
+    },
+
+    // Generar sonido usando Web Audio API
+    playTone: function (frequency, duration, type = 'sine', volume = 0.3) {
+        if (!this.audioContext) {
+            this.init();
+        }
+        if (!this.audioContext) return;
+
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+
+            oscillator.type = type;
+            oscillator.frequency.value = frequency;
+
+            gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + duration);
+        } catch (e) {
+            console.log('[Audio] Error reproduciendo tono:', e);
+        }
+    },
+
+    // Reproducir sonido de victoria (fanfarria)
+    playVictoria: function () {
+        if (!this.audioContext) this.init();
+        // Fanfarria: notas alegres ascendentes
+        const notas = [523, 659, 784, 1047]; // C5, E5, G5, C6
+        notas.forEach((nota, i) => {
+            setTimeout(() => this.playTone(nota, 0.3, 'triangle', 0.2), i * 150);
+        });
+        // Efecto de aplausos simulado
+        setTimeout(() => this.playAplausos(), 300);
+    },
+
+    // Reproducir sonido de juego/medición (música de suspenso divertido)
+    playJuego: function () {
+        if (!this.audioContext) this.init();
+        // Sonido de tensión/build-up
+        const notas = [220, 277, 330, 220, 277, 330];
+        notas.forEach((nota, i) => {
+            setTimeout(() => this.playTone(nota, 0.15, 'sine', 0.15), i * 200);
+        });
+    },
+
+    // Reproducir sonido de inicio (música aventurera)
+    playInicio: function () {
+        if (!this.audioContext) this.init();
+        // Melodía aventurera ascendente
+        const notas = [392, 494, 587, 784, 659, 784]; // G4, B4, D5, G5, E5, G5
+        notas.forEach((nota, i) => {
+            setTimeout(() => this.playTone(nota, 0.25, 'sine', 0.2), i * 120);
+        });
+    },
+
+    // Reproducir aplausos (simulado con ruido)
+    playAplausos: function () {
+        if (!this.audioContext) this.init();
+        // Simular aplausos con ruido
+        for (let i = 0; i < 10; i++) {
+            setTimeout(() => this.playTone(800 + Math.random() * 400, 0.1, 'square', 0.05), i * 80);
+        }
+    },
+
+    // Reproducir sonido de medición (glucosa)
+    playMedicion: function () {
+        if (!this.audioContext) this.init();
+        // Sonido de "escaneo"
+        const notas = [440, 554, 659, 440];
+        notas.forEach((nota, i) => {
+            setTimeout(() => this.playTone(nota, 0.1, 'sine', 0.15), i * 100);
+        });
+    },
+
+    // Reproducir sonido de relax (Ambiente mágico y suave)
+    playRelax: function () {
+        if (!this.audioContext) this.init();
+        
+        // Acorde celestial suave y relajante
+        const melodia = [
+            { nota: 261.63, tiempo: 0, dur: 3.0, vol: 0.15 },    // Do4
+            { nota: 329.63, tiempo: 600, dur: 3.0, vol: 0.15 },  // Mi4
+            { nota: 392.00, tiempo: 1200, dur: 3.0, vol: 0.15 }, // Sol4
+            { nota: 493.88, tiempo: 1800, dur: 4.0, vol: 0.1 },  // Si4
+            { nota: 587.33, tiempo: 2400, dur: 4.0, vol: 0.1 },  // Re5
+            { nota: 523.25, tiempo: 3200, dur: 5.0, vol: 0.1 },  // Do5
+            
+            // Acorde de cierre (suspiro profundo)
+            { nota: 261.63, tiempo: 5000, dur: 6.0, vol: 0.1 },  // Do4
+            { nota: 329.63, tiempo: 5000, dur: 6.0, vol: 0.1 },  // Mi4
+            { nota: 392.00, tiempo: 5000, dur: 6.0, vol: 0.1 }   // Sol4
+        ];
+
+        melodia.forEach(nota => {
+            setTimeout(() => {
+                this.playTone(nota.nota, nota.dur, 'sine', nota.vol);
+            }, nota.tiempo);
+        });
+    },
+
+    // Reproducir notificación
+    playNotificacion: function () {
+        if (!this.audioContext) this.init();
+        this.playTone(880, 0.1, 'sine', 0.1);
+        setTimeout(() => this.playTone(1100, 0.1, 'sine', 0.1), 100);
+    },
+
+    // Reproducir error/advertencia
+    playAlerta: function () {
+        if (!this.audioContext) this.init();
+        this.playTone(200, 0.3, 'square', 0.1);
+        setTimeout(() => this.playTone(150, 0.3, 'square', 0.1), 200);
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// Reproducir música según el momento
+// ═══════════════════════════════════════════════════════════════════════
+function reproducirMusica(tipo) {
+    // Inicializar audio si no está hecho
+    AudioManager.init();
+
+    switch (tipo) {
+        case 'inicio':
+            AudioManager.playInicio();
+            break;
+        case 'juego':
+            AudioManager.playJuego();
+            break;
+        case 'victoria':
+            AudioManager.playVictoria();
+            break;
+        case 'medicion':
+            AudioManager.playMedicion();
+            break;
+        case 'relax':
+            AudioManager.playRelax();
+            break;
+        default:
+            console.log('🎵 Reproduciendo música: ' + tipo);
+    }
+}
+
+// Inicializar cuando cargue la página
+document.addEventListener('DOMContentLoaded', function () {
+    AudioManager.init();
+});
 
 // ── TIENDA DE RECOMPENSAS ─────────────────────────────────────────
 function comprarArticulo(costo, articulo) {
