@@ -64,12 +64,44 @@ def calcular():
         _generar_alerta(heroe, glucemia, alerta_tipo)
     db.session.commit()
 
+    # ── Clasificación de Glucosa (ADA Guidelines) ────────────────────
+    from models_extended import obtener_info_glucosa
+    info_glucosa = obtener_info_glucosa(glucemia, momento)
+    clasificacion = info_glucosa['clasificacion']
+    alerta = info_glucosa['alerta']
+
     return jsonify({
         'dosis': dosis_final, 'dosis_max': dosis_max,
         'alerta_seguridad': alerta_seguridad,
         'alerta_glucemia': alerta_tipo,
         'registro_id': reg.id,
+        # Clasificación de glucosa añadida
+        'clasificacion': clasificacion,
+        'alerta_clinica': alerta,
+        'info_glucosa': info_glucosa
     })
+
+@dosis_bp.route('/dosificacion/clasificar', methods=['POST'])
+@login_required
+def clasificar_glucosa():
+    """
+    Endpoint para clasificar el nivel de glucosa sin guardar registro.
+    Útil para mostrar información en tiempo real mientras el usuario escribe.
+    
+    Returns:
+        dict con clasificación, alertas y recomendaciones
+    """
+    data = request.json or {}
+    glucemia = float(data.get('glucemia', 0))
+    momento = data.get('momento', 'libre')
+    
+    if glucemia <= 0:
+        return jsonify({'error': 'Glucosa inválida'}), 400
+    
+    from models_extended import obtener_info_glucosa
+    info_glucosa = obtener_info_glucosa(glucemia, momento)
+    
+    return jsonify(info_glucosa)
 
 @dosis_bp.route('/dosificacion/confirmar/<int:reg_id>', methods=['PUT'])
 @login_required
