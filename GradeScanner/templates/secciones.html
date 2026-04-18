@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Secciones - GradeScanner{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-users text-indigo-600 mr-2"></i>Secciones y Años
+            </h1>
+            <p class="text-gray-600 mt-2">Gestiona las clases, años y asignaturas del liceo</p>
+        </div>
+        <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg">
+            <i class="fas fa-plus mr-2"></i>Nueva Sección
+        </button>
+    </div>
+
+    <!-- Lista de Secciones -->
+    <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+        <table class="w-full min-w-[600px]">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="text-left py-4 px-6 text-gray-600">Asignatura</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Año / Grado</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Sección</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Lapso</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="secciones-list">
+                <tr>
+                    <td colspan="5" class="text-center py-8">
+                        <div class="loading-spinner mx-auto"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="seccion-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 my-8">
+        <div class="p-6">
+            <h3 class="text-xl font-bold mb-4" id="modal-title">Nueva Sección</h3>
+            <form id="seccion-form" onsubmit="saveSeccion(event)">
+                <input type="hidden" id="seccion-id">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Asignatura</label>
+                        <input type="text" id="seccion-asignatura" required class="w-full p-3 border rounded-lg"
+                            placeholder="Ej: Matemáticas, Biología">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Año o Grado</label>
+                        <input type="text" id="seccion-grado" required class="w-full p-3 border rounded-lg"
+                            placeholder="Ej: 1er Año, 2do Medio">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Sección / Letra</label>
+                        <input type="text" id="seccion-letra" required class="w-full p-3 border rounded-lg"
+                            placeholder="Ej: A, B, C">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Lapso / Trimestre (Opcional)</label>
+                        <input type="text" id="seccion-lapso" class="w-full p-3 border rounded-lg"
+                            placeholder="Ej: 1er Lapso">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Profesor (Opcional)</label>
+                        <input type="text" id="seccion-profesor" class="w-full p-3 border rounded-lg"
+                            placeholder="Nombre del docente">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeModal()"
+                        class="px-6 py-2 border rounded-lg hover:bg-gray-50">Cancelar</button>
+                    <button type="submit"
+                        class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let secciones = [];
+
+    async function loadSecciones() {
+        try {
+            const res = await fetch('/api/secciones');
+            secciones = await res.json();
+            renderSecciones();
+        } catch (error) {
+            console.error('Error cargando secciones:', error);
+            Swal.fire('Error', 'No se pudieron cargar las secciones', 'error');
+        }
+    }
+
+    function renderSecciones() {
+        const tbody = document.getElementById('secciones-list');
+        
+        if (secciones.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center py-12">
+                        <i class="fas fa-users text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No hay secciones registradas</p>
+                        <p class="text-sm text-gray-400 mt-1">Crea tu primera clase de liceo</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = secciones.map(s => `
+            <tr class="border-b hover:bg-gray-50 transition">
+                <td class="py-4 px-6 font-medium text-indigo-900">${s.asignatura}</td>
+                <td class="py-4 px-6">${s.grado}</td>
+                <td class="py-4 px-6 font-bold text-gray-700">${s.letra}</td>
+                <td class="py-4 px-6">${s.lapso || '-'}</td>
+                <td class="py-4 px-6">
+                    <button onclick="editSeccion(${s.id})" class="text-indigo-600 hover:text-indigo-800 mr-3" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteSeccion(${s.id})" class="text-red-600 hover:text-red-800" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function openModal() {
+        document.getElementById('modal-title').textContent = 'Nueva Sección';
+        document.getElementById('seccion-form').reset();
+        document.getElementById('seccion-id').value = '';
+        document.getElementById('seccion-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('seccion-modal').classList.add('hidden');
+    }
+
+    function editSeccion(id) {
+        const seccion = secciones.find(s => s.id === id);
+        if (seccion) {
+            document.getElementById('modal-title').textContent = 'Editar Sección';
+            document.getElementById('seccion-id').value = seccion.id;
+            document.getElementById('seccion-asignatura').value = seccion.asignatura;
+            document.getElementById('seccion-grado').value = seccion.grado;
+            document.getElementById('seccion-letra').value = seccion.letra;
+            document.getElementById('seccion-lapso').value = seccion.lapso || '';
+            document.getElementById('seccion-profesor').value = seccion.profesor || '';
+            
+            document.getElementById('seccion-modal').classList.remove('hidden');
+        }
+    }
+
+    async function saveSeccion(e) {
+        e.preventDefault();
+        
+        const id = document.getElementById('seccion-id').value;
+        const data = {
+            asignatura: document.getElementById('seccion-asignatura').value,
+            grado: document.getElementById('seccion-grado').value,
+            letra: document.getElementById('seccion-letra').value,
+            lapso: document.getElementById('seccion-lapso').value,
+            profesor: document.getElementById('seccion-profesor').value
+        };
+
+        try {
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/secciones/${id}` : '/api/secciones';
+            
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                Swal.fire('Éxito', 'Sección guardada correctamente', 'success');
+                closeModal();
+                loadSecciones();
+            } else {
+                Swal.fire('Error', 'Error al guardar la sección', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Error de conexión', 'error');
+        }
+    }
+
+    async function deleteSeccion(id) {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "Se eliminará esta sección, pero los exámenes no se borrarán.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const res = await fetch(`/api/secciones/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    Swal.fire('Eliminada!', 'La sección ha sido eliminada.', 'success');
+                    loadSecciones();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'No se pudo eliminar la sección', 'error');
+            }
+        }
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', loadSecciones);
+</script>
+{% endblock %}

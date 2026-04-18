@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Exámenes - GradeScanner{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-file-alt text-indigo-600 mr-2"></i>Exámenes
+        </h1>
+        <p class="text-gray-600 mt-2">Historial de exámenes escaneados</p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-xl shadow-lg p-4 mb-6 overflow-x-auto">
+        <div class="flex flex-col md:flex-row gap-4 min-w-max md:min-w-0">
+            <input id="filter-nombre" type="text" placeholder="🔍 Buscar por estudiante..." 
+                class="p-3 border rounded-lg flex-1" oninput="loadExams()">
+            <select id="filter-seccion" class="p-3 border rounded-lg" onchange="loadExams()">
+                <option value="">Todas las secciones</option>
+            </select>
+            <select id="filter-estado" class="p-3 border rounded-lg" onchange="loadExams()">
+                <option value="">Todos los estados</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="procesado">Procesado</option>
+                <option value="revisado">Revisado</option>
+            </select>
+            <button onclick="exportCSV()" class="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium whitespace-nowrap whitespace-nowrap">
+                <i class="fas fa-download mr-1"></i> Exportar CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats rápidas -->
+    <div id="quick-stats" class="grid grid-cols-3 gap-4 mb-6 hidden">
+        <div class="bg-green-50 rounded-xl p-4 text-center border border-green-200">
+            <p class="text-2xl font-bold text-green-700" id="qs-aprobados">0</p>
+            <p class="text-sm text-green-600">Aprobados ≥ 10</p>
+        </div>
+        <div class="bg-yellow-50 rounded-xl p-4 text-center border border-yellow-200">
+            <p class="text-2xl font-bold text-yellow-700" id="qs-regular">0</p>
+            <p class="text-sm text-yellow-600">Regular 7–9</p>
+        </div>
+        <div class="bg-red-50 rounded-xl p-4 text-center border border-red-200">
+            <p class="text-2xl font-bold text-red-700" id="qs-reprobados">0</p>
+            <p class="text-sm text-red-600">Reprobados &lt; 7</p>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+        <table class="w-full min-w-[800px]">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="text-left py-4 px-6 text-gray-600">Estudiante</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Título / Evaluación</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Sección</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Estado</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Nota</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Fecha</th>
+                    <th class="text-left py-4 px-6 text-gray-600">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="exams-list"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Detalle -->
+<div id="exam-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center overflow-y-auto">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 my-8">
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-xl font-bold">Detalle del Examen</h3>
+                <button onclick="closeExamModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="exam-detail"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let allExams = [];
+    let filteredExams = [];
+
+    async function loadSeccionesForFilter() {
+        try {
+            const res = await fetch('/api/secciones');
+            const secciones = await res.json();
+            const select = document.getElementById('filter-seccion');
+            secciones.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.nombre_completo;
+                select.appendChild(opt);
+            });
+        } catch (e) {
+            console.error('Error cargando secciones', e);
+        }
+    }
+
+    async function loadExams() {
+        const seccionId = document.getElementById('filter-seccion').value;
+        const estado = document.getElementById('filter-estado').value;
+        const nombreFiltro = document.getElementById('filter-nombre').value.toLowerCase().trim();
+
+        let url = '/api/examenes?';
+        if (seccionId) url += `seccion_id=${seccionId}&`;
+        if (estado) url += `estado=${estado}`;
+
+        const res = await fetch(url);
+        allExams = await res.json();
+
+        // Filtrar localmente por nombre
+        let examenes = allExams;
+        if (nombreFiltro) {
+            examenes = examenes.filter(e =>
+                (e.nombre_estudiante || e.titulo || '').toLowerCase().includes(nombreFiltro)
+            );
+        }
+        
+        filteredExams = examenes;
+
+        // Stats rápidas
+        const conNota = examenes.filter(e => e.nota_final !== null);
+        if (conNota.length > 0) {
+            document.getElementById('quick-stats').classList.remove('hidden');
+            document.getElementById('qs-aprobados').textContent = conNota.filter(e => e.nota_final >= 10).length;
+            document.getElementById('qs-regular').textContent = conNota.filter(e => e.nota_final >= 7 && e.nota_final < 10).length;
+            document.getElementById('qs-reprobados').textContent = conNota.filter(e => e.nota_final < 7).length;
+        } else {
+            document.getElementById('quick-stats').classList.add('hidden');
+        }
+
+        const tbody = document.getElementById('exams-list');
+        if (examenes.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">No hay exámenes</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = examenes.map(e => {
+            const nota = e.nota_final;
+            const notaColor = nota === null ? 'text-gray-400' : nota >= 10 ? 'text-green-600' : nota >= 7 ? 'text-yellow-600' : 'text-red-600';
+            const notaBg = nota === null ? '' : nota >= 10 ? 'bg-green-50' : nota >= 7 ? 'bg-yellow-50' : 'bg-red-50';
+            return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="py-4 px-6">
+                    ${e.nombre_estudiante 
+                        ? `<span class="font-semibold text-gray-800"><i class="fas fa-user text-indigo-400 mr-1 text-xs"></i>${e.nombre_estudiante}</span>`
+                        : `<span class="text-gray-400 italic text-sm">Sin nombre</span>`}
+                </td>
+                <td class="py-4 px-6 text-gray-700">${e.titulo}</td>
+                <td class="py-4 px-6 text-sm text-gray-500">${e.seccion?.nombre_completo || '-'}</td>
+                <td class="py-4 px-6">
+                    <span class="px-2 py-1 rounded-full text-xs font-medium ${e.estado === 'revisado' ? 'bg-green-100 text-green-800' : e.estado === 'procesado' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}">${e.estado}</span>
+                </td>
+                <td class="py-4 px-6 ${notaBg} rounded">
+                    <span class="font-bold text-lg ${notaColor}">${nota !== null ? nota : '-'}</span>
+                    ${nota !== null ? '<span class="text-xs text-gray-400">/20</span>' : ''}
+                </td>
+                <td class="py-4 px-6 text-gray-500 text-sm">${new Date(e.fecha_escaneo).toLocaleDateString('es-ES', {day:'2-digit',month:'short',year:'numeric'})}</td>
+                <td class="py-4 px-6">
+                    <button onclick="viewExam(${e.id})" class="text-indigo-600 hover:text-indigo-800 mr-3" title="Ver detalle"><i class="fas fa-eye"></i></button>
+                    <button onclick="deleteExam(${e.id})" class="text-red-600 hover:text-red-800" title="Eliminar"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function viewExam(id) {
+        const res = await fetch(`/api/examenes/${id}`);
+        const e = await res.json();
+
+        let preguntasHtml = '';
+        if (e.preguntas && e.preguntas.length > 0) {
+            preguntasHtml = '<div class="mt-4"><h4 class="font-bold text-gray-700 mb-2">📋 Correcciones pregunta a pregunta:</h4><div class="space-y-2">';
+            e.preguntas.forEach(r => {
+                const esMulti = r.respuesta_correcta !== undefined && r.respuesta_correcta !== null;
+                const estaBien = esMulti ? (r.respuesta_estudiante === r.respuesta_correcta) : (r.puntos_obtenidos >= r.puntos * 0.5);
+                
+                preguntasHtml += `<div class="bg-gray-50 border-l-4 ${estaBien ? 'border-green-500' : 'border-red-500'} p-3 rounded shadow-sm">`;
+                
+                if (esMulti) {
+                    preguntasHtml += `
+                        <div class="flex justify-between items-center w-full">
+                            <span class="font-medium text-gray-800">
+                                <i class="fas ${estaBien ? 'fa-check text-green-500' : 'fa-times text-red-500'} mr-2"></i>
+                                P${r.numero}. ${r.respuesta_estudiante ? `Respondió: <strong class="${estaBien ? 'text-green-600' : 'text-red-500 line-through'}">${r.respuesta_estudiante}</strong>` : '<span class="text-gray-400 italic">No respondida</span>'}
+                            </span>
+                            <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-bold">
+                                Correcta: ${r.respuesta_correcta}
+                            </span>
+                        </div>`;
+                } else {
+                    const porc = r.coincidencias || 0;
+                    preguntasHtml += `
+                        <div class="w-full">
+                            <div class="flex justify-between mb-1">
+                                <span class="font-medium text-gray-800">
+                                    <i class="fas ${estaBien ? 'fa-check text-green-500' : 'fa-times text-red-500'} mr-1"></i>
+                                    P${r.numero} <span class="text-xs text-gray-500">(${r.puntos_obtenidos}/${r.puntos} pts)</span>
+                                </span>
+                                <span class="text-xs font-bold px-2 py-1 rounded-full ${porc >= 70 ? 'bg-green-100 text-green-700' : porc >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
+                                    ${porc}% coincidencia
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-500">Esperadas: <span class="font-medium text-gray-700">${r.respuesta_esperada || '-'}</span></p>
+                            ${r.respuesta_texto ? `<p class="text-xs text-gray-400 mt-1 italic border-t pt-1 line-clamp-2">${r.respuesta_texto}</p>` : ''}
+                        </div>`;
+                }
+                preguntasHtml += '</div>';
+            });
+            preguntasHtml += '</div></div>';
+        }
+
+        const nota = e.nota_final;
+        const notaColor = nota === null ? 'text-gray-400' : nota >= 10 ? 'text-green-600' : nota >= 7 ? 'text-yellow-600' : 'text-red-600';
+
+        document.getElementById('exam-detail').innerHTML = `
+        <div class="space-y-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-lg font-bold text-gray-900">${e.nombre_estudiante || e.titulo}</p>
+                    ${e.nombre_estudiante ? `<p class="text-sm text-gray-500">${e.titulo}</p>` : ''}
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm ${e.estado === 'revisado' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${e.estado}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 bg-gray-50 p-3 rounded-lg">
+                <div class="text-center">
+                    <p class="text-3xl font-bold ${notaColor}">${nota !== null ? nota : '—'}</p>
+                    <p class="text-xs text-gray-500">Nota /20</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg font-semibold text-gray-700">${e.seccion?.nombre_completo || '-'}</p>
+                    <p class="text-xs text-gray-500">Sección</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg font-semibold text-gray-700">${(e.confianza_ocr || 0).toFixed(1)}%</p>
+                    <p class="text-xs text-gray-500">Confianza OCR</p>
+                </div>
+            </div>
+            <p class="text-xs text-gray-400"><i class="fas fa-calendar mr-1"></i>${new Date(e.fecha_escaneo).toLocaleString('es-ES')}</p>
+            ${preguntasHtml}
+            <details class="mt-2">
+                <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700"><i class="fas fa-file-alt mr-1"></i>Ver texto extraído (crudo)</summary>
+                <pre class="bg-gray-50 p-3 rounded text-xs whitespace-pre-wrap max-h-40 overflow-y-auto mt-2">${e.texto_ocr || 'Sin texto'}</pre>
+            </details>
+            ${e.imagen_path ? `
+            <div class="mt-2 border-t pt-3">
+                <p class="text-sm font-medium text-gray-600 mb-2"><i class="fas fa-image mr-1"></i>Imagen escaneada</p>
+                <img src="${e.imagen_path}" class="w-full rounded-lg cursor-zoom-in hover:opacity-90 shadow" 
+                    onclick="window.open('${e.imagen_path}', '_blank')" title="Click para ampliar">
+            </div>` : ''}
+        </div>`;
+        document.getElementById('exam-modal').classList.remove('hidden');
+    }
+
+    function closeExamModal() {
+        document.getElementById('exam-modal').classList.add('hidden');
+    }
+
+    async function deleteExam(id) {
+        if (await Swal.fire({ title: '¿Eliminar examen?', text: 'Esta acción no se puede deshacer', icon: 'warning', showCancelButton: true, confirmButtonColor: '#EF4444', confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }).then(r => r.isConfirmed)) {
+            await fetch(`/api/examenes/${id}`, { method: 'DELETE' });
+            Swal.fire('Eliminado', 'El examen fue eliminado.', 'success');
+            loadExams();
+        }
+    }
+
+    function exportCSV() {
+        if (!filteredExams.length) {
+            Swal.fire('Atención', 'No hay datos para exportar', 'warning');
+            return;
+        }
+        const rows = [['Estudiante', 'Título', 'Sección', 'Nota', 'Estado', 'Fecha']];
+        filteredExams.forEach(e => {
+            rows.push([
+                e.nombre_estudiante || '-',
+                e.titulo,
+                e.seccion?.nombre_completo || '-',
+                e.nota_final ?? '-',
+                e.estado,
+                new Date(e.fecha_escaneo).toLocaleDateString('es-ES')
+            ]);
+        });
+        const csvContent = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'examenes_gradescanner.csv'; a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSeccionesForFilter();
+        loadExams();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{
+    "name": "GradeScanner",
+    "short_name": "GradeScan",
+    "description": "Sistema de revisión de notas con escáner",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4F46E5",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/static/img/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/img/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "categories": ["education", "productivity"],
+    "lang": "es",
+    "dir": "ltr"
+}

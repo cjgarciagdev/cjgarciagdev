@@ -1,0 +1,33 @@
+# Render configuration for GradeScanner application
+# IMPORTANTE: Antes de desplegar, configura estas variables en el Dashboard de Render
+
+services:
+  - type: web
+    name: gradescanner
+    runtime: docker
+    plan: free
+    envVars:
+      # Clave secreta (se genera automáticamente)
+      - key: SECRET_KEY
+        generateValue: true
+      
+      # Entorno de producción
+      - key: FLASK_ENV
+        value: production
+      
+      # Activar Supabase/PostgreSQL
+      - key: USE_SUPABASE
+        value: true
+      
+      # URL de PostgreSQL de Supabase
+      # Ve a Supabase > Settings > Database > Connection String
+      # Copia la URI y pégala aquí (reemplaza [YOUR-PASSWORD] con tu contraseña)
+      # Ejemplo: postgresql://postgres:mypassword@db.xyzabc.supabase.co:5432/postgres
+      - key: DATABASE_URL
+        value: "postgresql://postgres.uegiyminqnszquekuizs:passwordercopys12@aws-0-us-west-2.pooler.supabase.com:6543/postgres"
+      
+      # API Key de OCR.space (gratuita: helloworld)
+      - key: OCR_API_KEY
+        value: helloworld
+    
+    region: ohio

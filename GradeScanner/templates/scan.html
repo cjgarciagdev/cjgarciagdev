@@ -1,0 +1,771 @@
+{% extends "base.html" %}
+
+{% block title %}Escanear Examen - GradeScanner{% endblock %}
+
+{% block extra_css %}
+<style>
+    #video-container {
+        position: relative;
+        background: #000;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    #video {
+        width: 100%;
+        display: block;
+    }
+
+    #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .scan-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 70%;
+        border: 3px dashed #4F46E5;
+        border-radius: 1rem;
+        pointer-events: none;
+    }
+
+    .capture-btn {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 4px solid white;
+        background: #EF4444;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .capture-btn:hover {
+        transform: scale(1.1);
+        background: #DC2626;
+    }
+
+    .capture-btn.capturing {
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+    }
+
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4F46E5;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-camera text-indigo-600 mr-2"></i>
+            Escanear Examen
+        </h1>
+        <p class="text-gray-600 mt-2">Captura o sube una imagen del examen para procesarla</p>
+    </div>
+
+    <!-- Banner de estado del OCR -->
+    <div id="ocr-status-banner" class="hidden mb-6"></div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Panel de Escaneo -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <!-- Selección de modo -->
+            <div class="flex space-x-4 mb-6">
+                <button id="btn-camera" class="flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium"
+                    onclick="switchMode('camera')">
+                    <i class="fas fa-camera mr-2"></i>Cámara
+                </button>
+                <button id="btn-upload" class="flex-1 py-3 px-4 bg-gray-200 text-gray-700 rounded-lg font-medium"
+                    onclick="switchMode('upload')">
+                    <i class="fas fa-upload mr-2"></i>Subir Imagen
+                </button>
+            </div>
+
+            <!-- Vista de cámara -->
+            <div id="camera-panel">
+                <div id="video-container" class="mb-4">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div class="scan-overlay"></div>
+                </div>
+
+                <div class="flex justify-center space-x-4">
+                    <button id="btn-capture" class="capture-btn" onclick="captureImage()">
+                        <i class="fas fa-camera text-white text-2xl"></i>
+                    </button>
+                    <button id="btn-switch-camera" class="px-4 py-3 bg-gray-200 rounded-lg" onclick="switchCamera()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <p class="text-center text-gray-500 text-sm mt-4">
+                    Coloca el examen dentro del área delimitada
+                </p>
+            </div>
+
+            <!-- Panel de subida -->
+            <div id="upload-panel" class="hidden">
+                <div id="drop-zone"
+                    class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-indigo-500 transition"
+                    onclick="document.getElementById('file-input').click()">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600">Haz clic para seleccionar o arrastra una imagen</p>
+                    <p class="text-sm text-gray-400 mt-2">PNG, JPG, JPEG (máx. 16MB)</p>
+                    <input type="file" id="file-input" class="hidden" accept="image/*"
+                        onchange="handleFileSelect(event)">
+                </div>
+
+                <!-- Preview de imagen seleccionada -->
+                <div id="preview-container" class="hidden mt-4">
+                    <img id="preview-image" class="w-full rounded-lg" src="" alt="Preview">
+                    <button onclick="clearPreview()" class="mt-2 text-red-600 hover:text-red-800">
+                        <i class="fas fa-times mr-1"></i>Eliminar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Opciones adicionales -->
+            <div class="mt-6">
+                <!-- Modo de detección -->
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-magic text-indigo-500 mr-1"></i>Modo de Detección
+                </label>
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <button id="mode-auto" class="detection-mode-btn active py-2 px-3 rounded-lg text-sm font-medium border-2 border-indigo-500 bg-indigo-50 text-indigo-700 transition-all"
+                        onclick="setDetectionMode('auto')">
+                        <i class="fas fa-wand-magic-sparkles mr-1"></i>Auto
+                    </button>
+                    <button id="mode-bubble" class="detection-mode-btn py-2 px-3 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600 hover:border-indigo-300 transition-all"
+                        onclick="setDetectionMode('bubble')">
+                        <i class="fas fa-circle mr-1"></i>Burbujas
+                    </button>
+                    <button id="mode-text" class="detection-mode-btn py-2 px-3 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600 hover:border-indigo-300 transition-all"
+                        onclick="setDetectionMode('text')">
+                        <i class="fas fa-font mr-1"></i>Texto OCR
+                    </button>
+                </div>
+                <p id="mode-description" class="text-xs text-gray-400 mb-4 -mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>Auto-detecta si la imagen es una hoja de burbujas o texto escrito
+                </p>
+
+                <!-- Opciones de respuesta (para modo burbujas) -->
+                <div id="bubble-options-panel" class="hidden mb-4 p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+                    <label class="block text-sm font-medium text-indigo-700 mb-2">
+                        <i class="fas fa-list-ol mr-1"></i>Opciones de Respuesta
+                    </label>
+                    <div class="flex gap-2 mb-2">
+                        <button class="option-preset px-3 py-1 text-xs rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-medium"
+                            onclick="setOptions('A,B,C,D')">A-D (4)</button>
+                        <button class="option-preset px-3 py-1 text-xs rounded-full bg-indigo-200 text-indigo-800 hover:bg-indigo-300 font-medium"
+                            onclick="setOptions('A,B,C,D,E')">A-E (5)</button>
+                        <button class="option-preset px-3 py-1 text-xs rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-medium"
+                            onclick="setOptions('A,B,C,D,E,F')">A-F (6)</button>
+                        <button class="option-preset px-3 py-1 text-xs rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 font-medium"
+                            onclick="setOptions('V,F')">V/F</button>
+                    </div>
+                    <input type="text" id="scan-options" class="w-full p-2 text-sm border rounded-lg"
+                        placeholder="A,B,C,D,E" value="A,B,C,D,E">
+                    <p class="text-xs text-indigo-500 mt-1">Separar opciones con comas</p>
+                </div>
+
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sección / Clase</label>
+                <select id="scan-seccion" class="w-full p-3 border rounded-lg mb-4">
+                    <option value="">Seleccionar sección...</option>
+                </select>
+
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nombre del Estudiante</label>
+                <input type="text" id="scan-estudiante" class="w-full p-3 border rounded-lg mb-4"
+                    placeholder="Ej: Juan Pérez">
+
+                <label class="block text-sm font-medium text-gray-700 mb-2">Título / Evaluación</label>
+                <input type="text" id="scan-titulo" class="w-full p-3 border rounded-lg mb-4"
+                    placeholder="Ej: Evaluación 1">
+
+                <label class="block text-sm font-medium text-gray-700 mb-2">Plantilla (opcional)</label>
+                <select id="scan-plantilla" class="w-full p-3 border rounded-lg">
+                    <option value="">Sin plantilla - Escaneo manual</option>
+                </select>
+            </div>
+
+            <!-- Botón de procesar -->
+            <button id="btn-process"
+                class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-lg font-semibold transition disabled:opacity-50"
+                onclick="processScan()">
+                <i class="fas fa-cog mr-2"></i>Procesar Examen
+            </button>
+        </div>
+
+        <!-- Panel de Resultados -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Resultados del Escaneo</h2>
+
+            <!-- Loading -->
+            <div id="loading" class="hidden text-center py-12">
+                <div class="loading-spinner mx-auto mb-4"></div>
+                <p class="text-gray-600">Procesando imagen...</p>
+                <p class="text-sm text-gray-400 mt-2">Extrayendo texto con OCR</p>
+            </div>
+
+            <!-- Resultados -->
+            <div id="results" class="hidden">
+                <!-- Info del examen -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 id="result-title" class="font-bold text-lg"></h3>
+                            <p id="result-student" class="text-gray-600"></p>
+                        </div>
+                        <span id="result-status" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                    </div>
+                </div>
+
+                <!-- Nota -->
+                <div id="grade-container" class="bg-indigo-50 rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Nota Final:</span>
+                        <span id="result-grade" class="text-3xl font-bold text-indigo-600"></span>
+                        <span id="result-grade-max" class="text-gray-400">/ 10</span>
+                    </div>
+                    <div class="mt-2 bg-gray-200 rounded-full h-2">
+                        <div id="result-grade-bar" class="bg-indigo-600 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- OCR Text -->
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-eye mr-2 text-indigo-600"></i>Texto Extraído (OCR)
+                    </h4>
+                    <div class="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto">
+                        <p id="result-text" class="text-sm text-gray-700 whitespace-pre-wrap"></p>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Confianza OCR: <span id="result-confidence">0%</span>
+                    </p>
+                </div>
+
+                <!-- Respuestas -->
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-list mr-2 text-indigo-600"></i>Respuestas Detectadas
+                    </h4>
+                    <div id="result-answers" class="space-y-2"></div>
+                </div>
+
+                <!-- Imagen escaneada -->
+                <!-- La imagen NO se guarda en el servidor; se muestra localmente -->
+                <div id="local-image-container">
+                    <h4 class="font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-image mr-2 text-indigo-600"></i>Imagen Procesada
+                    </h4>
+                    <img id="result-image" class="w-full rounded-lg border" src="" alt="Examen procesado" style="display:none">
+                    <p class="text-xs text-gray-400 mt-1 italic"><i class="fas fa-info-circle mr-1"></i>La imagen no se almacena en el servidor.</p>
+                </div>
+
+                <!-- Acciones -->
+                <div class="flex space-x-2 mt-4">
+                    <button onclick="saveResult()"
+                        class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
+                    <button onclick="newScan()"
+                        class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg">
+                        <i class="fas fa-plus mr-2"></i>Nuevo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Estado inicial -->
+            <div id="empty-state" class="text-center py-12">
+                <i class="fas fa-camera text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500">No hay resultados aún</p>
+                <p class="text-sm text-gray-400">Escanea un examen para ver los resultados aquí</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Variables globales
+    let currentMode = 'camera';
+    let stream = null;
+    let currentFacingMode = 'environment';
+    let capturedImage = null;
+    let detectionMode = 'auto';  // 'auto', 'bubble', 'text'
+
+    // ================== MODO DE DETECCIÓN ==================
+    function setDetectionMode(mode) {
+        detectionMode = mode;
+        
+        // Actualizar botones
+        document.querySelectorAll('.detection-mode-btn').forEach(btn => {
+            btn.className = 'detection-mode-btn py-2 px-3 rounded-lg text-sm font-medium border-2 border-gray-200 text-gray-600 hover:border-indigo-300 transition-all';
+        });
+        const activeBtn = document.getElementById(`mode-${mode}`);
+        if (activeBtn) {
+            activeBtn.className = 'detection-mode-btn active py-2 px-3 rounded-lg text-sm font-medium border-2 border-indigo-500 bg-indigo-50 text-indigo-700 transition-all';
+        }
+        
+        // Actualizar descripción
+        const desc = document.getElementById('mode-description');
+        const descriptions = {
+            'auto': '<i class="fas fa-info-circle mr-1"></i>Auto-detecta si la imagen es una hoja de burbujas o texto escrito',
+            'bubble': '<i class="fas fa-info-circle mr-1"></i>Forzar detección de burbujas/óvalos rellenos (hojas de opción múltiple)',
+            'text': '<i class="fas fa-info-circle mr-1"></i>Forzar OCR de texto (para exámenes con respuestas escritas como "1. A")'
+        };
+        desc.innerHTML = descriptions[mode] || descriptions['auto'];
+        
+        // Mostrar/ocultar panel de opciones de burbujas
+        const bubblePanel = document.getElementById('bubble-options-panel');
+        if (mode === 'bubble' || mode === 'auto') {
+            bubblePanel.classList.remove('hidden');
+        } else {
+            bubblePanel.classList.add('hidden');
+        }
+    }
+
+    function setOptions(optionsStr) {
+        document.getElementById('scan-options').value = optionsStr;
+        // Highlight the selected preset
+        document.querySelectorAll('.option-preset').forEach(btn => {
+            btn.className = btn.className.replace('bg-indigo-200 text-indigo-800', 'bg-indigo-100 text-indigo-700');
+        });
+        event.target.className = event.target.className.replace('bg-indigo-100 text-indigo-700', 'bg-indigo-200 text-indigo-800');
+    }
+
+    // Inicializar: la cámara se inicia desde initScan() (window.load)
+    // NO duplicar carga de secciones/plantillas aquí
+
+    // Cambiar modo
+    function switchMode(mode) {
+        currentMode = mode;
+
+        document.getElementById('btn-camera').className = mode === 'camera'
+            ? 'flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium'
+            : 'flex-1 py-3 px-4 bg-gray-200 text-gray-700 rounded-lg font-medium';
+
+        document.getElementById('btn-upload').className = mode === 'upload'
+            ? 'flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium'
+            : 'flex-1 py-3 px-4 bg-gray-200 text-gray-700 rounded-lg font-medium';
+
+        document.getElementById('camera-panel').classList.toggle('hidden', mode !== 'camera');
+        document.getElementById('upload-panel').classList.toggle('hidden', mode !== 'upload');
+
+        if (mode === 'camera') {
+            startCamera();
+        } else {
+            stopCamera();
+        }
+    }
+
+    // Iniciar cámara
+    async function startCamera() {
+        try {
+            const constraints = {
+                video: {
+                    facingMode: currentFacingMode,
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                }
+            };
+
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            document.getElementById('video').srcObject = stream;
+        } catch (error) {
+            console.error('Error accediendo a la cámara:', error);
+            Swal.fire('Error', 'No se pudo acceder a la cámara. Verifica los permisos.', 'error');
+        }
+    }
+
+    // Detener cámara
+    function stopCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+
+    // Cambiar cámara
+    function switchCamera() {
+        currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+        if (currentMode === 'camera') {
+            stopCamera();
+            startCamera();
+        }
+    }
+
+    // Capturar imagen
+    function captureImage() {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0);
+
+        capturedImage = canvas.toDataURL('image/jpeg');
+
+        // Mostrar preview
+        document.getElementById('preview-container').classList.remove('hidden');
+        document.getElementById('preview-image').src = capturedImage;
+
+        // Vibrar si está disponible
+        if (navigator.vibrate) {
+            navigator.vibrate(100);
+        }
+    }
+
+    // Manejar selección de archivo
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                capturedImage = e.target.result;
+                document.getElementById('preview-container').classList.remove('hidden');
+                document.getElementById('preview-image').src = capturedImage;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Limpiar preview
+    function clearPreview() {
+        capturedImage = null;
+        document.getElementById('preview-container').classList.add('hidden');
+        document.getElementById('file-input').value = '';
+    }
+
+    // Procesar escaneo
+    async function processScan() {
+        if (!capturedImage) {
+            Swal.fire('Error', 'Por favor captura o selecciona una imagen primero', 'warning');
+            return;
+        }
+
+        const seccionId = document.getElementById('scan-seccion').value;
+        const titulo = document.getElementById('scan-titulo').value || 'Evaluación sin título';
+        const nombreEstudiante = document.getElementById('scan-estudiante').value.trim();
+        const plantillaId = document.getElementById('scan-plantilla').value;
+
+        // Mostrar loading
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('results').classList.add('hidden');
+        document.getElementById('empty-state').classList.add('hidden');
+        document.getElementById('btn-process').disabled = true;
+
+        try {
+            // Convertir imagen a blob
+            const response = await fetch(capturedImage);
+            const blob = await response.blob();
+
+            const formData = new FormData();
+            formData.append('file', blob, 'exam.jpg');
+            if (seccionId) formData.append('seccion_id', seccionId);
+            formData.append('titulo', titulo);
+            if (nombreEstudiante) formData.append('nombre_estudiante', nombreEstudiante);
+            if (plantillaId) formData.append('plantilla_id', plantillaId);
+            
+            // Enviar modo de detección y opciones
+            formData.append('detection_mode', detectionMode);
+            const customOptions = document.getElementById('scan-options');
+            if (customOptions && customOptions.value) {
+                formData.append('options', customOptions.value);
+            }
+
+            const result = await fetch('/api/scan', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await result.json();
+
+            if (!result.ok) {
+                throw new Error(data.error || 'Error al procesar');
+            }
+
+            // Mostrar resultados
+            displayResults(data);
+
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire('Error', error.message, 'error');
+        } finally {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('btn-process').disabled = false;
+        }
+    }
+
+    // Mostrar resultados
+    function displayResults(data) {
+        document.getElementById('results').classList.remove('hidden');
+
+        // Info básica
+        document.getElementById('result-title').textContent = data.examen.titulo;
+        
+        // Nombre del estudiante y sección
+        const estudianteNombre = data.examen.nombre_estudiante;
+        const seccionLabel = data.examen.seccion ? `Sección: ${data.examen.seccion.nombre_completo}` : 'Sección no identificada';
+        document.getElementById('result-student').innerHTML = 
+            (estudianteNombre ? `<i class="fas fa-user mr-1 text-indigo-500"></i><strong>${estudianteNombre}</strong> &bull; ` : '') + seccionLabel;
+
+        // Estado
+        const statusEl = document.getElementById('result-status');
+        statusEl.textContent = data.examen.estado;
+        statusEl.className = `px-3 py-1 rounded-full text-sm font-medium ${data.examen.estado === 'revisado' ? 'bg-green-100 text-green-800' :
+                data.examen.estado === 'procesado' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-gray-100 text-gray-800'
+            }`;
+
+        // Nota
+        if (data.grade) {
+            document.getElementById('grade-container').classList.remove('hidden');
+            document.getElementById('result-grade').textContent = data.grade.nota;
+            document.getElementById('result-grade-bar').style.width = `${data.grade.porcentaje}%`;
+        } else {
+            document.getElementById('grade-container').classList.add('hidden');
+        }
+
+        // OCR / Método
+        document.getElementById('result-text').textContent = data.ocr.text || 'No se detectó texto';
+        document.getElementById('result-confidence').textContent = `${data.ocr.confidence.toFixed(1)}%`;
+        
+        // Mostrar método de detección usado
+        const methodLabels = {
+            'bubble_contours': '🔵 Burbujas (Contornos)',
+            'bubble_grid': '🔵 Burbujas (Cuadrícula)',
+            'bubble_threshold': '🔵 Burbujas (Umbral)',
+            'bubble_contours_fallback': '🔵 Burbujas (Contornos - Fallback)',
+            'bubble_grid_fallback': '🔵 Burbujas (Cuadrícula - Fallback)',
+            'bubble_threshold_fallback': '🔵 Burbujas (Umbral - Fallback)',
+            'ocr_text': '📝 OCR Texto',
+            'none': '❌ No detectado'
+        };
+        const methodLabel = methodLabels[data.ocr.method] || data.ocr.method;
+        const imageTypeLabel = data.ocr.image_type === 'bubble_sheet' ? 'Hoja de Burbujas' : 
+                             data.ocr.image_type === 'text' ? 'Texto' : 'Desconocido';
+        
+        // Add method info after confidence
+        const confEl = document.getElementById('result-confidence').parentElement;
+        let methodInfo = confEl.querySelector('.method-info');
+        if (!methodInfo) {
+            methodInfo = document.createElement('span');
+            methodInfo.className = 'method-info ml-3 text-xs';
+            confEl.appendChild(methodInfo);
+        }
+        methodInfo.innerHTML = `| Método: <strong>${methodLabel}</strong> | Tipo: ${imageTypeLabel}`;
+
+        // Respuestas
+        const answersEl = document.getElementById('result-answers');
+        answersEl.innerHTML = '';
+
+        if (data.grade && data.grade.resultados && data.grade.resultados.length > 0) {
+            data.grade.resultados.forEach(r => {
+                const div = document.createElement('div');
+                const estaBien = r.correcta;
+                
+                div.className = `bg-gray-50 border-l-4 ${estaBien ? 'border-green-500' : 'border-red-500'} p-3 rounded mb-2 shadow-sm`;
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-center w-full">
+                        <span class="font-medium text-gray-800">
+                            <i class="fas ${estaBien ? 'fa-check text-green-500' : 'fa-times text-red-500'} mr-2"></i>
+                            P${r.pregunta}. ${r.respuesta_estudiante ? `Respondió: <strong class="${estaBien ? 'text-green-600' : 'text-red-500 line-through'}">${r.respuesta_estudiante}</strong>` : '<span class="text-gray-400 italic">No respondida</span>'}
+                        </span>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-bold">
+                            Correcta: ${r.respuesta_correcta}
+                        </span>
+                    </div>
+                `;
+                answersEl.appendChild(div);
+            });
+        }
+        else if (Array.isArray(data.extracted_answers) && data.extracted_answers.length > 0) {
+            data.extracted_answers.forEach(ans => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-gray-50 p-2 rounded mb-2 shadow-sm';
+                div.innerHTML = `
+                    <span class="font-medium">Pregunta ${ans.pregunta}</span>
+                    <span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded font-bold">${ans.respuesta}</span>
+                `;
+                answersEl.appendChild(div);
+            });
+
+        } else {
+            answersEl.innerHTML = '<p class="text-gray-500 text-sm italic">No se detectaron respuestas/resultados</p>';
+        }
+
+        // Imagen
+        // Mostrar la imagen capturada localmente (no viene del servidor)
+        const imgEl = document.getElementById('result-image');
+        if (capturedImage) {
+            imgEl.src = capturedImage;
+            imgEl.style.display = 'block';
+        } else {
+            imgEl.style.display = 'none';
+        }
+
+        // Guardar referencia
+        window.currentExamenId = data.examen.id;
+    }
+
+    // Guardar resultado
+    async function saveResult() {
+        if (!window.currentExamenId) return;
+
+        try {
+            await fetch(`/api/examenes/${window.currentExamenId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: 'revisado' })
+            });
+
+            Swal.fire('Guardado', 'Examen guardado correctamente', 'success');
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo guardar el examen', 'error');
+        }
+    }
+
+    // Nuevo escaneo
+    function newScan() {
+        capturedImage = null;
+        clearPreview();
+
+        document.getElementById('results').classList.add('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+        document.getElementById('scan-titulo').value = '';
+        document.getElementById('scan-estudiante').value = '';
+        document.getElementById('result-image').style.display = 'none';
+
+        window.currentExamenId = null;
+    }
+
+    // Limpiar al salir
+    window.addEventListener('beforeunload', () => {
+        stopCamera();
+    });
+
+    // ==================== VERIFICACIÓN OCR AL CARGAR ====================
+    async function checkOCRStatus() {
+        try {
+            const res = await fetch('/api/ocr/status');
+            const data = await res.json();
+            const banner = document.getElementById('ocr-status-banner');
+            
+            if (data.disponible) {
+                // Si funciona en local o en Render, lo quitamos de la vista (o mostramos verde)
+                banner.classList.add('hidden');
+            } else {
+                // Modo "Simulación Local" para que siga desarrollando sin atorarse
+                banner.classList.remove('hidden');
+                banner.innerHTML = `
+                    <div class="flex items-start gap-3 p-3 rounded-lg bg-orange-50 border border-orange-200">
+                        <i class="fas fa-info-circle text-orange-500 mt-0.5"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-orange-800">Modo Desarrollo: OCR Local inactivo</p>
+                            <p class="text-xs mt-1 text-orange-700">Puedes probar el flujo, pero el texto devuelto estará vacío hasta subirlo a Render. (Para uso 100% local, requieres instalación manual de Tesseract).</p>
+                        </div>
+                    </div>`;
+                // NOTA: Ya no deshabilitamos el botón, le dejamos continuar.
+            }
+        } catch (e) {
+            console.warn('No se pudo verificar estado OCR:', e);
+        }
+    }
+
+    // Cache global de plantillas para filtrado por sección
+    let allPlantillas = [];
+
+    // Cargar las secciones y plantillas al iniciar (UNA sola vez)
+    async function initScan() {
+        await checkOCRStatus();
+
+        // Cargar secciones
+        try {
+            const res = await fetch('/api/secciones');
+            const secciones = await res.json();
+            const select = document.getElementById('scan-seccion');
+            // Limpiar antes de agregar para evitar duplicados
+            select.innerHTML = '<option value="">Seleccionar sección...</option>';
+            secciones.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.nombre_completo;
+                select.appendChild(opt);
+            });
+        } catch (e) { console.error('Error cargando secciones', e); }
+
+        // Cargar plantillas y guardar en caché
+        try {
+            const res = await fetch('/api/plantillas');
+            allPlantillas = await res.json();
+            renderPlantillas(null); // mostrar todas al inicio
+        } catch (e) { console.error('Error cargando plantillas', e); }
+
+        // Filtrar plantillas cuando cambia la sección
+        document.getElementById('scan-seccion').addEventListener('change', function() {
+            renderPlantillas(this.value ? parseInt(this.value) : null);
+        });
+
+        if (currentMode === 'camera') {
+            startCamera();
+        }
+    }
+
+    // Renderizar select de plantillas
+    function renderPlantillas(seccionId) {
+        const select = document.getElementById('scan-plantilla');
+        select.innerHTML = '<option value="">Sin plantilla - Escaneo manual</option>';
+        const filtradas = seccionId
+            ? allPlantillas.filter(p => p.seccion_id === seccionId)
+            : allPlantillas;
+        filtradas.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.nombre + (p.seccion ? ` (${p.seccion.nombre_completo})` : '');
+            select.appendChild(opt);
+        });
+    }
+
+    window.addEventListener('load', initScan);
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+# GradeScanner - Requirements
+# Sistema de revisión de notas con escáner
+
+# Web Framework
+Flask==3.0.3
+Flask-CORS==4.0.0
+Werkzeug==3.0.3
+gunicorn==21.2.0
+
+# Database
+Flask-SQLAlchemy==3.1.1
+psycopg2-binary>=2.9.11
+
+# OCR - Pillow + OpenCV para detección de burbujas
+Pillow>=10.0.0
+opencv-python-headless>=4.8.0
+numpy>=1.24.0
+
+# Environment Variables
+python-dotenv==1.1.0
+
+# HTTP Client
+requests==2.31.0

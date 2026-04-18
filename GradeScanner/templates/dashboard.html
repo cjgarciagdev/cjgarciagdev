@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - GradeScanner{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-chart-line text-indigo-600 mr-2"></i>
+            Dashboard
+        </h1>
+        <p class="text-gray-600 mt-2">Resumen del sistema de revisión de notas</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Secciones</p>
+                    <p id="stat-secciones" class="text-3xl font-bold text-gray-900">0</p>
+                </div>
+                <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-users text-xl text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Total Plantillas</p>
+                    <p id="stat-plantillas" class="text-3xl font-bold text-gray-900">0</p>
+                </div>
+                <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-clipboard-list text-xl text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Exámenes Escaneados</p>
+                    <p id="stat-examenes" class="text-3xl font-bold text-gray-900">0</p>
+                </div>
+                <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-file-alt text-xl text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">Nota Promedio</p>
+                    <p id="stat-promedio" class="text-3xl font-bold text-gray-900">0</p>
+                </div>
+                <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-star text-xl text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid lg:grid-cols-2 gap-6 mb-8">
+        <!-- Exámenes por Estado -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Exámenes por Estado</h3>
+            <div id="chart-estados" class="space-y-3">
+                <!-- Se llena con JS -->
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Acciones Rápidas</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <a href="/scan" class="bg-indigo-50 hover:bg-indigo-100 rounded-lg p-4 text-center transition">
+                    <i class="fas fa-camera text-2xl text-indigo-600 mb-2"></i>
+                    <p class="text-indigo-700 font-medium">Escanear Examen</p>
+                </a>
+                <a href="/templates" class="bg-blue-50 hover:bg-blue-100 rounded-lg p-4 text-center transition">
+                    <i class="fas fa-plus-circle text-2xl text-blue-600 mb-2"></i>
+                    <p class="text-blue-700 font-medium">Nueva Plantilla</p>
+                </a>
+                <a href="/exams" class="bg-green-50 hover:bg-green-100 rounded-lg p-4 text-center transition">
+                    <i class="fas fa-file-alt text-2xl text-green-600 mb-2"></i>
+                    <p class="text-green-700 font-medium">Ver Exámenes</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Exams -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">
+            <i class="fas fa-clock mr-2"></i>Exámenes Recientes
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[600px]">
+                <thead>
+                    <tr class="border-b">
+                        <th class="text-left py-3 px-4 text-gray-600 font-medium">Título</th>
+                        <th class="text-left py-3 px-4 text-gray-600 font-medium">Sección</th>
+                        <th class="text-left py-3 px-4 text-gray-600 font-medium">Estado</th>
+                        <th class="text-left py-3 px-4 text-gray-600 font-medium">Nota</th>
+                        <th class="text-left py-3 px-4 text-gray-600 font-medium">Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-exams">
+                    <!-- Se llena con JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Cargar estadísticas
+    async function loadStats() {
+        try {
+            const response = await fetch('/api/stats');
+            const data = await response.json();
+
+            // Actualizar tarjetas
+            document.getElementById('stat-secciones').textContent = data.total_secciones || 0;
+            document.getElementById('stat-plantillas').textContent = data.total_plantillas || 0;
+            document.getElementById('stat-examenes').textContent = data.total_examenes;
+            document.getElementById('stat-promedio').textContent = data.nota_promedio;
+
+            // Chart de estados
+            const estadosContainer = document.getElementById('chart-estados');
+            const estados = data.examenes_por_estado;
+            const total = data.total_examenes;
+
+            const estadoColores = {
+                'pendiente': 'bg-gray-500',
+                'procesado': 'bg-yellow-500',
+                'revisado': 'bg-green-500'
+            };
+
+            for (const [estado, cantidad] of Object.entries(estados)) {
+                const porcentaje = total > 0 ? (cantidad / total * 100) : 0;
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-600 capitalize">${estado}</span>
+                        <span class="text-gray-900 font-medium">${cantidad}</span>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-2">
+                        <div class="${estadoColores[estado] || 'bg-blue-500'} h-2 rounded-full" style="width: ${porcentaje}%"></div>
+                    </div>
+                `;
+                estadosContainer.appendChild(div);
+            }
+
+            // Exámenes recientes
+            const examsContainer = document.getElementById('recent-exams');
+            data.examenes_recientes.forEach(examen => {
+                const fecha = new Date(examen.fecha_escaneo).toLocaleDateString('es');
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="py-3 px-4">${examen.titulo}</td>
+                    <td class="py-3 px-4">${examen.seccion?.nombre_completo || 'Sin sección'}</td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${examen.estado === 'revisado' ? 'bg-green-100 text-green-800' :
+                        examen.estado === 'procesado' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                    }">${examen.estado}</span>
+                    </td>
+                    <td class="py-3 px-4 font-bold ${examen.nota_final >= 7 ? 'text-green-600' : examen.nota_final >= 5 ? 'text-yellow-600' : 'text-red-600'}">
+                        ${examen.nota_final || '-'}
+                    </td>
+                    <td class="py-3 px-4 text-gray-500">${fecha}</td>
+                `;
+                examsContainer.appendChild(tr);
+            });
+
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadStats);
+</script>
+{% endblock %}

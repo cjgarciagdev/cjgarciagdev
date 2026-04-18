@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}GradeScanner - Inicio{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Hero Section -->
+    <div class="text-center py-16">
+        <div class="mb-8">
+            <i class="fas fa-graduation-cap text-6xl text-indigo-600"></i>
+        </div>
+        <h1 class="text-5xl font-bold text-gray-900 mb-4">
+            GradeScanner
+        </h1>
+        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Sistema de revisión de notas para profesores con escáner de cámara.
+            Escanea exámenes, extrae respuestas con OCR y califica automáticamente.
+        </p>
+
+        <div class="flex justify-center space-x-4">
+            <a href="/dashboard"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold transition shadow-lg">
+                <i class="fas fa-rocket mr-2"></i>Comenzar
+            </a>
+            <a href="/scan"
+                class="bg-white hover:bg-gray-100 text-indigo-600 border-2 border-indigo-600 px-8 py-3 rounded-lg font-semibold transition">
+                <i class="fas fa-camera mr-2"></i>Probar Escáner
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="grid md:grid-cols-2 gap-8 py-12">
+        <!-- Feature 1: Escaneo con Cámara -->
+        <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-camera text-2xl text-indigo-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Escaneo con Cámara</h3>
+            <p class="text-gray-600">
+                Usa la cámara de tu dispositivo para escanear exámenes.
+                Compatible con cámara web, cámara del móvil o subir imágenes.
+            </p>
+        </div>
+
+        <!-- Feature 2: OCR Automático -->
+        <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-eye text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">OCR Automático</h3>
+            <p class="text-gray-600">
+                Reconocimiento óptico de caracteres para extraer texto de las imágenes.
+                Detecta automáticamente respuestas marcadas.
+            </p>
+        </div>
+
+        <!-- Feature 3: Calificación Automática -->
+        <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-check-circle text-2xl text-purple-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Calificación Automática</h3>
+            <p class="text-gray-600">
+                Compara las respuestas con plantillas predefinidas y calcula
+                la nota automáticamente.
+            </p>
+        </div>
+
+
+
+        <!-- Feature 5: Plantillas -->
+        <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-copy text-2xl text-yellow-600"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Plantillas</h3>
+            <p class="text-gray-600">
+                Crea plantillas de exámenes con las respuestas correctas
+                para una calificación rápida y precisa.
+            </p>
+        </div>
+
+
+    </div>
+
+    <!-- How it Works -->
+    <div class="py-12">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">¿Cómo funciona?</h2>
+
+        <div class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-8">
+            <div class="flex items-center">
+                <div
+                    class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    1</div>
+                <span class="ml-4 text-gray-700 font-medium">Crea una plantilla</span>
+            </div>
+            <i class="fas fa-arrow-right text-gray-400"></i>
+            <div class="flex items-center">
+                <div
+                    class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    2</div>
+                <span class="ml-4 text-gray-700 font-medium">Escanea el examen</span>
+            </div>
+            <i class="fas fa-arrow-right text-gray-400"></i>
+            <div class="flex items-center">
+                <div
+                    class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    3</div>
+                <span class="ml-4 text-gray-700 font-medium">Revisa y guarda</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-center text-white my-12">
+        <h2 class="text-3xl font-bold mb-4">¿Listo para empezar?</h2>
+        <p class="text-lg mb-6">Comienza a escanear exámenes y ahorra tiempo en la corrección</p>
+        <a href="/dashboard"
+            class="bg-white text-indigo-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold transition inline-block">
+            Ir al Dashboard <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+</div>
+{% endblock %}
